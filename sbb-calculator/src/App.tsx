@@ -120,6 +120,7 @@ const SBBCalculator: React.FC = () => {
   const [language, setLanguage] = useState<Language>('en');
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
   const [isNewCustomer, setIsNewCustomer] = useState<boolean>(true);
+  const [allowHalbtaxPlusRebuying, setAllowHalbtaxPlusRebuying] = useState<boolean>(true);
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
@@ -193,6 +194,7 @@ const SBBCalculator: React.FC = () => {
       const packageCost = data.cost;
       
       if (halbtaxTicketCosts <= creditAmount) {
+        // All costs covered by initial credit
         const total = packageCost + halbtaxPrice;
         return {
           credit: parseInt(credit),
@@ -201,36 +203,57 @@ const SBBCalculator: React.FC = () => {
           coveredByCredit: halbtaxTicketCosts,
           remainingCosts: 0,
           reloadCount: 0,
-          reloadCost: 0
+          reloadCost: 0,
+          halbtaxTicketsAfterCredit: 0
         };
       } else {
+        // More costs than initial credit
         const remainingAfterFirst = halbtaxTicketCosts - creditAmount;
-        const reloadCount = Math.ceil(remainingAfterFirst / creditAmount);
-        const lastReloadUsage = remainingAfterFirst % creditAmount || creditAmount;
         
-        let totalReloadCost = 0;
-        for (let i = 0; i < reloadCount; i++) {
-          if (i === reloadCount - 1) {
-            const usageRatio = lastReloadUsage / creditAmount;
-            totalReloadCost += packageCost * usageRatio;
-          } else {
-            totalReloadCost += packageCost;
+        if (allowHalbtaxPlusRebuying) {
+          // Original logic: reload Halbtax PLUS packages
+          const reloadCount = Math.ceil(remainingAfterFirst / creditAmount);
+          const lastReloadUsage = remainingAfterFirst % creditAmount || creditAmount;
+          
+          let totalReloadCost = 0;
+          for (let i = 0; i < reloadCount; i++) {
+            if (i === reloadCount - 1) {
+              const usageRatio = lastReloadUsage / creditAmount;
+              totalReloadCost += packageCost * usageRatio;
+            } else {
+              totalReloadCost += packageCost;
+            }
           }
+          
+          const total = packageCost + halbtaxPrice + totalReloadCost;
+          
+          return {
+            credit: parseInt(credit),
+            cost: packageCost,
+            total: total,
+            coveredByCredit: creditAmount,
+            remainingCosts: remainingAfterFirst,
+            reloadCount: reloadCount,
+            reloadCost: totalReloadCost,
+            lastReloadUsage: lastReloadUsage,
+            lastReloadRatio: lastReloadUsage / creditAmount,
+            halbtaxTicketsAfterCredit: 0
+          };
+        } else {
+          // New logic: use initial credit + regular Halbtax tickets for remaining
+          const total = packageCost + halbtaxPrice + remainingAfterFirst;
+          
+          return {
+            credit: parseInt(credit),
+            cost: packageCost,
+            total: total,
+            coveredByCredit: creditAmount,
+            remainingCosts: remainingAfterFirst,
+            reloadCount: 0,
+            reloadCost: 0,
+            halbtaxTicketsAfterCredit: remainingAfterFirst
+          };
         }
-        
-        const total = packageCost + halbtaxPrice + totalReloadCost;
-        
-        return {
-          credit: parseInt(credit),
-          cost: packageCost,
-          total: total,
-          coveredByCredit: halbtaxTicketCosts,
-          remainingCosts: 0,
-          reloadCount: reloadCount,
-          reloadCost: totalReloadCost,
-          lastReloadUsage: lastReloadUsage,
-          lastReloadRatio: lastReloadUsage / creditAmount
-        };
       }
     })
       : [];
@@ -266,7 +289,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, prices, t]);
+  }, [age, inputMode, routes, yearlySpendingDirect, prices, t, allowHalbtaxPlusRebuying]);
 
   useEffect(() => {
     calculate();
@@ -579,11 +602,31 @@ const SBBCalculator: React.FC = () => {
         {/* Ergebnisse */}
         {results && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Calculator className="w-5 h-5 text-red-600" />
-              <h2 className="text-xl font-semibold text-gray-800">
-                {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
-              </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-red-600" />
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
+                </h2>
+              </div>
+              
+              {/* Halbtax PLUS Rebuying Toggle */}
+              {results.halbtaxPlusOptions.length > 0 && (
+                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200">
+                  <span className="text-sm font-medium text-gray-700">Halbtax PLUS Rebuying:</span>
+                  <button
+                    onClick={() => setAllowHalbtaxPlusRebuying(!allowHalbtaxPlusRebuying)}
+                    className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                      allowHalbtaxPlusRebuying 
+                        ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                        : 'bg-gray-100 text-gray-600 border border-gray-200'
+                    }`}
+                  >
+                    {allowHalbtaxPlusRebuying ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    {allowHalbtaxPlusRebuying ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Alle Optionen anzeigen */}
@@ -622,7 +665,8 @@ const SBBCalculator: React.FC = () => {
                           <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
                           <div>Halbtax ({isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): {formatCurrency(getHalbtaxPrice(age, isNewCustomer))}</div>
                           <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
-                          {option.details.reloadCount > 0 && (
+                          
+                          {option.details.reloadCount > 0 && allowHalbtaxPlusRebuying && (
                             <>
                               <div className="text-orange-600 font-medium">{t('reloads')}</div>
                               {option.details.reloadCount > 1 && (
@@ -630,6 +674,13 @@ const SBBCalculator: React.FC = () => {
                               )}
                               <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
                               <div className="font-medium">{t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}</div>
+                            </>
+                          )}
+                          
+                          {option.details.halbtaxTicketsAfterCredit > 0 && !allowHalbtaxPlusRebuying && (
+                            <>
+                              <div className="text-blue-600 font-medium">Regular Halbtax Tickets</div>
+                              <div>Remaining ticket costs (already with Halbtax discount): {formatCurrency(option.details.halbtaxTicketsAfterCredit)}</div>
                             </>
                           )}
                         </>

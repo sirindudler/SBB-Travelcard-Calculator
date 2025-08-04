@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 
 // Types for better TypeScript
@@ -250,16 +250,19 @@ const SBBCalculator: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Altersgruppe */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('ageGroup')}
-          </label>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+          <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-blue-600" />
+            <label className="text-lg font-semibold text-blue-900">
+              {t('ageGroup')}
+            </label>
+          </div>
           <select 
             value={age} 
             onChange={(e) => setAge(e.target.value as AgeGroup)}
-            className="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full max-w-sm p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
           >
             <option value="jugend">{t('youth')}</option>
             <option value="erwachsene">{t('adult')}</option>
@@ -267,30 +270,35 @@ const SBBCalculator: React.FC = () => {
         </div>
 
         {/* Eingabemodus Toggle */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            {t('costEstimation')}
-          </label>
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+          <div className="flex items-center gap-2 mb-4">
+            <Calculator className="w-5 h-5 text-purple-600" />
+            <label className="text-lg font-semibold text-purple-900">
+              {t('costEstimation')}
+            </label>
+          </div>
+          <div className="flex items-center gap-2 mb-6">
             <button
               onClick={() => setInputMode('simple')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all transform hover:scale-105 ${
                 inputMode === 'simple' 
-                  ? 'bg-red-50 border-red-200 text-red-700' 
-                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                  ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
               }`}
             >
+              <MapPin className="w-4 h-4" />
               {inputMode === 'simple' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
               {t('simpleInput')}
             </button>
             <button
               onClick={() => setInputMode('direct')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all transform hover:scale-105 ${
                 inputMode === 'direct' 
-                  ? 'bg-red-50 border-red-200 text-red-700' 
-                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                  ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
               }`}
             >
+              <Banknote className="w-4 h-4" />
               {inputMode === 'direct' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
               {t('directInput')}
             </button>
@@ -300,73 +308,96 @@ const SBBCalculator: React.FC = () => {
             <div className="space-y-4">
               {/* Dynamische Strecken */}
               {routes.map((route, index) => (
-                <div key={route.id} className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-700">📍 {t('route')} {index + 1}</h4>
+                <div key={route.id} className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-100 shadow-sm hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                        {index + 1}
+                      </div>
+                      <h4 className="font-semibold text-green-900 text-lg">{t('route')} {index + 1}</h4>
+                    </div>
                     {routes.length > 1 && (
                       <button
                         onClick={() => removeRoute(route.id)}
-                        className="text-red-500 hover:text-red-700 p-1 transition-colors"
+                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all transform hover:scale-110"
                         title={t('removeRoute')}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     )}
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="grid md:grid-cols-2 gap-6 mb-4">
+                    <div className="relative">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-green-800 mb-3">
+                        <Clock className="w-4 h-4" />
                         {t('tripsPerWeek')}
                       </label>
                       <input 
                         type="number" 
                         value={route.trips}
                         onChange={(e) => updateRoute(route.id, 'trips', parseFloat(e.target.value) || 0)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all hover:border-green-300"
                         placeholder={t('placeholderTrips')}
                         step="0.5"
                         min="0"
                       />
-                      <div className="text-xs text-gray-500 mt-1">{t('tripsPerWeekHelp')}</div>
+                      <div className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                        <span>ℹ️</span>
+                        {t('tripsPerWeekHelp')}
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="relative">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-green-800 mb-3">
+                        <Banknote className="w-4 h-4" />
                         {t('costPerTrip')}
                       </label>
-                      <input 
-                        type="number" 
-                        value={route.cost}
-                        onChange={(e) => updateRoute(route.id, 'cost', parseFloat(e.target.value) || 0)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-green-600 font-medium">CHF</span>
+                        <input 
+                          type="number" 
+                          value={route.cost}
+                          onChange={(e) => updateRoute(route.id, 'cost', parseFloat(e.target.value) || 0)}
+                          className="w-full pl-12 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all hover:border-green-300"
                         placeholder={t('placeholderCost')}
                         step="0.10"
                         min="0"
                       />
-                      <div className="text-xs text-gray-500 mt-1">{t('costPerTripHelp')}</div>
+                      </div>
+                      <div className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                        <span>ℹ️</span>
+                        {t('costPerTripHelp')}
+                      </div>
                     </div>
                   </div>
 
                   {/* Halbtax-Checkbox */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <input
-                      type="checkbox"
-                      id={`halbtax-${route.id}`}
-                      checked={route.isHalbtaxPrice}
-                      onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
-                      className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                    />
-                    <label htmlFor={`halbtax-${route.id}`} className="text-sm text-gray-700">
-                      {t('priceAlreadyHalbtax')}
-                    </label>
+                  <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`halbtax-${route.id}`}
+                        checked={route.isHalbtaxPrice}
+                        onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
+                        className="w-5 h-5 text-green-600 border-2 border-green-300 rounded-md focus:ring-green-500 transition-all"
+                      />
+                      <label htmlFor={`halbtax-${route.id}`} className="text-sm font-medium text-green-800 cursor-pointer">
+                        <span className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" />
+                          {t('priceAlreadyHalbtax')}
+                        </span>
+                      </label>
+                    </div>
                   </div>
 
-                  <div className="text-sm text-blue-600">
-                    {t('routeYearlyCost', { 
-                      index: index + 1, 
-                      cost: formatCurrency(route.trips * route.cost * 52) 
-                    })}
-                    {route.isHalbtaxPrice && <span className="text-orange-600"> {t('alreadyHalbtaxPrice')}</span>}
+                  <div className="bg-green-100 p-3 rounded-lg border border-green-200">
+                    <div className="text-sm font-semibold text-green-800">
+                      💰 {t('routeYearlyCost', { 
+                        index: index + 1, 
+                        cost: formatCurrency(route.trips * route.cost * 52) 
+                      })}
+                      {route.isHalbtaxPrice && <span className="text-orange-700 ml-2">✨ {t('alreadyHalbtaxPrice')}</span>}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -374,40 +405,56 @@ const SBBCalculator: React.FC = () => {
               {/* Strecke hinzufügen Button */}
               <button
                 onClick={addRoute}
-                className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-red-300 hover:text-red-600 flex items-center justify-center gap-2 transition-colors"
+                className="w-full p-4 border-2 border-dashed border-green-300 rounded-xl text-green-700 hover:border-green-500 hover:text-green-800 hover:bg-green-50 flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-sm hover:shadow-md"
               >
-                <Plus className="w-4 h-4" />
-                {t('addRoute')}
+                <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <span className="font-semibold">{t('addRoute')}</span>
               </button>
 
               {/* Gesamtkosten Anzeige */}
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <div className="font-medium text-gray-700">
-                  {t('totalYearlyCosts', { 
-                    cost: formatCurrency(routes.reduce((total, route) => total + route.trips * route.cost * 52, 0)) 
-                  })}
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-5 rounded-xl border-2 border-amber-200 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center">
+                    <Calculator className="w-4 h-4" />
+                  </div>
+                  <span className="font-bold text-amber-900 text-lg">
+                    {t('totalYearlyCosts', { 
+                      cost: formatCurrency(routes.reduce((total, route) => total + route.trips * route.cost * 52, 0)) 
+                    })}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-amber-700">
                   {routes.filter(r => r.isHalbtaxPrice).length > 0 && (
-                    <span className="text-orange-600">
-                      {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
-                    </span>
+                    <div className="flex items-center gap-1 mt-2 p-2 bg-orange-100 rounded-lg border border-orange-200">
+                      <span>⚠️</span>
+                      <span className="font-medium text-orange-800">
+                        {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('yearlyTravelCosts')}
-              </label>
-              <input 
-                type="number" 
-                value={yearlySpendingDirect}
-                onChange={(e) => setYearlySpendingDirect(parseInt(e.target.value) || 0)}
-                className="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder={t('placeholderYearly')}
-              />
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border-2 border-orange-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Banknote className="w-5 h-5 text-orange-600" />
+                <label className="text-lg font-semibold text-orange-900">
+                  {t('yearlyTravelCosts')}
+                </label>
+              </div>
+              <div className="relative max-w-sm">
+                <span className="absolute left-4 top-4 text-orange-600 font-bold text-lg">CHF</span>
+                <input 
+                  type="number" 
+                  value={yearlySpendingDirect}
+                  onChange={(e) => setYearlySpendingDirect(parseInt(e.target.value) || 0)}
+                  className="w-full pl-16 pr-4 py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-lg font-semibold transition-all hover:border-orange-400"
+                  placeholder={t('placeholderYearly')}
+                />
+              </div>
             </div>
           )}
         </div>

@@ -7,11 +7,24 @@ import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, HalbtaxPlusOpt
 type AgeGroup = PricingAgeGroup; // Use the same type from pricing
 type InputMode = 'simple' | 'direct';
 
+interface RouteColorScheme {
+  bg: string;
+  border: string;
+  border200: string;
+  border300: string;
+  text: string;
+  accent: string;
+  buttonBg: string;
+  focusRing: string;
+  summaryBg: string;
+}
+
 interface Route {
   id: number;
   trips: number;
   cost: number;
   isHalbtaxPrice: boolean;
+  colorScheme: RouteColorScheme;
 }
 
 interface CalculationResults {
@@ -28,6 +41,80 @@ interface CalculationResults {
 // Remove duplicate interfaces - now imported from pricing.ts
 
 const SBBCalculator: React.FC = () => {
+  // Define color schemes that match the overall design
+  const routeColorSchemes: RouteColorScheme[] = [
+    {
+      bg: 'from-green-50 to-emerald-50',
+      border: 'border-green-100',
+      border200: 'border-green-200',
+      border300: 'border-green-300',
+      text: 'text-green-800',
+      accent: 'text-green-600',
+      buttonBg: 'bg-green-500',
+      focusRing: 'focus:ring-green-500 focus:border-green-500',
+      summaryBg: 'bg-green-100'
+    },
+    {
+      bg: 'from-blue-50 to-sky-50',
+      border: 'border-blue-100',
+      border200: 'border-blue-200',
+      border300: 'border-blue-300',
+      text: 'text-blue-800',
+      accent: 'text-blue-600',
+      buttonBg: 'bg-blue-500',
+      focusRing: 'focus:ring-blue-500 focus:border-blue-500',
+      summaryBg: 'bg-blue-100'
+    },
+    {
+      bg: 'from-purple-50 to-violet-50',
+      border: 'border-purple-100',
+      border200: 'border-purple-200',
+      border300: 'border-purple-300',
+      text: 'text-purple-800',
+      accent: 'text-purple-600',
+      buttonBg: 'bg-purple-500',
+      focusRing: 'focus:ring-purple-500 focus:border-purple-500',
+      summaryBg: 'bg-purple-100'
+    },
+    {
+      bg: 'from-orange-50 to-amber-50',
+      border: 'border-orange-100',
+      border200: 'border-orange-200',
+      border300: 'border-orange-300',
+      text: 'text-orange-800',
+      accent: 'text-orange-600',
+      buttonBg: 'bg-orange-500',
+      focusRing: 'focus:ring-orange-500 focus:border-orange-500',
+      summaryBg: 'bg-orange-100'
+    },
+    {
+      bg: 'from-rose-50 to-pink-50',
+      border: 'border-rose-100',
+      border200: 'border-rose-200',
+      border300: 'border-rose-300',
+      text: 'text-rose-800',
+      accent: 'text-rose-600',
+      buttonBg: 'bg-rose-500',
+      focusRing: 'focus:ring-rose-500 focus:border-rose-500',
+      summaryBg: 'bg-rose-100'
+    },
+    {
+      bg: 'from-teal-50 to-cyan-50',
+      border: 'border-teal-100',
+      border200: 'border-teal-200',
+      border300: 'border-teal-300',
+      text: 'text-teal-800',
+      accent: 'text-teal-600',
+      buttonBg: 'bg-teal-500',
+      focusRing: 'focus:ring-teal-500 focus:border-teal-500',
+      summaryBg: 'bg-teal-100'
+    }
+  ];
+
+  const getColorSchemeForRoute = useCallback((routeIndex: number): RouteColorScheme => {
+    return routeColorSchemes[routeIndex % routeColorSchemes.length];
+  }, [routeColorSchemes]);
+
   const [age, setAge] = useState<AgeGroup>('jugend');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
   const [language, setLanguage] = useState<Language>('en');
@@ -36,7 +123,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0] }
   ]);
   
   // Direct input
@@ -188,8 +275,9 @@ const SBBCalculator: React.FC = () => {
   // Strecken-Management Funktionen
   const addRoute = useCallback(() => {
     const newId = Math.max(...routes.map(r => r.id)) + 1;
-    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false }]);
-  }, [routes]);
+    const newColorScheme = getColorSchemeForRoute(routes.length);
+    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme }]);
+  }, [routes, getColorSchemeForRoute]);
 
   const removeRoute = useCallback((id: number) => {
     if (routes.length > 1) {
@@ -319,13 +407,13 @@ const SBBCalculator: React.FC = () => {
             <div className="space-y-4">
               {/* Dynamische Strecken */}
               {routes.map((route, index) => (
-                <div key={route.id} className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-100 shadow-sm hover:shadow-md transition-all">
+                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-6 rounded-xl border-2 ${route.colorScheme.border} shadow-sm hover:shadow-md transition-all`}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                      <div className={`w-8 h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-sm`}>
                         {index + 1}
                       </div>
-                      <h4 className="font-semibold text-green-900 text-lg">{t('route')} {index + 1}</h4>
+                      <h4 className={`font-semibold ${route.colorScheme.text} text-lg`}>{t('route')} {index + 1}</h4>
                     </div>
                     {routes.length > 1 && (
                       <button
@@ -340,7 +428,7 @@ const SBBCalculator: React.FC = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6 mb-4">
                     <div className="relative">
-                      <label className="flex items-center gap-2 text-sm font-semibold text-green-800 mb-3">
+                      <label className={`flex items-center gap-2 text-sm font-semibold ${route.colorScheme.text} mb-3`}>
                         <Clock className="w-4 h-4" />
                         {t('tripsPerWeek')}
                       </label>
@@ -348,34 +436,34 @@ const SBBCalculator: React.FC = () => {
                         type="number" 
                         value={route.trips}
                         onChange={(e) => updateRoute(route.id, 'trips', parseFloat(e.target.value) || 0)}
-                        className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all hover:border-green-300"
+                        className={`w-full px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300}`}
                         placeholder={t('placeholderTrips')}
                         step="0.5"
                         min="0"
                       />
-                      <div className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                      <div className={`text-xs ${route.colorScheme.accent} mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
                         {t('tripsPerWeekHelp')}
                       </div>
                     </div>
                     <div className="relative">
-                      <label className="flex items-center gap-2 text-sm font-semibold text-green-800 mb-3">
+                      <label className={`flex items-center gap-2 text-sm font-semibold ${route.colorScheme.text} mb-3`}>
                         <Banknote className="w-4 h-4" />
                         {t('costPerTrip')}
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-3 text-green-600 font-medium">CHF</span>
+                        <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium`}>CHF</span>
                         <input 
                           type="number" 
                           value={route.cost}
                           onChange={(e) => updateRoute(route.id, 'cost', parseFloat(e.target.value) || 0)}
-                          className="w-full pl-12 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all hover:border-green-300"
+                          className={`w-full pl-12 pr-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300}`}
                         placeholder={t('placeholderCost')}
                         step="0.10"
                         min="0"
                       />
                       </div>
-                      <div className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                      <div className={`text-xs ${route.colorScheme.accent} mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
                         {t('costPerTripHelp')}
                       </div>
@@ -383,16 +471,16 @@ const SBBCalculator: React.FC = () => {
                   </div>
 
                   {/* Halbtax-Checkbox */}
-                  <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
+                  <div className={`bg-white p-4 rounded-lg border ${route.colorScheme.border200} mb-4`}>
                     <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         id={`halbtax-${route.id}`}
                         checked={route.isHalbtaxPrice}
                         onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
-                        className="w-5 h-5 text-green-600 border-2 border-green-300 rounded-md focus:ring-green-500 transition-all"
+                        className={`w-5 h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
                       />
-                      <label htmlFor={`halbtax-${route.id}`} className="text-sm font-medium text-green-800 cursor-pointer">
+                      <label htmlFor={`halbtax-${route.id}`} className={`text-sm font-medium ${route.colorScheme.text} cursor-pointer`}>
                         <span className="flex items-center gap-2">
                           <CreditCard className="w-4 h-4" />
                           {t('priceAlreadyHalbtax')}
@@ -401,8 +489,8 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-green-100 p-3 rounded-lg border border-green-200">
-                    <div className="text-sm font-semibold text-green-800">
+                  <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
+                    <div className={`text-sm font-semibold ${route.colorScheme.text}`}>
                       💰 {t('routeYearlyCost', { 
                         index: index + 1, 
                         cost: formatCurrency(route.trips * route.cost * 52) 

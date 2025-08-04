@@ -46,6 +46,10 @@ npm run build
 
 **Important**: When creating git commits, never mention Claude, AI, or make Claude/AI a co-author. Write clean, professional commit messages without any AI attribution.
 
+## User Preferences
+
+**Auto-accept changes**: The user prefers to auto-accept file changes and edits without confirmation prompts.
+
 ## Code Architecture Notes
 
 ### State Management

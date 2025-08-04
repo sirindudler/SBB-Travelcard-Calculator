@@ -228,7 +228,7 @@ const SBBCalculator: React.FC = () => {
       </div>
 
       <div className="space-y-8">
-        {/* Altersgruppe */}
+        {/* Altersgruppe with Travel Class */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-blue-600" />
@@ -236,57 +236,29 @@ const SBBCalculator: React.FC = () => {
               {t('ageGroup')}
             </label>
           </div>
-          <select 
-            value={age} 
-            onChange={(e) => setAge(e.target.value as AgeGroup)}
-            className="w-full max-w-sm p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
-          >
-            <option value="kind">{t('child')}</option>
-            <option value="jugend">{t('youth')}</option>
-            <option value="fuenfundzwanzig">{t('twentyFive')}</option>
-            <option value="erwachsene">{t('adult')}</option>
-            <option value="senior">{t('senior')}</option>
-            <option value="behinderung">{t('disability')}</option>
-          </select>
-        </div>
-
-        {/* Pricing Options */}
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
-          <div className="flex items-center gap-2 mb-4">
-            <CreditCard className="w-5 h-5 text-indigo-600" />
-            <label className="text-lg font-semibold text-indigo-900">
-              {t('pricingOptions')}
-            </label>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4">
-            {/* Class Selection */}
-            <div>
-              <label className="block text-sm font-medium text-indigo-800 mb-2">
-                {t('travelClass')}
-              </label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <select 
+                value={age} 
+                onChange={(e) => setAge(e.target.value as AgeGroup)}
+                className="w-full p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
+              >
+                <option value="kind">{t('child')}</option>
+                <option value="jugend">{t('youth')}</option>
+                <option value="fuenfundzwanzig">{t('twentyFive')}</option>
+                <option value="erwachsene">{t('adult')}</option>
+                <option value="senior">{t('senior')}</option>
+                <option value="behinderung">{t('disability')}</option>
+              </select>
+            </div>
+            <div className="flex-1">
               <select 
                 value={isFirstClass ? 'first' : 'second'} 
                 onChange={(e) => setIsFirstClass(e.target.value === 'first')}
-                className="w-full p-3 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-indigo-300"
+                className="w-full p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
               >
                 <option value="second">{t('secondClass')}</option>
                 <option value="first">{t('firstClass')}</option>
-              </select>
-            </div>
-            
-            {/* Customer Type Selection */}
-            <div>
-              <label className="block text-sm font-medium text-indigo-800 mb-2">
-                {t('customerType')}
-              </label>
-              <select 
-                value={isNewCustomer ? 'new' : 'loyalty'} 
-                onChange={(e) => setIsNewCustomer(e.target.value === 'new')}
-                className="w-full p-3 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-indigo-300"
-              >
-                <option value="new">{t('newCustomer')}</option>
-                <option value="loyalty">{t('loyaltyPrice')}</option>
               </select>
             </div>
           </div>

@@ -8,7 +8,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 5, cost: 89, isHalbtaxPrice: false }
@@ -34,7 +34,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 3, cost: 25, isHalbtaxPrice: false }
@@ -58,7 +58,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 1, cost: 60, isHalbtaxPrice: false }
@@ -79,7 +79,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'jugend',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 4, cost: 8.5, isHalbtaxPrice: false }, // Local train
@@ -108,7 +108,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: false, // Loyalty customer
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 3, cost: 22.5, isHalbtaxPrice: true } // Already halbtax price
@@ -128,7 +128,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'senior',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 2, cost: 45, isHalbtaxPrice: false }
@@ -155,7 +155,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'behinderung',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 3, cost: 35, isHalbtaxPrice: false }
@@ -180,7 +180,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'fuenfundzwanzig',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 2, cost: 30, isHalbtaxPrice: false }
@@ -205,7 +205,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: true,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 3, cost: 89, isHalbtaxPrice: false }
@@ -230,7 +230,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 4500
@@ -257,7 +257,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: breakEvenYearly
@@ -283,7 +283,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 7610
@@ -304,7 +304,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 100
@@ -323,7 +323,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'jugend',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 4000 // Needs 1000 + 3000 more
@@ -344,7 +344,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false }, // Regular price
@@ -375,7 +375,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'jugend',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 2000
@@ -408,7 +408,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [
           { id: 1, trips: 2.5, cost: 33.33, isHalbtaxPrice: false }
@@ -427,7 +427,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 3000
@@ -449,7 +449,7 @@ describe('Real-World Scenario Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 3000

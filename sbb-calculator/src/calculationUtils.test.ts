@@ -119,7 +119,7 @@ describe('Calculation Utils Tests', () => {
       expect(option1000!.reloadCost).toBe(0);
     });
 
-    test('should calculate options with reload when costs exceed credit (rebuying enabled)', () => {
+    test('should calculate options with reload when costs exceed credit (reload enabled)', () => {
       const result = calculateHalbtaxPlusOptions('jugend', 2500, 120, true);
       
       const option1000 = result.find(opt => opt.credit === 1000);
@@ -131,7 +131,7 @@ describe('Calculation Utils Tests', () => {
       expect(option1000!.total).toBe(1620); // 600 + 120 + 900
     });
 
-    test('should calculate options without reload when costs exceed credit (rebuying disabled)', () => {
+    test('should calculate options without reload when costs exceed credit (reload disabled)', () => {
       const result = calculateHalbtaxPlusOptions('jugend', 2500, 120, false);
       
       const option1000 = result.find(opt => opt.credit === 1000);
@@ -174,7 +174,7 @@ describe('Calculation Utils Tests', () => {
       age: 'erwachsene',
       isFirstClass: false,
       isNewCustomer: true,
-      allowHalbtaxPlusRebuying: true,
+      allowHalbtaxPlusReload: true,
       inputMode: 'simple',
       routes: mockRoutes,
       yearlySpendingDirect: 0
@@ -270,7 +270,7 @@ describe('Calculation Utils Tests', () => {
       expect(result.halbtaxTicketCosts).toBe(2340);
     });
 
-    test('should respect halbtax plus rebuying toggle', () => {
+    test('should respect halbtax plus reload toggle', () => {
       const highUsageInputs = { 
         ...baseInputs, 
         inputMode: 'direct' as const, 
@@ -280,7 +280,7 @@ describe('Calculation Utils Tests', () => {
       const withRebuying = calculateFareOptions(highUsageInputs);
       const withoutRebuying = calculateFareOptions({ 
         ...highUsageInputs, 
-        allowHalbtaxPlusRebuying: false 
+        allowHalbtaxPlusReload: false 
       });
       
       const withRebuyingOption = withRebuying.halbtaxPlusOptions.find(opt => opt.credit === 1000);
@@ -314,7 +314,7 @@ describe('Calculation Utils Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'direct',
         routes: [],
         yearlySpendingDirect: 50000
@@ -329,7 +329,7 @@ describe('Calculation Utils Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [{ id: 1, trips: 1.5, cost: 33.33, isHalbtaxPrice: false }],
         yearlySpendingDirect: 0
@@ -344,7 +344,7 @@ describe('Calculation Utils Tests', () => {
         age: 'erwachsene',
         isFirstClass: false,
         isNewCustomer: true,
-        allowHalbtaxPlusRebuying: true,
+        allowHalbtaxPlusReload: true,
         inputMode: 'simple',
         routes: [{ id: 1, trips: 3.7, cost: 27.85, isHalbtaxPrice: false }],
         yearlySpendingDirect: 0

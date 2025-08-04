@@ -11,7 +11,7 @@ export interface CalculationInputs {
   age: AgeGroup;
   isFirstClass: boolean;
   isNewCustomer: boolean;
-  allowHalbtaxPlusRebuying: boolean;
+  allowHalbtaxPlusReload: boolean;
   inputMode: 'simple' | 'direct';
   routes: Route[];
   yearlySpendingDirect: number;
@@ -110,7 +110,7 @@ export function calculateHalbtaxPlusOptions(
   age: AgeGroup,
   halbtaxTicketCosts: number,
   halbtaxPrice: number,
-  allowHalbtaxPlusRebuying: boolean
+  allowHalbtaxPlusReload: boolean
 ): HalbtaxPlusDetails[] {
   const halbtaxPlusCategory = getHalbtaxPlusCategory(age);
   
@@ -140,7 +140,7 @@ export function calculateHalbtaxPlusOptions(
       // More costs than initial credit
       const remainingAfterFirst = halbtaxTicketCosts - creditAmount;
       
-      if (allowHalbtaxPlusRebuying) {
+      if (allowHalbtaxPlusReload) {
         // Original logic: reload Halbtax PLUS packages
         const reloadCount = Math.ceil(remainingAfterFirst / creditAmount);
         const lastReloadUsage = remainingAfterFirst % creditAmount || creditAmount;
@@ -192,7 +192,7 @@ export function calculateFareOptions(inputs: CalculationInputs): CalculationResu
     age,
     isFirstClass,
     isNewCustomer,
-    allowHalbtaxPlusRebuying,
+    allowHalbtaxPlusReload,
     inputMode,
     routes,
     yearlySpendingDirect
@@ -217,7 +217,7 @@ export function calculateFareOptions(inputs: CalculationInputs): CalculationResu
     age,
     halbtaxTicketCosts,
     halbtaxPrice,
-    allowHalbtaxPlusRebuying
+    allowHalbtaxPlusReload
   );
   
   // Option 4: GA

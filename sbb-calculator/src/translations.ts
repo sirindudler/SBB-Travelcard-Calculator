@@ -9,7 +9,7 @@ export interface Translations {
 export const translations: Translations = {
   en: {
     title: "SBB Subscription Comparison Calculator",
-    ageGroup: "Age Group",
+    ageGroup: "Passenger Category",
     child: "Child (6-16 years)",
     youth: "Youth (16-25 years)",
     twentyFive: "25 years old",
@@ -84,7 +84,7 @@ export const translations: Translations = {
   },
   de: {
     title: "SBB Abo-Vergleichsrechner",
-    ageGroup: "Altersgruppe",
+    ageGroup: "Fahrgastkategorie",
     child: "Kind (6-16 Jahre)",
     youth: "Jugend (16-25 Jahre)",
     twentyFive: "25 Jahre alt",
@@ -159,7 +159,7 @@ export const translations: Translations = {
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements CFF",
-    ageGroup: "Groupe d'âge",
+    ageGroup: "Catégorie de voyageur",
     child: "Enfant (6-16 ans)",
     youth: "Jeunes (16-25 ans)",
     twentyFive: "25 ans",
@@ -234,7 +234,7 @@ export const translations: Translations = {
   },
   it: {
     title: "Calcolatore di confronto abbonamenti FFS",
-    ageGroup: "Gruppo di età",
+    ageGroup: "Categoria passeggero",
     child: "Bambini (6-16 anni)",
     youth: "Giovani (16-25 anni)",
     twentyFive: "25 anni",

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2 } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe } from 'lucide-react';
 
 // Types for better TypeScript
 type AgeGroup = 'jugend' | 'erwachsene';
 type InputMode = 'simple' | 'direct';
+type Language = 'en' | 'de' | 'fr' | 'it';
 
 interface Route {
   id: number;
@@ -37,6 +38,7 @@ interface PriceStructure {
 const SBBCalculator: React.FC = () => {
   const [age, setAge] = useState<AgeGroup>('jugend');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
+  const [language, setLanguage] = useState<Language>('en');
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
@@ -222,9 +224,27 @@ const SBBCalculator: React.FC = () => {
 
   return (
     <div className="w-11/12 mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="flex items-center gap-3 mb-6">
-        <Train className="w-8 h-8 text-red-600" />
-        <h1 className="text-2xl font-bold text-gray-800">SBB Abo-Vergleichsrechner</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Train className="w-8 h-8 text-red-600" />
+          <h1 className="text-2xl font-bold text-gray-800">SBB Abo-Vergleichsrechner</h1>
+        </div>
+        
+        {/* Language Selector */}
+        <div className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-gray-600" />
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            className="p-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+            title="Select Language"
+          >
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+          </select>
+        </div>
       </div>
 
       <div className="space-y-6">

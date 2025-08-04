@@ -115,7 +115,7 @@ const SBBCalculator: React.FC = () => {
     return routeColorSchemes[routeIndex % routeColorSchemes.length];
   }, [routeColorSchemes]);
 
-  const [age, setAge] = useState<AgeGroup>('jugend');
+  const [age, setAge] = useState<AgeGroup>('erwachsene');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
   const [language, setLanguage] = useState<Language>('en');
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);

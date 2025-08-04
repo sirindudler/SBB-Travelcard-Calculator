@@ -34,6 +34,7 @@ interface CalculationResults {
   halbtaxTotal: number;
   halbtaxPlusOptions: any[];
   gaTotal: number;
+  streckenabos: { route: Route, annualPrice: number, monthlyCost: number, isWorthwhile: boolean, isInValidRange: boolean }[];
   options: any[];
   bestOption: any;
 }
@@ -137,6 +138,13 @@ const SBBCalculator: React.FC = () => {
 
   // Get pricing data from external pricing file
   const prices: PriceStructure = getPricing();
+
+  // Calculate Streckenabo using linear regression formula
+  const calculateStreckenabo = (roundTripPrice: number): number => {
+    // Formula: AnnualPass(p) ≈ 173.5 * p - 2.44 * p²
+    // Valid for 4 ≤ p ≤ 50 CHF with ±5-10% accuracy
+    return Math.max(0, 173.5 * roundTripPrice - 2.44 * Math.pow(roundTripPrice, 2));
+  };
 
   // useCallback for functions passed to child components or used in effects
   const calculate = useCallback(() => {
@@ -261,6 +269,24 @@ const SBBCalculator: React.FC = () => {
     // Option 4: GA
     const gaTotal = gaPrice;
     
+    // Option 5: Streckenabo calculations (only for simple input mode with individual routes)
+    const streckenabos = inputMode === 'simple' ? routes.map(route => {
+      const actualCost = route.isHalbtaxPrice ? route.cost * 2 : route.cost;
+      const annualPrice = calculateStreckenabo(actualCost);
+      const monthlyCost = annualPrice / 12;
+      const annualRouteSpending = route.trips * actualCost * 52;
+      const isWorthwhile = annualPrice < annualRouteSpending && actualCost >= 4 && actualCost <= 50;
+      const isInValidRange = actualCost >= 4 && actualCost <= 50;
+      
+      return {
+        route,
+        annualPrice,
+        monthlyCost,
+        isWorthwhile,
+        isInValidRange
+      };
+    }) : [];
+    
     // Beste Option finden
     const options = [
       { name: t('noSubscription'), total: noAboTotal, type: 'none' },
@@ -286,6 +312,7 @@ const SBBCalculator: React.FC = () => {
       halbtaxTotal,
       halbtaxPlusOptions,
       gaTotal,
+      streckenabos,
       options,
       bestOption
     });
@@ -699,6 +726,56 @@ const SBBCalculator: React.FC = () => {
                         {t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}
                       </div>
                     )}
+                  </div>
+                );
+              })}
+              
+              {/* Streckenabo cards */}
+              {results.streckenabos.length > 0 && results.streckenabos.map((streckenabo, index) => {
+                const routeIndex = routes.findIndex(r => r.id === streckenabo.route.id) + 1;
+                const statusInfo = !streckenabo.isInValidRange 
+                  ? { badge: t('outsideRange'), badgeColor: 'bg-red-100 text-red-700', cardColor: 'border-red-200 bg-red-50' }
+                  : streckenabo.isWorthwhile 
+                  ? { badge: t('worthwhile'), badgeColor: 'bg-green-100 text-green-700', cardColor: 'border-purple-200 bg-purple-50' }
+                  : { badge: t('notWorthwhile'), badgeColor: 'bg-orange-100 text-orange-700', cardColor: 'border-purple-200 bg-purple-50' };
+                
+                return (
+                  <div 
+                    key={`streckenabo-${index}`}
+                    className={`p-4 rounded-lg border-2 ${statusInfo.cardColor}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        🚂 {t('streckenabo')} - Route {routeIndex}
+                        <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor}`}>
+                          {t('estimate')}
+                        </div>
+                        <div 
+                          className="relative group cursor-help"
+                          title={t('streckenabosExplanation')}
+                        >
+                          <span className="text-purple-600 hover:text-purple-800 transition-colors">ℹ️</span>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg">
+                            <div className="font-medium mb-1">{t('streckenabosInfo')}</div>
+                            <div className="mb-2">{t('streckenabosExplanation')}</div>
+                            <div className="text-gray-300 italic">{t('streckenabosFormula')}</div>
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </h3>
+                      <div className="text-lg font-bold text-purple-700">
+                        {formatCurrency(streckenabo.annualPrice)}
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs space-y-1 text-purple-800">
+                      <div>{t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}</div>
+                      <div>{t('annualPass', { cost: formatCurrency(streckenabo.annualPrice) })}</div>
+                    </div>
+
+                    <div className={`text-xs mt-2 px-2 py-1 rounded ${statusInfo.badgeColor}`}>
+                      {statusInfo.badge}
+                    </div>
                   </div>
                 );
               })}

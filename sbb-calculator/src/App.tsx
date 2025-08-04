@@ -705,27 +705,128 @@ const SBBCalculator: React.FC = () => {
             </div>
 
             {/* Zusätzliche Insights */}
-            <div className="bg-white p-4 rounded-lg border">
-              <h3 className="font-medium text-gray-700 mb-3">{t('additionalInfo')}</h3>
-              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <div className="font-medium mb-1">{t('breakEvenPoints')}</div>
-                  <div>{t('halbtaxBreakEven', { cost: formatCurrency(getHalbtaxPrice(age, isNewCustomer) * 2) })}</div>
-                  <div>{t('gaBreakEven', { cost: formatCurrency(results.gaTotal * 2) })}</div>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  💡
                 </div>
-                <div>
-                  <div className="font-medium mb-1">{t('yourCosts')}</div>
-                  <div>{t('savingsWithBest', { cost: formatCurrency(results.noAboTotal - results.bestOption.total) })}</div>
-                  <div>{t('savingsPercent', { percent: Math.round((1 - results.bestOption.total / results.noAboTotal) * 100) })}</div>
+                <h3 className="font-semibold text-blue-900 text-lg">{t('additionalInfo')}</h3>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="font-semibold text-gray-800">{t('breakEvenPoints')}</div>
+                  </div>
+                  <div className="space-y-4 text-sm">
+                    {/* Halbtax Break-even */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 font-medium">Halbtax:</span>
+                        <span className="font-semibold text-gray-800">{formatCurrency(getHalbtaxPrice(age, isNewCustomer) * 2)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(100, (results.noAboTotal / (getHalbtaxPrice(age, isNewCustomer) * 2)) * 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Your costs: {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, isNewCustomer) * 2)) * 100)}%)
+                      </div>
+                    </div>
+                    
+                    {/* GA Break-even */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 font-medium">GA:</span>
+                        <span className="font-semibold text-gray-800">{formatCurrency(results.gaTotal * 2)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(100, (results.noAboTotal / (results.gaTotal * 2)) * 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Your costs: {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (results.gaTotal * 2)) * 100)}%)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    <div className="font-semibold text-gray-800">{t('yourCosts')}</div>
+                  </div>
+                  <div className="space-y-4">
+                    {/* Savings Visualization */}
+                    <div className="relative">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Without subscription:</span>
+                        <span className="font-medium text-gray-800">{formatCurrency(results.noAboTotal)}</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm text-gray-600">Best option ({results.bestOption.name}):</span>
+                        <span className="font-medium text-emerald-700">{formatCurrency(results.bestOption.total)}</span>
+                      </div>
+                      
+                      {/* Visual Savings Bar */}
+                      <div className="space-y-2">
+                        <div className="w-full bg-red-100 rounded-lg h-6 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-red-300 rounded-lg"></div>
+                          <div 
+                            className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-lg transition-all duration-700"
+                            style={{
+                              width: `${(results.bestOption.total / results.noAboTotal) * 100}%`
+                            }}
+                          ></div>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-xs font-semibold text-white drop-shadow-sm">
+                              {Math.round((1 - results.bestOption.total / results.noAboTotal) * 100)}% saved
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Saved: {formatCurrency(results.noAboTotal - results.bestOption.total)}</span>
+                          <span>Total cost</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Summary Badge */}
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm">
+                        <span className="text-sm">💰</span>
+                        <span className="font-semibold">Save {formatCurrency(results.noAboTotal - results.bestOption.total)} annually</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
               {/* Halbtax Plus Erklärung wenn relevant */}
               {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
-                <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <div className="text-sm text-orange-800">
-                    <div className="font-medium mb-1">{t('halbtaxPlusInfo')}</div>
-                    <div>{t('halbtaxPlusExplanation')}</div>
+                <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
+                      🔄
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
+                        {t('halbtaxPlusInfo')}
+                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800">Auto-Reload</div>
+                      </div>
+                      <div className="text-sm text-orange-800 leading-relaxed">
+                        {t('halbtaxPlusExplanation')}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

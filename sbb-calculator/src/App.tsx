@@ -221,7 +221,7 @@ const SBBCalculator: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="w-11/12 mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex items-center gap-3 mb-6">
         <Train className="w-8 h-8 text-red-600" />
         <h1 className="text-2xl font-bold text-gray-800">SBB Abo-Vergleichsrechner</h1>

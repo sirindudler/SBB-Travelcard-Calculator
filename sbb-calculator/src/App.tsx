@@ -82,10 +82,26 @@ const SBBCalculator: React.FC = () => {
     const halbtaxTotal = halbtaxTicketCosts + halbtaxPrice;
     
     // Option 3: Halbtax Plus (alle Varianten) - mit Nachladung
-    // Only available for youth and adults
-    const halbtaxPlusAvailable = age === 'jugend' || age === 'erwachsene';
+    // Map all age groups to Halbtax PLUS categories: 'jugend' (6-24.99 years) or 'erwachsene' (25+ years)
+    const getHalbtaxPlusCategory = (ageGroup: AgeGroup): 'jugend' | 'erwachsene' | null => {
+      switch (ageGroup) {
+        case 'kind':           // 6-16 years -> jugend category
+        case 'jugend':         // 16-25 years -> jugend category
+          return 'jugend';
+        case 'fuenfundzwanzig': // 25 years -> erwachsene category
+        case 'erwachsene':      // 26-64/65 years -> erwachsene category
+        case 'senior':          // 64+/65+ years -> erwachsene category
+        case 'behinderung':     // disability -> erwachsene category
+          return 'erwachsene';
+        default:
+          return null;
+      }
+    };
+    
+    const halbtaxPlusCategory = getHalbtaxPlusCategory(age);
+    const halbtaxPlusAvailable = halbtaxPlusCategory !== null;
     const halbtaxPlusOptions = halbtaxPlusAvailable 
-      ? Object.entries(getHalbtaxPlusOptions(age as 'jugend' | 'erwachsene')).map(([credit, data]) => {
+      ? Object.entries(getHalbtaxPlusOptions(halbtaxPlusCategory!)).map(([credit, data]) => {
       const creditAmount = data.credit;
       const packageCost = data.cost;
       

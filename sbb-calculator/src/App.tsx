@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe } from 'lucide-react';
+import { Language, useTranslation } from './translations';
 
 // Types for better TypeScript
 type AgeGroup = 'jugend' | 'erwachsene';
 type InputMode = 'simple' | 'direct';
-type Language = 'en' | 'de' | 'fr' | 'it';
 
 interface Route {
   id: number;
@@ -49,6 +49,9 @@ const SBBCalculator: React.FC = () => {
   const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number>(2808);
   
   const [results, setResults] = useState<CalculationResults | null>(null);
+
+  // Use translation hook
+  const t = useTranslation(language);
 
   // Memoize static data to prevent unnecessary re-renders
   const prices = useMemo((): PriceStructure => ({
@@ -157,16 +160,16 @@ const SBBCalculator: React.FC = () => {
     
     // Beste Option finden
     const options = [
-      { name: 'Kein Abo', total: noAboTotal, type: 'none' },
-      { name: 'Nur Halbtax', total: halbtaxTotal, type: 'halbtax' },
+      { name: t('noSubscription'), total: noAboTotal, type: 'none' },
+      { name: t('halbtaxOnly'), total: halbtaxTotal, type: 'halbtax' },
       ...halbtaxPlusOptions.map(opt => ({ 
-        name: `Halbtax Plus ${opt.credit}`, 
+        name: t('halbtaxPlus', { credit: opt.credit }), 
         total: opt.total, 
         type: 'halbtaxplus',
         credit: opt.credit,
         details: opt
       })),
-      { name: 'GA', total: gaTotal, type: 'ga' }
+      { name: t('ga'), total: gaTotal, type: 'ga' }
     ];
     
     const bestOption = options.reduce((best, current) => 
@@ -183,7 +186,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, prices]);
+  }, [age, inputMode, routes, yearlySpendingDirect, prices, t]);
 
   useEffect(() => {
     calculate();
@@ -227,7 +230,7 @@ const SBBCalculator: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Train className="w-8 h-8 text-red-600" />
-          <h1 className="text-2xl font-bold text-gray-800">SBB Abo-Vergleichsrechner</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
         </div>
         
         {/* Language Selector */}
@@ -237,7 +240,7 @@ const SBBCalculator: React.FC = () => {
             value={language} 
             onChange={(e) => setLanguage(e.target.value as Language)}
             className="p-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-            title="Select Language"
+            title={t('selectLanguage')}
           >
             <option value="en">English</option>
             <option value="de">Deutsch</option>
@@ -251,22 +254,22 @@ const SBBCalculator: React.FC = () => {
         {/* Altersgruppe */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Altersgruppe
+            {t('ageGroup')}
           </label>
           <select 
             value={age} 
             onChange={(e) => setAge(e.target.value as AgeGroup)}
             className="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
           >
-            <option value="jugend">Jugend (16-25 Jahre)</option>
-            <option value="erwachsene">Erwachsene (25+ Jahre)</option>
+            <option value="jugend">{t('youth')}</option>
+            <option value="erwachsene">{t('adult')}</option>
           </select>
         </div>
 
         {/* Eingabemodus Toggle */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Kostenschätzung
+            {t('costEstimation')}
           </label>
           <div className="flex items-center gap-3 mb-4">
             <button
@@ -278,7 +281,7 @@ const SBBCalculator: React.FC = () => {
               }`}
             >
               {inputMode === 'simple' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              Einfache Eingabe
+              {t('simpleInput')}
             </button>
             <button
               onClick={() => setInputMode('direct')}
@@ -289,7 +292,7 @@ const SBBCalculator: React.FC = () => {
               }`}
             >
               {inputMode === 'direct' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              Direkte Eingabe
+              {t('directInput')}
             </button>
           </div>
 
@@ -299,12 +302,12 @@ const SBBCalculator: React.FC = () => {
               {routes.map((route, index) => (
                 <div key={route.id} className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-700">📍 Strecke {index + 1}</h4>
+                    <h4 className="font-medium text-gray-700">📍 {t('route')} {index + 1}</h4>
                     {routes.length > 1 && (
                       <button
                         onClick={() => removeRoute(route.id)}
                         className="text-red-500 hover:text-red-700 p-1 transition-colors"
-                        title="Strecke entfernen"
+                        title={t('removeRoute')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -314,33 +317,33 @@ const SBBCalculator: React.FC = () => {
                   <div className="grid md:grid-cols-2 gap-4 mb-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Anzahl pro Woche ↔
+                        {t('tripsPerWeek')}
                       </label>
                       <input 
                         type="number" 
                         value={route.trips}
                         onChange={(e) => updateRoute(route.id, 'trips', parseFloat(e.target.value) || 0)}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="z.B. 2"
+                        placeholder={t('placeholderTrips')}
                         step="0.5"
                         min="0"
                       />
-                      <div className="text-xs text-gray-500 mt-1">Hin- und Rückfahrten pro Woche</div>
+                      <div className="text-xs text-gray-500 mt-1">{t('tripsPerWeekHelp')}</div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Kosten pro Hin- und Rückfahrt
+                        {t('costPerTrip')}
                       </label>
                       <input 
                         type="number" 
                         value={route.cost}
                         onChange={(e) => updateRoute(route.id, 'cost', parseFloat(e.target.value) || 0)}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="z.B. 27.00"
+                        placeholder={t('placeholderCost')}
                         step="0.10"
                         min="0"
                       />
-                      <div className="text-xs text-gray-500 mt-1">CHF pro kompletter Rundfahrt</div>
+                      <div className="text-xs text-gray-500 mt-1">{t('costPerTripHelp')}</div>
                     </div>
                   </div>
 
@@ -354,13 +357,16 @@ const SBBCalculator: React.FC = () => {
                       className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                     />
                     <label htmlFor={`halbtax-${route.id}`} className="text-sm text-gray-700">
-                      Preis bereits mit Halbtax berechnet
+                      {t('priceAlreadyHalbtax')}
                     </label>
                   </div>
 
                   <div className="text-sm text-blue-600">
-                    Strecke {index + 1}: {formatCurrency(route.trips * route.cost * 52)} pro Jahr
-                    {route.isHalbtaxPrice && <span className="text-orange-600"> (bereits Halbtax-Preis)</span>}
+                    {t('routeYearlyCost', { 
+                      index: index + 1, 
+                      cost: formatCurrency(route.trips * route.cost * 52) 
+                    })}
+                    {route.isHalbtaxPrice && <span className="text-orange-600"> {t('alreadyHalbtaxPrice')}</span>}
                   </div>
                 </div>
               ))}
@@ -371,18 +377,20 @@ const SBBCalculator: React.FC = () => {
                 className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-red-300 hover:text-red-600 flex items-center justify-center gap-2 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Weitere Strecke hinzufügen
+                {t('addRoute')}
               </button>
 
               {/* Gesamtkosten Anzeige */}
               <div className="bg-gray-100 p-3 rounded-lg">
                 <div className="font-medium text-gray-700">
-                  Gesamte jährliche Fahrtkosten: {formatCurrency(routes.reduce((total, route) => total + route.trips * route.cost * 52, 0))}
+                  {t('totalYearlyCosts', { 
+                    cost: formatCurrency(routes.reduce((total, route) => total + route.trips * route.cost * 52, 0)) 
+                  })}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
                   {routes.filter(r => r.isHalbtaxPrice).length > 0 && (
                     <span className="text-orange-600">
-                      ⚠️ {routes.filter(r => r.isHalbtaxPrice).length} Strecke(n) bereits mit Halbtax-Preis eingegeben
+                      {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
                     </span>
                   )}
                 </div>
@@ -391,14 +399,14 @@ const SBBCalculator: React.FC = () => {
           ) : (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Jährliche Fahrtkosten (ohne Abo)
+                {t('yearlyTravelCosts')}
               </label>
               <input 
                 type="number" 
                 value={yearlySpendingDirect}
                 onChange={(e) => setYearlySpendingDirect(parseInt(e.target.value) || 0)}
                 className="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="z.B. 2800"
+                placeholder={t('placeholderYearly')}
               />
             </div>
           )}
@@ -409,7 +417,9 @@ const SBBCalculator: React.FC = () => {
           <div className="bg-gray-50 rounded-lg p-6 space-y-6">
             <div className="flex items-center gap-2 mb-4">
               <Calculator className="w-5 h-5 text-red-600" />
-              <h2 className="text-xl font-semibold text-gray-800">Kostenvergleich für {formatCurrency(results.yearlySpendingFull)} jährliche Fahrtkosten</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
+              </h2>
             </div>
 
             {/* Alle Optionen anzeigen */}
@@ -424,7 +434,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold">
                         {option.name}
-                        {isBest && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">BESTE OPTION</span>}
+                        {isBest && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">{t('bestOption')}</span>}
                       </h3>
                       <div className="text-lg font-bold">
                         {formatCurrency(option.total)}
@@ -433,42 +443,42 @@ const SBBCalculator: React.FC = () => {
                     
                     <div className="text-xs space-y-1">
                       {option.type === 'none' && (
-                        <div>Volle Ticketpreise: {formatCurrency(results.yearlySpendingFull)}</div>
+                        <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
                       )}
                       
                       {option.type === 'halbtax' && (
                         <>
-                          <div>Halbtax {age === 'jugend' ? 'Jugend' : 'Erwachsene'}: {formatCurrency(prices.halbtax[age])}</div>
-                          <div>Tickets (50% Rabatt): {formatCurrency(results.halbtaxTicketCosts)}</div>
+                          <div>{age === 'jugend' ? t('halbtaxYouth', { cost: formatCurrency(prices.halbtax[age]) }) : t('halbtaxAdult', { cost: formatCurrency(prices.halbtax[age]) })}</div>
+                          <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
                         </>
                       )}
                       
                       {option.type === 'halbtaxplus' && (
                         <>
-                          <div>Halbtax Plus {option.credit}: {formatCurrency(option.details.cost)}</div>
-                          <div>Halbtax {age === 'jugend' ? 'Jugend' : 'Erwachsene'}: {formatCurrency(prices.halbtax[age])}</div>
-                          <div>Guthaben abgedeckt: {formatCurrency(option.details.coveredByCredit)}</div>
+                          <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
+                          <div>{age === 'jugend' ? t('halbtaxYouth', { cost: formatCurrency(prices.halbtax[age]) }) : t('halbtaxAdult', { cost: formatCurrency(prices.halbtax[age]) })}</div>
+                          <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                           {option.details.reloadCount > 0 && (
                             <>
-                              <div className="text-orange-600 font-medium">Nachladungen:</div>
+                              <div className="text-orange-600 font-medium">{t('reloads')}</div>
                               {option.details.reloadCount > 1 && (
-                                <div>• {option.details.reloadCount - 1}x vollständig: {formatCurrency((option.details.reloadCount - 1) * option.details.cost)}</div>
+                                <div>{t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrency((option.details.reloadCount - 1) * option.details.cost) })}</div>
                               )}
-                              <div>• 1x anteilig ({Math.round(option.details.lastReloadRatio * 100)}%): {formatCurrency(option.details.cost * option.details.lastReloadRatio)}</div>
-                              <div className="font-medium">Nachladung total: {formatCurrency(option.details.reloadCost)}</div>
+                              <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
+                              <div className="font-medium">{t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}</div>
                             </>
                           )}
                         </>
                       )}
                       
                       {option.type === 'ga' && (
-                        <div>Unbegrenzte Fahrten in der ganzen Schweiz</div>
+                        <div>{t('unlimitedTravel')}</div>
                       )}
                     </div>
 
                     {!isBest && (
                       <div className="text-xs mt-2 opacity-75">
-                        +{formatCurrency(option.total - results.bestOption.total)} teurer als beste Option
+                        {t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}
                       </div>
                     )}
                   </div>
@@ -478,17 +488,17 @@ const SBBCalculator: React.FC = () => {
 
             {/* Zusätzliche Insights */}
             <div className="bg-white p-4 rounded-lg border">
-              <h3 className="font-medium text-gray-700 mb-3">💡 Zusätzliche Informationen</h3>
+              <h3 className="font-medium text-gray-700 mb-3">{t('additionalInfo')}</h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
-                  <div className="font-medium mb-1">Break-Even Points:</div>
-                  <div>• Halbtax lohnt sich ab: {formatCurrency(prices.halbtax[age] * 2)} jährlich</div>
-                  <div>• GA lohnt sich ab: {formatCurrency(results.gaTotal * 2)} jährlich</div>
+                  <div className="font-medium mb-1">{t('breakEvenPoints')}</div>
+                  <div>{t('halbtaxBreakEven', { cost: formatCurrency(prices.halbtax[age] * 2) })}</div>
+                  <div>{t('gaBreakEven', { cost: formatCurrency(results.gaTotal * 2) })}</div>
                 </div>
                 <div>
-                  <div className="font-medium mb-1">Bei Ihren Kosten:</div>
-                  <div>• Ersparnis mit bester Option: {formatCurrency(results.noAboTotal - results.bestOption.total)}</div>
-                  <div>• Das sind {Math.round((1 - results.bestOption.total / results.noAboTotal) * 100)}% Ersparnis</div>
+                  <div className="font-medium mb-1">{t('yourCosts')}</div>
+                  <div>{t('savingsWithBest', { cost: formatCurrency(results.noAboTotal - results.bestOption.total) })}</div>
+                  <div>{t('savingsPercent', { percent: Math.round((1 - results.bestOption.total / results.noAboTotal) * 100) })}</div>
                 </div>
               </div>
               
@@ -496,8 +506,8 @@ const SBBCalculator: React.FC = () => {
               {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
                 <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                   <div className="text-sm text-orange-800">
-                    <div className="font-medium mb-1">ℹ️ Halbtax Plus Nachladung:</div>
-                    <div>Bei Verbrauch über das Guthaben hinaus wird automatisch nachgeladen. Der letzte Reload wird anteilig berechnet (z.B. 50% Nutzung = 50% Kosten).</div>
+                    <div className="font-medium mb-1">{t('halbtaxPlusInfo')}</div>
+                    <div>{t('halbtaxPlusExplanation')}</div>
                   </div>
                 </div>
               )}
@@ -506,7 +516,7 @@ const SBBCalculator: React.FC = () => {
         )}
 
         <div className="text-xs text-gray-500 text-center">
-          Preise Stand 2025. Halbtax Plus beinhaltet zusätzliches Fahrguthaben als Bonus. Alle Angaben ohne Gewähr.
+          {t('disclaimer')}
         </div>
       </div>
     </div>

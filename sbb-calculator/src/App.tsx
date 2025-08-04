@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, Settings } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, Settings, Info } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, HalbtaxPlusOption, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks, saveLinks } from './links';
@@ -142,6 +142,11 @@ const SBBCalculator: React.FC = () => {
   // Get pricing data from external pricing file
   const prices: PriceStructure = getPricing();
 
+  // Format currency helper
+  const formatCurrency = useCallback((amount: number): string => {
+    return `CHF ${Math.round(amount).toLocaleString()}`;
+  }, []);
+
   // Handle purchase link updates
   const updatePurchaseLink = useCallback((type: keyof PurchaseLinks, url: string) => {
     const newLinks = { ...purchaseLinks, [type]: url };
@@ -151,7 +156,6 @@ const SBBCalculator: React.FC = () => {
 
   // Get purchase link for option type
   const getPurchaseLink = useCallback((optionType: string): string => {
-    console.log('getPurchaseLink called with type:', optionType, 'links:', purchaseLinks);
     switch (optionType) {
       case 'halbtax':
         return purchaseLinks.halbtax;
@@ -163,6 +167,59 @@ const SBBCalculator: React.FC = () => {
         return '';
     }
   }, [purchaseLinks]);
+
+  // Get detailed information for tooltip
+  const getOptionTooltipContent = useCallback((option: any, results: CalculationResults): string => {
+    const details: string[] = [];
+    
+    if (option.type === 'none') {
+      details.push(`${t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}`);
+    } else if (option.type === 'halbtax') {
+      details.push(`Halbtax (${isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): ${formatCurrency(getHalbtaxPrice(age, isNewCustomer))}`);
+      details.push(`${t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}`);
+    } else if (option.type === 'halbtaxplus') {
+      details.push(`${t('halbtaxPlus', { credit: option.credit })}: ${formatCurrency(option.details.cost)}`);
+      details.push(`Halbtax (${isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): ${formatCurrency(getHalbtaxPrice(age, isNewCustomer))}`);
+      details.push(`${t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}`);
+      
+      if (option.details.reloadCount > 0 && allowHalbtaxPlusRebuying) {
+        details.push(`${t('reloads')}`);
+        if (option.details.reloadCount > 1) {
+          details.push(`${t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrency((option.details.reloadCount - 1) * option.details.cost) })}`);
+        }
+        details.push(`${t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}`);
+        details.push(`${t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}`);
+      }
+      
+      if (option.details.halbtaxTicketsAfterCredit > 0 && !allowHalbtaxPlusRebuying) {
+        details.push(`Regular Halbtax Tickets`);
+        details.push(`Remaining ticket costs (already with Halbtax discount): ${formatCurrency(option.details.halbtaxTicketsAfterCredit)}`);
+      }
+    } else if (option.type === 'ga') {
+      details.push(`GA (${isFirstClass ? t('firstClass') : t('secondClass')}): ${formatCurrency(getGAPrice(age, isFirstClass))}`);
+      details.push(`${t('unlimitedTravel')}`);
+    }
+    
+    // Add cost comparison if not the best option
+    if (option.total !== results.bestOption.total) {
+      details.push('');
+      details.push(`${t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}`);
+    }
+    
+    return details.join('\n');
+  }, [t, isNewCustomer, age, allowHalbtaxPlusRebuying, isFirstClass, formatCurrency]);
+
+  // Get detailed information for Streckenabo tooltip
+  const getStreckenAboTooltipContent = useCallback((streckenabo: any, routeIndex: number): string => {
+    const details: string[] = [];
+    details.push(`${t('streckenabo')} - Route ${routeIndex}`);
+    details.push(`${t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}`);
+    details.push(`${t('annualPass', { cost: formatCurrency(streckenabo.annualPrice) })}`);
+    details.push('');
+    details.push(`${t('streckenabosExplanation')}`);
+    details.push(`${t('streckenabosFormula')}`);
+    return details.join('\n');
+  }, [t, formatCurrency]);
 
   // Calculate Streckenabo using linear regression formula
   const calculateStreckenabo = (roundTripPrice: number): number => {
@@ -370,10 +427,6 @@ const SBBCalculator: React.FC = () => {
     setRoutes(prev => prev.map(r => 
       r.id === id ? { ...r, [field]: value } : r
     ));
-  }, []);
-
-  const formatCurrency = useCallback((amount: number): string => {
-    return `CHF ${Math.round(amount).toLocaleString()}`;
   }, []);
 
   const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
@@ -771,9 +824,19 @@ const SBBCalculator: React.FC = () => {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">
+                        <h3 className="font-semibold flex items-center gap-2">
                           {option.name}
                           {isBest && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">{t('bestOption')}</span>}
+                          <div 
+                            className="relative group cursor-help"
+                            title={getOptionTooltipContent(option, results)}
+                          >
+                            <Info className="w-4 h-4 text-gray-500 hover:text-gray-700 transition-colors" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg">
+                              <div className="whitespace-pre-line">{getOptionTooltipContent(option, results)}</div>
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
                         </h3>
                         {getPurchaseLink(option.type) && (
                           <a
@@ -792,57 +855,7 @@ const SBBCalculator: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="text-xs space-y-1">
-                      {option.type === 'none' && (
-                        <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
-                      )}
-                      
-                      {option.type === 'halbtax' && (
-                        <>
-                          <div>Halbtax ({isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): {formatCurrency(getHalbtaxPrice(age, isNewCustomer))}</div>
-                          <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
-                        </>
-                      )}
-                      
-                      {option.type === 'halbtaxplus' && (
-                        <>
-                          <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
-                          <div>Halbtax ({isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): {formatCurrency(getHalbtaxPrice(age, isNewCustomer))}</div>
-                          <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
-                          
-                          {option.details.reloadCount > 0 && allowHalbtaxPlusRebuying && (
-                            <>
-                              <div className="text-orange-600 font-medium">{t('reloads')}</div>
-                              {option.details.reloadCount > 1 && (
-                                <div>{t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrency((option.details.reloadCount - 1) * option.details.cost) })}</div>
-                              )}
-                              <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
-                              <div className="font-medium">{t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}</div>
-                            </>
-                          )}
-                          
-                          {option.details.halbtaxTicketsAfterCredit > 0 && !allowHalbtaxPlusRebuying && (
-                            <>
-                              <div className="text-blue-600 font-medium">Regular Halbtax Tickets</div>
-                              <div>Remaining ticket costs (already with Halbtax discount): {formatCurrency(option.details.halbtaxTicketsAfterCredit)}</div>
-                            </>
-                          )}
-                        </>
-                      )}
-                      
-                      {option.type === 'ga' && (
-                        <>
-                          <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
-                          <div>{t('unlimitedTravel')}</div>
-                        </>
-                      )}
-                    </div>
 
-                    {!isBest && (
-                      <div className="text-xs mt-2 opacity-75">
-                        {t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -870,13 +883,11 @@ const SBBCalculator: React.FC = () => {
                           </div>
                           <div 
                             className="relative group cursor-help"
-                            title={t('streckenabosExplanation')}
+                            title={getStreckenAboTooltipContent(streckenabo, routeIndex)}
                           >
-                            <span className="text-purple-600 hover:text-purple-800 transition-colors">ℹ️</span>
+                            <Info className="w-4 h-4 text-purple-500 hover:text-purple-700 transition-colors" />
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg">
-                              <div className="font-medium mb-1">{t('streckenabosInfo')}</div>
-                              <div className="mb-2">{t('streckenabosExplanation')}</div>
-                              <div className="text-gray-300 italic">{t('streckenabosFormula')}</div>
+                              <div className="whitespace-pre-line">{getStreckenAboTooltipContent(streckenabo, routeIndex)}</div>
                               <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
                           </div>
@@ -898,10 +909,6 @@ const SBBCalculator: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="text-xs space-y-1 text-purple-800">
-                      <div>{t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}</div>
-                      <div>{t('annualPass', { cost: formatCurrency(streckenabo.annualPrice) })}</div>
-                    </div>
 
                     <div className={`text-xs mt-2 px-2 py-1 rounded ${statusInfo.badgeColor}`}>
                       {statusInfo.badge}

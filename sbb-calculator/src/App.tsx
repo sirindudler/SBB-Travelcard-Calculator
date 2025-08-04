@@ -42,11 +42,11 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 27, isHalbtaxPrice: false }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false }
   ]);
   
   // Direct input
-  const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number>(2808);
+  const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number>(2500);
   
   const [results, setResults] = useState<CalculationResults | null>(null);
 
@@ -84,7 +84,7 @@ const SBBCalculator: React.FC = () => {
     if (inputMode === 'simple') {
       yearlySpendingFull = routes.reduce((total, route) => {
         const routeYearly = route.trips * route.cost * 52;
-        return total + routeYearly;
+        return total + (route.isHalbtaxPrice ? routeYearly * 2 : routeYearly);
       }, 0);
     } else {
       yearlySpendingFull = yearlySpendingDirect;

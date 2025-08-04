@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote } from 'lucide-react';
 import { Language, useTranslation } from './translations';
+import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, HalbtaxPlusOption, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 
 // Types for better TypeScript
-type AgeGroup = 'jugend' | 'erwachsene';
+type AgeGroup = PricingAgeGroup; // Use the same type from pricing
 type InputMode = 'simple' | 'direct';
 
 interface Route {
@@ -24,21 +25,14 @@ interface CalculationResults {
   bestOption: any;
 }
 
-interface HalbtaxPlusOption {
-  cost: number;
-  credit: number;
-}
-
-interface PriceStructure {
-  halbtax: Record<AgeGroup, number>;
-  ga: Record<AgeGroup, number>;
-  halbtaxPlus: Record<AgeGroup, Record<string, HalbtaxPlusOption>>;
-}
+// Remove duplicate interfaces - now imported from pricing.ts
 
 const SBBCalculator: React.FC = () => {
   const [age, setAge] = useState<AgeGroup>('jugend');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
   const [language, setLanguage] = useState<Language>('en');
+  const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
+  const [isNewCustomer, setIsNewCustomer] = useState<boolean>(true);
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
@@ -53,29 +47,8 @@ const SBBCalculator: React.FC = () => {
   // Use translation hook
   const t = useTranslation(language);
 
-  // Memoize static data to prevent unnecessary re-renders
-  const prices = useMemo((): PriceStructure => ({
-    halbtax: {
-      jugend: 120,
-      erwachsene: 190
-    },
-    ga: {
-      jugend: 2780,
-      erwachsene: 3995
-    },
-    halbtaxPlus: {
-      jugend: {
-        1000: { cost: 600, credit: 1000 },
-        2000: { cost: 1125, credit: 2000 },
-        3000: { cost: 1575, credit: 3000 }
-      },
-      erwachsene: {
-        1000: { cost: 800, credit: 1000 },
-        2000: { cost: 1500, credit: 2000 },
-        3000: { cost: 2100, credit: 3000 }
-      }
-    }
-  }), []);
+  // Get pricing data from external pricing file
+  const prices: PriceStructure = getPricing();
 
   // useCallback for functions passed to child components or used in effects
   const calculate = useCallback(() => {
@@ -90,8 +63,8 @@ const SBBCalculator: React.FC = () => {
       yearlySpendingFull = yearlySpendingDirect;
     }
     
-    const halbtaxPrice = prices.halbtax[age];
-    const gaPrice = prices.ga[age];
+    const halbtaxPrice = getHalbtaxPrice(age, isNewCustomer);
+    const gaPrice = getGAPrice(age, isFirstClass);
     
     // Option 1: Kein Abo
     const noAboTotal = yearlySpendingFull;
@@ -109,7 +82,10 @@ const SBBCalculator: React.FC = () => {
     const halbtaxTotal = halbtaxTicketCosts + halbtaxPrice;
     
     // Option 3: Halbtax Plus (alle Varianten) - mit Nachladung
-    const halbtaxPlusOptions = Object.entries(prices.halbtaxPlus[age]).map(([credit, data]) => {
+    // Only available for youth and adults
+    const halbtaxPlusAvailable = age === 'jugend' || age === 'erwachsene';
+    const halbtaxPlusOptions = halbtaxPlusAvailable 
+      ? Object.entries(getHalbtaxPlusOptions(age as 'jugend' | 'erwachsene')).map(([credit, data]) => {
       const creditAmount = data.credit;
       const packageCost = data.cost;
       
@@ -153,7 +129,8 @@ const SBBCalculator: React.FC = () => {
           lastReloadRatio: lastReloadUsage / creditAmount
         };
       }
-    });
+    })
+      : [];
     
     // Option 4: GA
     const gaTotal = gaPrice;
@@ -264,9 +241,55 @@ const SBBCalculator: React.FC = () => {
             onChange={(e) => setAge(e.target.value as AgeGroup)}
             className="w-full max-w-sm p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
           >
+            <option value="kind">{t('child')}</option>
             <option value="jugend">{t('youth')}</option>
+            <option value="fuenfundzwanzig">{t('twentyFive')}</option>
             <option value="erwachsene">{t('adult')}</option>
+            <option value="senior">{t('senior')}</option>
+            <option value="behinderung">{t('disability')}</option>
           </select>
+        </div>
+
+        {/* Pricing Options */}
+        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+          <div className="flex items-center gap-2 mb-4">
+            <CreditCard className="w-5 h-5 text-indigo-600" />
+            <label className="text-lg font-semibold text-indigo-900">
+              {t('pricingOptions')}
+            </label>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Class Selection */}
+            <div>
+              <label className="block text-sm font-medium text-indigo-800 mb-2">
+                {t('travelClass')}
+              </label>
+              <select 
+                value={isFirstClass ? 'first' : 'second'} 
+                onChange={(e) => setIsFirstClass(e.target.value === 'first')}
+                className="w-full p-3 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-indigo-300"
+              >
+                <option value="second">{t('secondClass')}</option>
+                <option value="first">{t('firstClass')}</option>
+              </select>
+            </div>
+            
+            {/* Customer Type Selection */}
+            <div>
+              <label className="block text-sm font-medium text-indigo-800 mb-2">
+                {t('customerType')}
+              </label>
+              <select 
+                value={isNewCustomer ? 'new' : 'loyalty'} 
+                onChange={(e) => setIsNewCustomer(e.target.value === 'new')}
+                className="w-full p-3 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-indigo-300"
+              >
+                <option value="new">{t('newCustomer')}</option>
+                <option value="loyalty">{t('loyaltyPrice')}</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Eingabemodus Toggle */}
@@ -495,7 +518,7 @@ const SBBCalculator: React.FC = () => {
                       
                       {option.type === 'halbtax' && (
                         <>
-                          <div>{age === 'jugend' ? t('halbtaxYouth', { cost: formatCurrency(prices.halbtax[age]) }) : t('halbtaxAdult', { cost: formatCurrency(prices.halbtax[age]) })}</div>
+                          <div>Halbtax ({isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): {formatCurrency(getHalbtaxPrice(age, isNewCustomer))}</div>
                           <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
                         </>
                       )}
@@ -503,7 +526,7 @@ const SBBCalculator: React.FC = () => {
                       {option.type === 'halbtaxplus' && (
                         <>
                           <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
-                          <div>{age === 'jugend' ? t('halbtaxYouth', { cost: formatCurrency(prices.halbtax[age]) }) : t('halbtaxAdult', { cost: formatCurrency(prices.halbtax[age]) })}</div>
+                          <div>Halbtax ({isNewCustomer ? t('newCustomer') : t('loyaltyPrice')}): {formatCurrency(getHalbtaxPrice(age, isNewCustomer))}</div>
                           <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                           {option.details.reloadCount > 0 && (
                             <>
@@ -519,7 +542,10 @@ const SBBCalculator: React.FC = () => {
                       )}
                       
                       {option.type === 'ga' && (
-                        <div>{t('unlimitedTravel')}</div>
+                        <>
+                          <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
+                          <div>{t('unlimitedTravel')}</div>
+                        </>
                       )}
                     </div>
 
@@ -539,7 +565,7 @@ const SBBCalculator: React.FC = () => {
               <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
                   <div className="font-medium mb-1">{t('breakEvenPoints')}</div>
-                  <div>{t('halbtaxBreakEven', { cost: formatCurrency(prices.halbtax[age] * 2) })}</div>
+                  <div>{t('halbtaxBreakEven', { cost: formatCurrency(getHalbtaxPrice(age, isNewCustomer) * 2) })}</div>
                   <div>{t('gaBreakEven', { cost: formatCurrency(results.gaTotal * 2) })}</div>
                 </div>
                 <div>

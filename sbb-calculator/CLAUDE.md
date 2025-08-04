@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# ⚠️ CRITICAL RULES - READ FIRST ⚠️
+
+## 🚫 GIT COMMIT RULES - MANDATORY 🚫
+**NEVER mention Claude, AI, or add AI co-authorship in git commits**
+- NO "Generated with Claude Code" 
+- NO "Co-Authored-By: Claude"
+- NO AI references of any kind
+- Use clean, professional commit messages only
+- This rule applies to ALL git operations without exception
+
+## 📋 BEFORE ANY ACTION CHECKLIST
+1. ✅ Have I read the Git Commit Rules above?
+2. ✅ Am I about to perform a git operation? → Double-check no AI references
+3. ✅ Have I reviewed the User Preferences section?
+4. ✅ Have I checked the Development Commands section?
+
 ## Project Overview
 
 This is a React-based SBB (Swiss Federal Railways) subscription calculator that helps users compare different public transport subscription options in Switzerland. The application calculates the most cost-effective subscription based on user travel patterns and preferences.
@@ -44,7 +60,12 @@ npm run build
 
 ## Git Commit Guidelines
 
-**Important**: When creating git commits, never mention Claude, AI, or make Claude/AI a co-author. Write clean, professional commit messages without any AI attribution.
+**CRITICAL**: This section is repeated at the top of this file for emphasis. When creating git commits:
+- ❌ NEVER mention Claude, AI, or make Claude/AI a co-author
+- ❌ NO "Generated with Claude Code"
+- ❌ NO "Co-Authored-By: Claude" 
+- ✅ Write clean, professional commit messages without any AI attribution
+- ✅ Follow conventional commit format: `type: description`
 
 ## User Preferences
 

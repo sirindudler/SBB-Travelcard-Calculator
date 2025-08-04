@@ -423,7 +423,7 @@ const SBBCalculator: React.FC = () => {
             </div>
 
             {/* Alle Optionen anzeigen */}
-            <div className="grid lg:grid-cols-2 gap-4">
+            <div className="space-y-4">
               {results.options.map((option, index) => {
                 const isBest = option.name === results.bestOption.name;
                 return (

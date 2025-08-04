@@ -295,14 +295,32 @@ const SBBCalculator: React.FC = () => {
     return `CHF ${Math.round(amount).toLocaleString()}`;
   }, []);
 
-  const getOptionColor = useCallback((option: any, isBest: boolean): string => {
-    if (isBest) return 'bg-green-50 border-green-200 text-green-800';
-    switch (option.type) {
-      case 'none': return 'bg-red-50 border-red-200 text-red-800';
-      case 'halbtax': return 'bg-blue-50 border-blue-200 text-blue-800';
-      case 'halbtaxplus': return 'bg-purple-50 border-purple-200 text-purple-800';
-      case 'ga': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-      default: return 'bg-gray-50 border-gray-200 text-gray-800';
+  const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
+    if (option.total === bestOptionTotal) {
+      return 'bg-green-50 border-green-200 text-green-800';
+    }
+    
+    // Calculate percentage increase from best option
+    const percentageIncrease = ((option.total - bestOptionTotal) / bestOptionTotal) * 100;
+    
+    if (percentageIncrease <= 5) {
+      // 0-5% more expensive: Light green (very good)
+      return 'bg-green-50 border-green-200 text-green-800';
+    } else if (percentageIncrease <= 15) {
+      // 5-15% more expensive: Yellow-green (good)
+      return 'bg-lime-50 border-lime-200 text-lime-800';
+    } else if (percentageIncrease <= 30) {
+      // 15-30% more expensive: Yellow (okay)
+      return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+    } else if (percentageIncrease <= 50) {
+      // 30-50% more expensive: Orange (not great)
+      return 'bg-orange-50 border-orange-200 text-orange-800';
+    } else if (percentageIncrease <= 75) {
+      // 50-75% more expensive: Red-orange (bad)
+      return 'bg-red-50 border-red-200 text-red-800';
+    } else {
+      // 75%+ more expensive: Dark red (very bad)
+      return 'bg-red-100 border-red-300 text-red-900';
     }
   }, []);
 
@@ -571,11 +589,11 @@ const SBBCalculator: React.FC = () => {
             {/* Alle Optionen anzeigen */}
             <div className="space-y-4">
               {results.options.map((option, index) => {
-                const isBest = option.name === results.bestOption.name;
+                const isBest = option.total === results.bestOption.total;
                 return (
                   <div 
                     key={index}
-                    className={`p-4 rounded-lg border-2 ${getOptionColor(option, isBest)}`}
+                    className={`p-4 rounded-lg border-2 ${getOptionColor(option, results.bestOption.total)}`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold">

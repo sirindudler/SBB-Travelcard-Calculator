@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, Settings, Info } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, Info } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, HalbtaxPlusOption, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
-import { PurchaseLinks, getStoredLinks, saveLinks } from './links';
+import { PurchaseLinks, getStoredLinks } from './links';
 
 // Types for better TypeScript
 type AgeGroup = PricingAgeGroup; // Use the same type from pricing
@@ -124,7 +124,6 @@ const SBBCalculator: React.FC = () => {
   const [isNewCustomer, setIsNewCustomer] = useState<boolean>(true);
   const [allowHalbtaxPlusRebuying, setAllowHalbtaxPlusRebuying] = useState<boolean>(true);
   const [purchaseLinks, setPurchaseLinks] = useState<PurchaseLinks>(() => getStoredLinks());
-  const [showLinkSettings, setShowLinkSettings] = useState<boolean>(false);
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
@@ -147,12 +146,6 @@ const SBBCalculator: React.FC = () => {
     return `CHF ${Math.round(amount).toLocaleString()}`;
   }, []);
 
-  // Handle purchase link updates
-  const updatePurchaseLink = useCallback((type: keyof PurchaseLinks, url: string) => {
-    const newLinks = { ...purchaseLinks, [type]: url };
-    setPurchaseLinks(newLinks);
-    saveLinks(newLinks);
-  }, [purchaseLinks]);
 
   // Get purchase link for option type
   const getPurchaseLink = useCallback((optionType: string): string => {
@@ -466,95 +459,23 @@ const SBBCalculator: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
         </div>
         
-        {/* Language Selector and Settings */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-gray-600" />
-            <select 
-              value={language} 
-              onChange={(e) => setLanguage(e.target.value as Language)}
-              className="p-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-              title={t('selectLanguage')}
-            >
-              <option value="en">English</option>
-              <option value="de">Deutsch</option>
-              <option value="fr">Français</option>
-              <option value="it">Italiano</option>
-            </select>
-          </div>
-          
-          <button
-            onClick={() => setShowLinkSettings(!showLinkSettings)}
-            className={`p-2 rounded-lg text-sm transition-colors ${
-              showLinkSettings 
-                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-            title="Purchase Links Settings"
+        {/* Language Selector */}
+        <div className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-gray-600" />
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            className="p-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+            title={t('selectLanguage')}
           >
-            <Settings className="w-4 h-4" />
-          </button>
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+          </select>
         </div>
       </div>
 
-      {/* Purchase Links Settings Panel */}
-      {showLinkSettings && (
-        <div className="mb-6 bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <ExternalLink className="w-5 h-5 text-gray-600" />
-            <h3 className="text-lg font-semibold text-gray-800">Purchase Links Configuration</h3>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            Add purchase links that will appear as clickable icons on subscription cards. Leave empty to hide the purchase button.
-          </p>
-          
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Halbtax Link:</label>
-              <input
-                type="url"
-                value={purchaseLinks.halbtax}
-                onChange={(e) => updatePurchaseLink('halbtax', e.target.value)}
-                placeholder="https://www.sbb.ch/en/travelcards-and-tickets/railpasses/half-fare-travelcard.html"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Halbtax Plus Link:</label>
-              <input
-                type="url"
-                value={purchaseLinks.halbtaxPlus}
-                onChange={(e) => updatePurchaseLink('halbtaxPlus', e.target.value)}
-                placeholder="https://www.sbb.ch/en/travelcards-and-tickets/railpasses/half-fare-travelcard.html"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">GA Link:</label>
-              <input
-                type="url"
-                value={purchaseLinks.ga}
-                onChange={(e) => updatePurchaseLink('ga', e.target.value)}
-                placeholder="https://www.sbb.ch/en/travelcards-and-tickets/railpasses/ga-travelcard.html"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Route Pass (Streckenabo) Link:</label>
-              <input
-                type="url"
-                value={purchaseLinks.streckenabo}
-                onChange={(e) => updatePurchaseLink('streckenabo', e.target.value)}
-                placeholder="https://www.sbb.ch/en/travelcards-and-tickets/tickets/point-to-point/route-pass.html"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="space-y-8">
         {/* Altersgruppe with Travel Class */}

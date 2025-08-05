@@ -34,7 +34,7 @@ jobs:
       working-directory: ./sbb-calculator
       
     - name: Build
-      run: npm run build
+      run: CI=false npm run build
       working-directory: ./sbb-calculator
       
     - name: Setup Pages

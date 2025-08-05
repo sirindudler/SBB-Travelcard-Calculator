@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { Language, useTranslation } from './translations';
-import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, HalbtaxPlusOption, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
+import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 
 // Types for better TypeScript
@@ -44,7 +44,7 @@ interface CalculationResults {
 
 const SBBCalculator: React.FC = () => {
   // Define color schemes that match the overall design
-  const routeColorSchemes: RouteColorScheme[] = [
+  const routeColorSchemes: RouteColorScheme[] = useMemo(() => [
     {
       bg: 'from-green-50 to-emerald-50',
       border: 'border-green-100',
@@ -111,7 +111,7 @@ const SBBCalculator: React.FC = () => {
       focusRing: 'focus:ring-teal-500 focus:border-teal-500',
       summaryBg: 'bg-teal-100'
     }
-  ];
+  ], []);
 
   const getColorSchemeForRoute = useCallback((routeIndex: number): RouteColorScheme => {
     return routeColorSchemes[routeIndex % routeColorSchemes.length];
@@ -358,7 +358,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, prices, t, allowHalbtaxPlusReload]);
+  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass]);
 
   useEffect(() => {
     calculate();

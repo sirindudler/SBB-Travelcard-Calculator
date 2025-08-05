@@ -1,46 +1,106 @@
-# Getting Started with Create React App
+# SBB Travelcard Calculator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚆 **A comprehensive calculator for Swiss Federal Railways (SBB) subscription options**
 
-## Available Scripts
+## 🌐 Live Website
+**Try it now:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)
 
-In the project directory, you can run:
+## 📋 Overview
 
-### `npm start`
+The SBB Travelcard Calculator helps Swiss public transport users find the most cost-effective subscription option based on their travel patterns. Compare different SBB subscription types and get personalized recommendations with detailed cost breakdowns.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## ✨ Features
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🎯 Smart Calculation Modes
+- **Route-based calculation**: Input specific travel routes with frequency and costs
+- **Direct cost input**: Enter your annual travel expenses directly
+- **Multi-route support**: Add multiple travel routes for comprehensive analysis
 
-### `npm test`
+### 🎫 Subscription Options Compared
+- **No Subscription** (regular tickets)
+- **Halbtax** (50% discount card)
+- **Halbtax Plus** (prepaid credit system with reload logic)
+- **GA Travelcard** (unlimited travel)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🎨 User Experience
+- **Multi-language support**: English, German, French, Italian
+- **Age group pricing**: Different rates for adults, seniors, youth
+- **Travel class options**: 1st and 2nd class pricing
+- **Color-coded results**: Visual comparison of subscription costs
+- **Responsive design**: Works on desktop and mobile
 
-### `npm run build`
+### 🧮 Advanced Calculations
+- **Halbtax Plus reload logic**: Automatic credit top-ups and proportional billing
+- **Loyalty pricing**: New customer vs. existing customer rates
+- **Percentage-based comparisons**: See exactly how much you save or spend
+- **Dynamic pricing**: Real SBB pricing data with type-safe calculations
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🚀 Quick Start
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Development
+```bash
+# Install dependencies
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Start development server
+npm start
+# Opens http://localhost:3000
 
-### `npm run eject`
+# Run tests
+npm test
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# Build for production
+npm run build
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Production Deployment
+This project automatically deploys to GitHub Pages via GitHub Actions when changes are pushed to the main branch.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 🏗️ Technical Architecture
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Frontend Stack
+- **React 19** with TypeScript for type safety
+- **Tailwind CSS** for responsive styling
+- **Lucide React** for modern icons
+- **Create React App** for development tooling
 
-## Learn More
+### Code Organization
+- **`App.tsx`**: Main application logic and state management
+- **`pricing.ts`**: Swiss railway pricing data and utility functions
+- **`translations.ts`**: Multi-language support with parameterized strings
+- **Centralized state**: React hooks without external state management
+- **Type-safe**: Full TypeScript implementation with strict mode
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Key Features Implementation
+- **Dynamic color schemes**: Unique colors for each travel route
+- **Complex pricing logic**: Handles Halbtax Plus reload scenarios
+- **Responsive UI**: Mobile-first design with Tailwind CSS
+- **Internationalization**: Context-aware translations for all Swiss languages
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🎨 Design Principles
+
+- **User-centric**: Intuitive interface for comparing complex pricing options
+- **Accurate calculations**: Based on official SBB pricing structures
+- **Performance**: Optimized React components and efficient state management
+- **Accessibility**: Semantic HTML and keyboard navigation support
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🇨🇭 About SBB
+
+The Swiss Federal Railways (SBB) is Switzerland's national railway company. This calculator uses official SBB pricing structures to help travelers make informed decisions about their public transport subscriptions.
+
+---
+
+**🌐 Visit the live calculator:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)

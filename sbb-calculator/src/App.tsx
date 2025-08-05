@@ -449,7 +449,7 @@ const SBBCalculator: React.FC = () => {
       </div>
 
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8 pb-8">
         {/* Passenger Category and Travel Class */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
@@ -1045,8 +1045,86 @@ const SBBCalculator: React.FC = () => {
           </div>
         )}
 
-        <div className="text-xs text-gray-500 text-center px-4 leading-relaxed">
-          {t('disclaimer')}
+        {/* Footer with disclaimer */}
+        <div className="mt-8 mb-4 px-4 py-6 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="max-w-4xl mx-auto text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <div className="whitespace-pre-line text-left">
+              {t('disclaimer').split('\n').map((line, index) => {
+                // Handle full-line bold headings (start and end with **)
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <div key={index} className="font-bold text-gray-800 mt-3 mb-2">{line.replace(/^\*\*|\*\*$/g, '')}</div>;
+                } 
+                // Handle bullet points
+                else if (line.startsWith('•')) {
+                  // Parse inline bold text in bullet points
+                  const parts = line.split(/(\*\*[^*]+\*\*)/);
+                  return (
+                    <div key={index} className="ml-4 mb-1">
+                      {parts.map((part, i) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <span key={i} className="font-bold">{part.replace(/^\*\*|\*\*$/g, '')}</span>;
+                        }
+                        return part;
+                      })}
+                    </div>
+                  );
+                } 
+                // Handle lines with markdown links
+                else if (line.includes('[') && line.includes(']') && line.includes('(') && line.includes(')')) {
+                  // First handle bold text, then links
+                  const handleBoldAndLinks = (text: string) => {
+                    // Split by bold patterns first
+                    const boldParts = text.split(/(\*\*[^*]+\*\*)/);
+                    return boldParts.map((boldPart, boldIndex) => {
+                      if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
+                        return <span key={boldIndex} className="font-bold">{boldPart.replace(/^\*\*|\*\*$/g, '')}</span>;
+                      }
+                      // Then handle links within non-bold parts
+                      const linkParts = boldPart.split(/(\[([^\]]+)\]\(([^)]+)\))/);
+                      return linkParts.map((part, linkIndex) => {
+                        const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                        if (linkMatch) {
+                          const [, text, url] = linkMatch;
+                          return (
+                            <a key={`${boldIndex}-${linkIndex}`} href={url.startsWith('http') ? url : `https://${url}`} 
+                               target="_blank" rel="noopener noreferrer" 
+                               className="text-blue-600 hover:text-blue-800 underline font-medium">
+                              {text}
+                            </a>
+                          );
+                        }
+                        return part;
+                      });
+                    });
+                  };
+                  
+                  return (
+                    <div key={index} className="mt-2">
+                      {handleBoldAndLinks(line)}
+                    </div>
+                  );
+                } 
+                // Handle regular text with inline bold formatting
+                else if (line.trim()) {
+                  const parts = line.split(/(\*\*[^*]+\*\*)/);
+                  return (
+                    <div key={index} className="mb-2">
+                      {parts.map((part, i) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <span key={i} className="font-bold">{part.replace(/^\*\*|\*\*$/g, '')}</span>;
+                        }
+                        return part;
+                      })}
+                    </div>
+                  );
+                } 
+                // Handle empty lines
+                else {
+                  return <div key={index} className="mb-2"></div>;
+                }
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

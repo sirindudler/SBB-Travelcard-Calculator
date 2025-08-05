@@ -419,8 +419,8 @@ const SBBCalculator: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-11/12 mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-0 bg-red-600 rounded-full blur-sm opacity-20"></div>
@@ -428,16 +428,16 @@ const SBBCalculator: React.FC = () => {
               <Train className="w-6 h-6 text-white drop-shadow-sm" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">{t('title')}</h1>
         </div>
         
         {/* Language Selector */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <Globe className="w-4 h-4 text-gray-600" />
           <select 
             value={language} 
             onChange={(e) => setLanguage(e.target.value as Language)}
-            className="p-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+            className="p-2 sm:p-3 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors min-w-[120px]"
             title={t('selectLanguage')}
           >
             <option value="en">English</option>
@@ -451,19 +451,19 @@ const SBBCalculator: React.FC = () => {
 
       <div className="space-y-8">
         {/* Passenger Category and Travel Class */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-          <div className="flex flex-col sm:flex-row gap-6">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-4">
-                <User className="w-5 h-5 text-blue-600" />
-                <label className="text-lg font-semibold text-blue-900">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <label className="text-base sm:text-lg font-semibold text-blue-900">
                   {t('ageGroup')}
                 </label>
               </div>
               <select 
                 value={age} 
                 onChange={(e) => setAge(e.target.value as AgeGroup)}
-                className="w-full p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
+                className="w-full p-3 sm:p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300 text-sm sm:text-base"
               >
                 <option value="kind">{t('child')}</option>
                 <option value="jugend">{t('youth')}</option>
@@ -474,16 +474,16 @@ const SBBCalculator: React.FC = () => {
               </select>
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-4">
-                <Star className="w-5 h-5 text-blue-600" />
-                <label className="text-lg font-semibold text-blue-900">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <label className="text-base sm:text-lg font-semibold text-blue-900">
                   {t('travelClass')}
                 </label>
               </div>
               <select 
                 value={isFirstClass ? 'first' : 'second'} 
                 onChange={(e) => setIsFirstClass(e.target.value === 'first')}
-                className="w-full p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300"
+                className="w-full p-3 sm:p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300 text-sm sm:text-base"
               >
                 <option value="second">
                   {t('secondClass')}
@@ -497,37 +497,37 @@ const SBBCalculator: React.FC = () => {
         </div>
 
         {/* Eingabemodus Toggle */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
-          <div className="flex items-center gap-2 mb-4">
-            <Calculator className="w-5 h-5 text-purple-600" />
-            <label className="text-lg font-semibold text-purple-900">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-purple-100">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+            <label className="text-base sm:text-lg font-semibold text-purple-900">
               {t('costEstimation')}
             </label>
           </div>
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 mb-4 sm:mb-6">
             <button
               onClick={() => setInputMode('simple')}
-              className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all transform hover:scale-105 ${
+              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
                 inputMode === 'simple' 
                   ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
                   : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
               }`}
             >
-              <MapPin className="w-4 h-4" />
-              {inputMode === 'simple' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              {t('simpleInput')}
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              {inputMode === 'simple' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
+              <span className="font-medium">{t('simpleInput')}</span>
             </button>
             <button
               onClick={() => setInputMode('direct')}
-              className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 transition-all transform hover:scale-105 ${
+              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
                 inputMode === 'direct' 
                   ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
                   : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
               }`}
             >
-              <Banknote className="w-4 h-4" />
-              {inputMode === 'direct' ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              {t('directInput')}
+              <Banknote className="w-4 h-4 flex-shrink-0" />
+              {inputMode === 'direct' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
+              <span className="font-medium">{t('directInput')}</span>
             </button>
           </div>
 
@@ -535,29 +535,29 @@ const SBBCalculator: React.FC = () => {
             <div className="space-y-4">
               {/* Dynamische Strecken */}
               {routes.map((route, index) => (
-                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-6 rounded-xl border-2 ${route.colorScheme.border} shadow-sm hover:shadow-md transition-all`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-sm`}>
+                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-4 sm:p-6 rounded-xl border-2 ${route.colorScheme.border} shadow-sm hover:shadow-md transition-all`}>
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm`}>
                         {index + 1}
                       </div>
-                      <h4 className={`font-semibold ${route.colorScheme.text} text-lg`}>{t('route')} {index + 1}</h4>
+                      <h4 className={`font-semibold ${route.colorScheme.text} text-base sm:text-lg`}>{t('route')} {index + 1}</h4>
                     </div>
                     {routes.length > 1 && (
                       <button
                         onClick={() => removeRoute(route.id)}
-                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all transform hover:scale-110"
+                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all transform hover:scale-110 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         title={t('removeRoute')}
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     )}
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-6 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4">
                     <div className="relative">
-                      <label className={`flex items-center gap-2 text-sm font-semibold ${route.colorScheme.text} mb-3`}>
-                        <Clock className="w-4 h-4" />
+                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('tripsPerWeek')}
                       </label>
                       <input 
@@ -565,67 +565,67 @@ const SBBCalculator: React.FC = () => {
                         value={route.trips || ''}
                         onChange={(e) => updateRoute(route.id, 'trips', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                         onWheel={(e) => e.currentTarget.blur()}
-                        className={`w-full px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300}`}
+                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
                         placeholder={t('placeholderTrips')}
                         step="0.5"
                         min="0"
                       />
-                      <div className={`text-xs ${route.colorScheme.accent} mt-2 flex items-center gap-1`}>
+                      <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
-                        {t('tripsPerWeekHelp')}
+                        <span className="text-xs">{t('tripsPerWeekHelp')}</span>
                       </div>
                     </div>
                     <div className="relative">
-                      <label className={`flex items-center gap-2 text-sm font-semibold ${route.colorScheme.text} mb-3`}>
-                        <Banknote className="w-4 h-4" />
+                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                        <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('costPerTrip')}
                       </label>
                       <div className="relative">
-                        <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium`}>CHF</span>
+                        <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium text-sm sm:text-base`}>CHF</span>
                         <input 
                           type="number" 
                           value={route.cost || ''}
                           onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                           onWheel={(e) => e.currentTarget.blur()}
-                          className={`w-full pl-12 pr-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300}`}
+                          className={`w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
                         placeholder={t('placeholderCost')}
                         step="0.10"
                         min="0"
                       />
                       </div>
-                      <div className={`text-xs ${route.colorScheme.accent} mt-2 flex items-center gap-1`}>
+                      <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
-                        {t('costPerTripHelp')}
+                        <span className="text-xs">{t('costPerTripHelp')}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Halbtax-Checkbox */}
-                  <div className={`bg-white p-4 rounded-lg border ${route.colorScheme.border200} mb-4`}>
-                    <div className="flex items-center gap-3">
+                  <div className={`bg-white p-3 sm:p-4 rounded-lg border ${route.colorScheme.border200} mb-3 sm:mb-4`}>
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <input
                         type="checkbox"
                         id={`halbtax-${route.id}`}
                         checked={route.isHalbtaxPrice}
                         onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
-                        className={`w-5 h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                        className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
                       />
-                      <label htmlFor={`halbtax-${route.id}`} className={`text-sm font-medium ${route.colorScheme.text} cursor-pointer`}>
+                      <label htmlFor={`halbtax-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
                         <span className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" />
-                          {t('priceAlreadyHalbtax')}
+                          <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
                         </span>
                       </label>
                     </div>
                   </div>
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
-                    <div className={`text-sm font-semibold ${route.colorScheme.text}`}>
+                    <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
                       💰 {t('routeYearlyCost', { 
                         index: index + 1, 
                         cost: formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * 52) 
                       })}
-                      {route.isHalbtaxPrice && <span className="text-orange-700 ml-2">✨ {t('alreadyHalbtaxPrice')}</span>}
+                      {route.isHalbtaxPrice && <span className="text-orange-700 ml-2 block sm:inline mt-1 sm:mt-0">✨ {t('alreadyHalbtaxPrice')}</span>}
                     </div>
                   </div>
                 </div>
@@ -634,21 +634,21 @@ const SBBCalculator: React.FC = () => {
               {/* Strecke hinzufügen Button */}
               <button
                 onClick={addRoute}
-                className="w-full p-4 border-2 border-dashed border-green-300 rounded-xl text-green-700 hover:border-green-500 hover:text-green-800 hover:bg-green-50 flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-sm hover:shadow-md"
+                className="w-full p-3 sm:p-4 border-2 border-dashed border-green-300 rounded-xl text-green-700 hover:border-green-500 hover:text-green-800 hover:bg-green-50 flex items-center justify-center gap-2 sm:gap-3 transition-all transform hover:scale-105 shadow-sm hover:shadow-md min-h-[48px] text-sm sm:text-base"
               >
-                <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">
-                  <Plus className="w-4 h-4" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 text-white rounded-full flex items-center justify-center">
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <span className="font-semibold">{t('addRoute')}</span>
               </button>
 
               {/* Gesamtkosten Anzeige */}
-              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-5 rounded-xl border-2 border-amber-200 shadow-sm">
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 sm:p-5 rounded-xl border-2 border-amber-200 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center">
-                    <Calculator className="w-4 h-4" />
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 text-white rounded-full flex items-center justify-center">
+                    <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
-                  <span className="font-bold text-amber-900 text-lg">
+                  <span className="font-bold text-amber-900 text-base sm:text-lg">
                     {t('totalYearlyCosts', { 
                       cost: formatCurrency(routes.reduce((total, route) => {
                         const trips = typeof route.trips === 'number' ? route.trips : 0;
@@ -658,11 +658,11 @@ const SBBCalculator: React.FC = () => {
                     })}
                   </span>
                 </div>
-                <div className="text-sm text-amber-700">
+                <div className="text-xs sm:text-sm text-amber-700">
                   {routes.filter(r => r.isHalbtaxPrice).length > 0 && (
-                    <div className="flex items-center gap-1 mt-2 p-2 bg-orange-100 rounded-lg border border-orange-200">
-                      <span>⚠️</span>
-                      <span className="font-medium text-orange-800">
+                    <div className="flex items-start gap-1 mt-2 p-2 sm:p-3 bg-orange-100 rounded-lg border border-orange-200">
+                      <span className="flex-shrink-0">⚠️</span>
+                      <span className="font-medium text-orange-800 text-xs sm:text-sm">
                         {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
                       </span>
                     </div>
@@ -671,21 +671,21 @@ const SBBCalculator: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border-2 border-orange-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <Banknote className="w-5 h-5 text-orange-600" />
-                <label className="text-lg font-semibold text-orange-900">
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 sm:p-6 rounded-xl border-2 border-orange-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <Banknote className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+                <label className="text-base sm:text-lg font-semibold text-orange-900">
                   {t('yearlyTravelCosts')}
                 </label>
               </div>
-              <div className="relative max-w-sm">
-                <span className="absolute left-4 top-4 text-orange-600 font-bold text-lg">CHF</span>
+              <div className="relative max-w-full sm:max-w-sm">
+                <span className="absolute left-3 sm:left-4 top-3 sm:top-4 text-orange-600 font-bold text-base sm:text-lg">CHF</span>
                 <input 
                   type="number" 
                   value={yearlySpendingDirect || ''}
                   onChange={(e) => setYearlySpendingDirect(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
                   onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full pl-16 pr-4 py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-lg font-semibold transition-all hover:border-orange-400"
+                  className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-orange-400"
                   placeholder={t('placeholderYearly')}
                 />
               </div>
@@ -695,28 +695,28 @@ const SBBCalculator: React.FC = () => {
 
         {/* Ergebnisse */}
         {results && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-red-600" />
-                <h2 className="text-xl font-semibold text-gray-800">
+                <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 leading-tight">
                   {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
                 </h2>
               </div>
               
               {/* Halbtax PLUS Reload Toggle */}
               {results.halbtaxPlusOptions.length > 0 && (
-                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200">
-                  <span className="text-sm font-medium text-gray-700">{t('halbtaxPlusReload')}</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-2 rounded-lg border border-gray-200 w-full lg:w-auto">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">{t('halbtaxPlusReload')}</span>
                   <button
                     onClick={() => setAllowHalbtaxPlusReload(!allowHalbtaxPlusReload)}
-                    className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-1 rounded-md text-xs sm:text-sm font-medium transition-all min-h-[36px] ${
                       allowHalbtaxPlusReload 
                         ? 'bg-blue-100 text-blue-800 border border-blue-200' 
                         : 'bg-gray-100 text-gray-600 border border-gray-200'
                     }`}
                   >
-                    {allowHalbtaxPlusReload ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    {allowHalbtaxPlusReload ? <ToggleRight className="w-3 h-3 sm:w-4 sm:h-4" /> : <ToggleLeft className="w-3 h-3 sm:w-4 sm:h-4" />}
                     {allowHalbtaxPlusReload ? t('enabled') : t('disabled')}
                   </button>
                 </div>
@@ -724,7 +724,7 @@ const SBBCalculator: React.FC = () => {
             </div>
 
             {/* Alle Optionen anzeigen */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {results.options.map((option, index) => {
                 const isBest = option.total === results.bestOption.total;
                 const cardId = `option-${index}`;
@@ -736,44 +736,47 @@ const SBBCalculator: React.FC = () => {
                     className={`rounded-lg border-2 ${getOptionColor(option, results.bestOption.total)} transition-all duration-200`}
                   >
                     <div 
-                      className="p-4 cursor-pointer hover:bg-black/5 transition-colors"
+                      className="p-3 sm:p-4 cursor-pointer hover:bg-black/5 transition-colors"
                       onClick={() => toggleCardExpansion(cardId)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold flex items-center gap-2">
-                            {option.name}
-                            {isBest && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">{t('bestOption')}</span>}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                            <span className="truncate">{option.name}</span>
+                            {isBest && <span className="text-xs bg-green-600 text-white px-2 py-1 rounded whitespace-nowrap">{t('bestOption')}</span>}
                           </h3>
-                          {getPurchaseLink(option.type) && (
-                            <a
-                              href={getPurchaseLink(option.type)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all duration-200 hover:scale-110 shadow-sm hover:shadow-md"
-                              title="Purchase this subscription"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-lg font-bold">
+                        <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+                          <div className="text-base sm:text-lg font-bold">
                             {formatCurrency(option.total)}
                           </div>
                           {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-gray-500" />
+                            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-500" />
+                            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                           )}
                         </div>
                       </div>
                     </div>
 
                     {isExpanded && (
-                      <div className="px-4 pb-4 border-t border-gray-200/50">
-                        <div className="pt-3 text-sm space-y-2">
+                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
+                        <div className="pt-2 sm:pt-3 text-xs sm:text-sm space-y-1 sm:space-y-2">
+                          {/* Purchase Link */}
+                          {getPurchaseLink(option.type) && (
+                            <div className="mb-3 pb-2 border-b border-gray-200/50">
+                              <a
+                                href={getPurchaseLink(option.type)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
+                              >
+                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <span>Purchase this subscription</span>
+                              </a>
+                            </div>
+                          )}
+                          
                           {option.type === 'none' && (
                             <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
                           )}
@@ -819,7 +822,7 @@ const SBBCalculator: React.FC = () => {
                           )}
 
                           {option.total !== results.bestOption.total && (
-                            <div className="text-orange-600 font-medium pt-2 border-t border-gray-200/50">
+                            <div className="text-orange-600 font-medium pt-1 sm:pt-2 border-t border-gray-200/50 text-xs sm:text-sm">
                               {t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}
                             </div>
                           )}
@@ -848,55 +851,60 @@ const SBBCalculator: React.FC = () => {
                     className={`rounded-lg border-2 ${statusInfo.cardColor} transition-all duration-200`}
                   >
                     <div 
-                      className="p-4 cursor-pointer hover:bg-black/5 transition-colors"
+                      className="p-3 sm:p-4 cursor-pointer hover:bg-black/5 transition-colors"
                       onClick={() => toggleCardExpansion(cardId)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold flex items-center gap-2">
-                            🚂 {t('streckenabo')} - Route {routeIndex}
-                            <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor}`}>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                            <span className="flex items-center gap-1">
+                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex}</span>
+                            </span>
+                            <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor} whitespace-nowrap`}>
                               {t('estimate')}
                             </div>
                           </h3>
-                          {purchaseLinks.streckenabo && (
-                            <a
-                              href={purchaseLinks.streckenabo}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center w-8 h-8 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-all duration-200 hover:scale-110 shadow-sm hover:shadow-md"
-                              title="Purchase this route pass"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-lg font-bold text-purple-700">
+                        <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+                          <div className="text-base sm:text-lg font-bold text-purple-700">
                             {formatCurrency(streckenabo.annualPrice)}
                           </div>
                           {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-purple-500" />
+                            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-purple-500" />
+                            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
                           )}
                         </div>
                       </div>
                       
-                      <div className={`text-xs mt-3 px-2 py-1 rounded ${statusInfo.badgeColor}`}>
+                      <div className={`text-xs mt-2 sm:mt-3 px-2 py-1 rounded ${statusInfo.badgeColor} inline-block`}>
                         {statusInfo.badge}
                       </div>
                     </div>
 
                     {isExpanded && (
-                      <div className="px-4 pb-4 border-t border-gray-200/50">
-                        <div className="pt-3 text-sm space-y-2">
+                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
+                        <div className="pt-2 sm:pt-3 text-xs sm:text-sm space-y-1 sm:space-y-2">
+                          {/* Purchase Link */}
+                          {purchaseLinks.streckenabo && (
+                            <div className="mb-3 pb-2 border-b border-gray-200/50">
+                              <a
+                                href={purchaseLinks.streckenabo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
+                              >
+                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <span>Purchase this route pass</span>
+                              </a>
+                            </div>
+                          )}
+                          
                           <div>{t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}</div>
                           <div>{t('annualPass', { cost: formatCurrency(streckenabo.annualPrice) })}</div>
-                          <div className="pt-2 border-t border-gray-200/50">
-                            <div className="font-medium text-purple-700 mb-1">{t('streckenabosInfo')}</div>
-                            <div className="text-gray-600">{t('streckenabosExplanation')}</div>
+                          <div className="pt-1 sm:pt-2 border-t border-gray-200/50">
+                            <div className="font-medium text-purple-700 mb-1 text-xs sm:text-sm">{t('streckenabosInfo')}</div>
+                            <div className="text-gray-600 text-xs sm:text-sm">{t('streckenabosExplanation')}</div>
                             <div className="text-gray-500 italic text-xs mt-1">{t('streckenabosFormula')}</div>
                           </div>
                         </div>
@@ -908,30 +916,30 @@ const SBBCalculator: React.FC = () => {
             </div>
 
             {/* Zusätzliche Insights */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
                   💡
                 </div>
-                <h3 className="font-semibold text-blue-900 text-lg">{t('additionalInfo')}</h3>
+                <h3 className="font-semibold text-blue-900 text-base sm:text-lg">{t('additionalInfo')}</h3>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-blue-100">
-                  <div className="flex items-center gap-2 mb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <div className="font-semibold text-gray-800">{t('breakEvenPoints')}</div>
+                    <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('breakEvenPoints')}</div>
                   </div>
-                  <div className="space-y-4 text-sm">
+                  <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm">
                     {/* Halbtax Break-even */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 font-medium">{t('halbtaxLabel')}</span>
-                        <span className="font-semibold text-gray-800">{formatCurrency(getHalbtaxPrice(age, true) * 2)}</span>
+                        <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('halbtaxLabel')}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(getHalbtaxPrice(age, true) * 2)}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
-                          className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-blue-500 to-green-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(100, (results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%`
                           }}
@@ -945,12 +953,12 @@ const SBBCalculator: React.FC = () => {
                     {/* GA Break-even */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 font-medium">{t('gaLabel')}</span>
-                        <span className="font-semibold text-gray-800">{formatCurrency(results.gaTotal * 2)}</span>
+                        <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('gaLabel')}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(results.gaTotal * 2)}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(100, (results.noAboTotal / (results.gaTotal * 2)) * 100)}%`
                           }}
@@ -963,26 +971,26 @@ const SBBCalculator: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-blue-100">
-                  <div className="flex items-center gap-2 mb-4">
+                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <div className="font-semibold text-gray-800">{t('yourCosts')}</div>
+                    <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('yourCosts')}</div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Savings Visualization */}
                     <div className="relative">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">{t('withoutSubscription')}</span>
-                        <span className="font-medium text-gray-800">{formatCurrency(results.noAboTotal)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">{t('withoutSubscription')}</span>
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">{formatCurrency(results.noAboTotal)}</span>
                       </div>
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">{t('bestOptionLabel', { option: results.bestOption.name })}</span>
-                        <span className="font-medium text-emerald-700">{formatCurrency(results.bestOption.total)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600 truncate pr-2">{t('bestOptionLabel', { option: results.bestOption.name })}</span>
+                        <span className="font-medium text-emerald-700 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(results.bestOption.total)}</span>
                       </div>
                       
                       {/* Visual Savings Bar */}
                       <div className="space-y-2">
-                        <div className="w-full bg-red-100 rounded-lg h-6 relative overflow-hidden">
+                        <div className="w-full bg-red-100 rounded-lg h-5 sm:h-6 relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-red-300 rounded-lg"></div>
                           <div 
                             className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-lg transition-all duration-700"
@@ -997,17 +1005,17 @@ const SBBCalculator: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500">
-                          <span>{t('savedAmount', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
-                          <span>{t('totalCostLabel')}</span>
+                          <span className="truncate pr-2">{t('savedAmount', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
+                          <span className="whitespace-nowrap">{t('totalCostLabel')}</span>
                         </div>
                       </div>
                     </div>
                     
                     {/* Summary Badge */}
                     <div className="text-center">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm">
-                        <span className="text-sm">💰</span>
-                        <span className="font-semibold">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
+                      <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm text-xs sm:text-sm">
+                        <span>💰</span>
+                        <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
                       </div>
                     </div>
                   </div>
@@ -1016,17 +1024,17 @@ const SBBCalculator: React.FC = () => {
               
               {/* Halbtax Plus Erklärung wenn relevant */}
               {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
+                <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
                       🔄
                     </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
-                        {t('halbtaxPlusInfo')}
-                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800">{t('autoReload')}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-orange-900 mb-2 flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                        <span>{t('halbtaxPlusInfo')}</span>
+                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800 whitespace-nowrap">{t('autoReload')}</div>
                       </div>
-                      <div className="text-sm text-orange-800 leading-relaxed">
+                      <div className="text-xs sm:text-sm text-orange-800 leading-relaxed">
                         {t('halbtaxPlusExplanation')}
                       </div>
                     </div>
@@ -1037,7 +1045,7 @@ const SBBCalculator: React.FC = () => {
           </div>
         )}
 
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-xs text-gray-500 text-center px-4 leading-relaxed">
           {t('disclaimer')}
         </div>
       </div>

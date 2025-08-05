@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
@@ -1069,41 +1069,49 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   );
                 } 
-                // Handle lines with markdown links
-                else if (line.includes('[') && line.includes(']') && line.includes('(') && line.includes(')')) {
-                  // First handle bold text, then links
-                  const handleBoldAndLinks = (text: string) => {
-                    // Split by bold patterns first
-                    const boldParts = text.split(/(\*\*[^*]+\*\*)/);
-                    return boldParts.map((boldPart, boldIndex) => {
-                      if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
-                        return <span key={boldIndex} className="font-bold">{boldPart.replace(/^\*\*|\*\*$/g, '')}</span>;
-                      }
-                      // Then handle links within non-bold parts
-                      const linkParts = boldPart.split(/(\[([^\]]+)\]\(([^)]+)\))/);
-                      return linkParts.map((part, linkIndex) => {
-                        const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                        if (linkMatch) {
-                          const [, text, url] = linkMatch;
-                          return (
-                            <a key={`${boldIndex}-${linkIndex}`} href={url.startsWith('http') ? url : `https://${url}`} 
-                               target="_blank" rel="noopener noreferrer" 
-                               className="text-blue-600 hover:text-blue-800 underline font-medium">
-                              {url}
-                            </a>
-                          );
-                        }
-                        return part;
-                      });
-                    });
-                  };
-                  
+                // Handle "Created by" line with social icons
+                else if (line.includes('Created by') || line.includes('Erstellt von') || line.includes('Créé par') || line.includes('Creato da')) {
                   return (
-                    <div key={index} className="mt-2">
-                      {handleBoldAndLinks(line)}
+                    <div key={index} className="mt-4 pt-3 border-t border-gray-300 flex items-center justify-center gap-3">
+                      <span className="text-gray-600 text-xs sm:text-sm">{line}</span>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href="https://www.linkedin.com/in/sirindudler/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="LinkedIn"
+                        >
+                          <Linkedin className="w-4 h-4" />
+                        </a>
+                        <a
+                          href="https://github.com/sirindudler"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900 transition-colors"
+                          title="GitHub"
+                        >
+                          <Github className="w-4 h-4" />
+                        </a>
+                      </div>
                     </div>
                   );
-                } 
+                }
+                // Handle URLs (simple detection for https://)
+                else if (line.startsWith('https://')) {
+                  return (
+                    <div key={index} className="mt-2">
+                      <a 
+                        href={line.trim()} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-600 hover:text-blue-800 underline font-medium"
+                      >
+                        {line.trim()}
+                      </a>
+                    </div>
+                  );
+                }
                 // Handle regular text with inline bold formatting
                 else if (line.trim()) {
                   const parts = line.split(/(\*\*[^*]+\*\*)/);

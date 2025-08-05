@@ -707,7 +707,7 @@ const SBBCalculator: React.FC = () => {
               {/* Halbtax PLUS Reload Toggle */}
               {results.halbtaxPlusOptions.length > 0 && (
                 <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-gray-200">
-                  <span className="text-sm font-medium text-gray-700">Halbtax PLUS Reload:</span>
+                  <span className="text-sm font-medium text-gray-700">{t('halbtaxPlusReload')}</span>
                   <button
                     onClick={() => setAllowHalbtaxPlusReload(!allowHalbtaxPlusReload)}
                     className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all ${
@@ -717,7 +717,7 @@ const SBBCalculator: React.FC = () => {
                     }`}
                   >
                     {allowHalbtaxPlusReload ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                    {allowHalbtaxPlusReload ? 'Enabled' : 'Disabled'}
+                    {allowHalbtaxPlusReload ? t('enabled') : t('disabled')}
                   </button>
                 </div>
               )}
@@ -780,7 +780,7 @@ const SBBCalculator: React.FC = () => {
                           
                           {option.type === 'halbtax' && (
                             <>
-                              <div>Halbtax: {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
                               <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
                             </>
                           )}
@@ -788,7 +788,7 @@ const SBBCalculator: React.FC = () => {
                           {option.type === 'halbtaxplus' && (
                             <>
                               <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
-                              <div>Halbtax: {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
                               <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                               
                               {option.details.reloadCount > 0 && allowHalbtaxPlusReload && (
@@ -926,7 +926,7 @@ const SBBCalculator: React.FC = () => {
                     {/* Halbtax Break-even */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 font-medium">Halbtax:</span>
+                        <span className="text-gray-600 font-medium">{t('halbtaxLabel')}</span>
                         <span className="font-semibold text-gray-800">{formatCurrency(getHalbtaxPrice(age, true) * 2)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -938,14 +938,14 @@ const SBBCalculator: React.FC = () => {
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        Your costs: {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%)
                       </div>
                     </div>
                     
                     {/* GA Break-even */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 font-medium">GA:</span>
+                        <span className="text-gray-600 font-medium">{t('gaLabel')}</span>
                         <span className="font-semibold text-gray-800">{formatCurrency(results.gaTotal * 2)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -957,7 +957,7 @@ const SBBCalculator: React.FC = () => {
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        Your costs: {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (results.gaTotal * 2)) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (results.gaTotal * 2)) * 100)}%)
                       </div>
                     </div>
                   </div>
@@ -972,11 +972,11 @@ const SBBCalculator: React.FC = () => {
                     {/* Savings Visualization */}
                     <div className="relative">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Without subscription:</span>
+                        <span className="text-sm text-gray-600">{t('withoutSubscription')}</span>
                         <span className="font-medium text-gray-800">{formatCurrency(results.noAboTotal)}</span>
                       </div>
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">Best option ({results.bestOption.name}):</span>
+                        <span className="text-sm text-gray-600">{t('bestOptionLabel', { option: results.bestOption.name })}</span>
                         <span className="font-medium text-emerald-700">{formatCurrency(results.bestOption.total)}</span>
                       </div>
                       
@@ -992,13 +992,13 @@ const SBBCalculator: React.FC = () => {
                           ></div>
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-xs font-semibold text-white drop-shadow-sm">
-                              {Math.round((1 - results.bestOption.total / results.noAboTotal) * 100)}% saved
+                              {t('percentageSaved', { percent: Math.round((1 - results.bestOption.total / results.noAboTotal) * 100) })}
                             </span>
                           </div>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500">
-                          <span>Saved: {formatCurrency(results.noAboTotal - results.bestOption.total)}</span>
-                          <span>Total cost</span>
+                          <span>{t('savedAmount', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
+                          <span>{t('totalCostLabel')}</span>
                         </div>
                       </div>
                     </div>
@@ -1007,7 +1007,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="text-center">
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm">
                         <span className="text-sm">💰</span>
-                        <span className="font-semibold">Save {formatCurrency(results.noAboTotal - results.bestOption.total)} annually</span>
+                        <span className="font-semibold">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
                       </div>
                     </div>
                   </div>
@@ -1024,7 +1024,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="flex-1">
                       <div className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
                         {t('halbtaxPlusInfo')}
-                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800">Auto-Reload</div>
+                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800">{t('autoReload')}</div>
                       </div>
                       <div className="text-sm text-orange-800 leading-relaxed">
                         {t('halbtaxPlusExplanation')}

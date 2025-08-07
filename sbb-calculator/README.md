@@ -104,3 +104,18 @@ The Swiss Federal Railways (SBB) is Switzerland's national railway company. This
 ---
 
 **🌐 Visit the live calculator:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)
+
+## ⚠️ Wichtiger Hinweis / Important Notice
+
+Dies ist ein inoffizieller Service und wird nicht von der SBB (Schweizerische Bundesbahnen) betrieben, unterstützt oder befürwortet.
+
+Preise Stand Januar 2025. Halbtax Plus enthält zusätzliches Reiseguthaben als Bonus.
+Preise und Konditionen können sich ohne Vorankündigung ändern.
+Bitte überprüfen Sie aktuelle Informationen auf der offiziellen SBB-Website vor dem Kauf.
+
+Dieser Rechner dient nur zur Information. Alle Angaben ohne Gewähr.
+Keine Haftung für Entscheidungen basierend auf diesen Berechnungen.
+
+**Datenschutz:** Diese Website sammelt, speichert oder überträgt keine persönlichen Daten.
+
+**Offizielle Informationen:** [https://www.sbb.ch](https://www.sbb.ch)

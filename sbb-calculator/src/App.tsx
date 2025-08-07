@@ -423,7 +423,51 @@ const SBBCalculator: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg">
+    <>
+      {/* Custom slider styles */}
+      <style>
+        {`
+          input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+          }
+          
+          input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid currentColor;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+          }
+          
+          input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+          }
+          
+          input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid currentColor;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+          }
+          
+          input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+          }
+        `}
+      </style>
+      <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -501,10 +545,10 @@ const SBBCalculator: React.FC = () => {
         </div>
 
         {/* Eingabemodus Toggle */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-purple-100">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-            <label className="text-base sm:text-lg font-semibold text-purple-900">
+            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            <label className="text-base sm:text-lg font-semibold text-blue-900">
               {t('costEstimation')}
             </label>
           </div>
@@ -513,8 +557,8 @@ const SBBCalculator: React.FC = () => {
               onClick={() => setInputMode('simple')}
               className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
                 inputMode === 'simple' 
-                  ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
+                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
               }`}
             >
               <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -525,8 +569,8 @@ const SBBCalculator: React.FC = () => {
               onClick={() => setInputMode('direct')}
               className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
                 inputMode === 'direct' 
-                  ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-md' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-purple-200'
+                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
               }`}
             >
               <Banknote className="w-4 h-4 flex-shrink-0" />
@@ -607,21 +651,43 @@ const SBBCalculator: React.FC = () => {
                         <Link className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('duration')}
                       </label>
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="number" 
-                          value={route.durationMonths || ''}
-                          onChange={(e) => updateRoute(route.id, 'durationMonths', e.target.value === '' ? '' : parseInt(e.target.value) || 1)}
-                          onWheel={(e) => e.currentTarget.blur()}
-                          className={`flex-1 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                          placeholder="12"
-                          step="1"
+                      <div className="relative">
+                        {/* Value Display */}
+                        <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-sm text-sm sm:text-base`}>
+                          <span className={`font-bold ${route.colorScheme.text}`}>
+                            {route.durationMonths} {t('months')}
+                          </span>
+                        </div>
+                        
+                        {/* Slider */}
+                        <input
+                          type="range"
                           min="1"
                           max="12"
+                          value={route.durationMonths}
+                          onChange={(e) => updateRoute(route.id, 'durationMonths', parseInt(e.target.value))}
+                          className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider-${route.colorScheme.buttonBg.split('-')[1]} bg-gradient-to-r ${route.colorScheme.bg.replace('from-', 'from-').replace('to-', 'to-')} focus:outline-none focus:ring-2 ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                          style={{
+                            background: `linear-gradient(to right, rgb(${route.colorScheme.buttonBg.includes('green') ? '34, 197, 94' : 
+                              route.colorScheme.buttonBg.includes('blue') ? '59, 130, 246' :
+                              route.colorScheme.buttonBg.includes('purple') ? '168, 85, 247' :
+                              route.colorScheme.buttonBg.includes('orange') ? '249, 115, 22' :
+                              route.colorScheme.buttonBg.includes('rose') ? '244, 63, 94' : '20, 184, 166'}) 0%, rgb(${route.colorScheme.buttonBg.includes('green') ? '34, 197, 94' : 
+                              route.colorScheme.buttonBg.includes('blue') ? '59, 130, 246' :
+                              route.colorScheme.buttonBg.includes('purple') ? '168, 85, 247' :
+                              route.colorScheme.buttonBg.includes('orange') ? '249, 115, 22' :
+                              route.colorScheme.buttonBg.includes('rose') ? '244, 63, 94' : '20, 184, 166'}) ${(route.durationMonths - 1) / 11 * 100}%, #e5e7eb ${(route.durationMonths - 1) / 11 * 100}%, #e5e7eb 100%)`
+                          }}
                         />
-                        <span className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} whitespace-nowrap`}>
-                          {t('months')}
-                        </span>
+                        
+                        {/* Month Labels */}
+                        <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
+                          <span>1</span>
+                          <span>3</span>
+                          <span>6</span>
+                          <span>9</span>
+                          <span>12</span>
+                        </div>
                       </div>
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
@@ -1143,14 +1209,26 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   );
                 }
-                // Handle regular text with inline bold formatting
+                // Handle regular text with inline bold formatting and URLs
                 else if (line.trim()) {
-                  const parts = line.split(/(\*\*[^*]+\*\*)/);
+                  const parts = line.split(/(\*\*[^*]+\*\*|https:\/\/[^\s]+)/);
                   return (
                     <div key={index} className="mb-2">
                       {parts.map((part, i) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                           return <span key={i} className="font-bold">{part.replace(/^\*\*|\*\*$/g, '')}</span>;
+                        } else if (part.startsWith('https://')) {
+                          return (
+                            <a 
+                              key={i}
+                              href={part.trim()} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-blue-600 hover:text-blue-800 underline font-medium"
+                            >
+                              {part.trim()}
+                            </a>
+                          );
                         }
                         return part;
                       })}
@@ -1166,7 +1244,8 @@ const SBBCalculator: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -96,7 +96,12 @@ export const translations: Translations = {
     saveAnnually: "Save {amount} annually",
     duration: "Duration",
     months: "months",
-    durationHelp: "How many months per year you need this route"
+    durationHelp: "Months per year",
+    fullYear: "Full year",
+    mostYear: "Most of year",
+    halfYear: "Half year",
+    fewMonths: "Few months",
+    shortTerm: "Short term"
   },
   de: {
     title: "SBB Abo-Vergleichsrechner",
@@ -122,7 +127,7 @@ export const translations: Translations = {
     tripsPerWeek: "Anzahl pro Woche ↔",
     tripsPerWeekHelp: "Hin- und Rückfahrten pro Woche",
     costPerTrip: "Kosten pro Hin- und Rückfahrt",
-    costPerTripHelp: "CHF pro Rundfahrt",
+    costPerTripHelp: "CHF pro Hin- und Rückfahrt",
     priceAlreadyHalbtax: "Preis bereits mit Halbtax berechnet",
     routeYearlyCost: "Strecke {index}: {cost} pro Jahr",
     alreadyHalbtaxPrice: "(bereits Halbtax-Preis)",
@@ -187,7 +192,12 @@ export const translations: Translations = {
     saveAnnually: "Sparen Sie {amount} jährlich",
     duration: "Dauer",
     months: "Monate",
-    durationHelp: "Wie viele Monate pro Jahr Sie diese Strecke benötigen"
+    durationHelp: "Monate pro Jahr",
+    fullYear: "Ganzes Jahr",
+    mostYear: "Fast ganzes Jahr",
+    halfYear: "Halbes Jahr",
+    fewMonths: "Wenige Monate",
+    shortTerm: "Kurzzeitig"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements CFF",
@@ -278,7 +288,12 @@ export const translations: Translations = {
     saveAnnually: "Économisez {amount} par an",
     duration: "Durée",
     months: "mois",
-    durationHelp: "Combien de mois par an vous avez besoin de ce trajet"
+    durationHelp: "Mois par an",
+    fullYear: "Toute l'année",
+    mostYear: "Presque toute l'année",
+    halfYear: "Demi-année",
+    fewMonths: "Quelques mois",
+    shortTerm: "Court terme"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti FFS",
@@ -369,7 +384,12 @@ export const translations: Translations = {
     saveAnnually: "Risparmiate {amount} all'anno",
     duration: "Durata",
     months: "mesi",
-    durationHelp: "Quanti mesi all'anno avete bisogno di questa tratta"
+    durationHelp: "Mesi all'anno",
+    fullYear: "Tutto l'anno",
+    mostYear: "Quasi tutto l'anno",
+    halfYear: "Metà anno",
+    fewMonths: "Pochi mesi",
+    shortTerm: "Breve termine"
   }
 };
 

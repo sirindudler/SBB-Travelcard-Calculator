@@ -93,7 +93,10 @@ export const translations: Translations = {
     percentageSaved: "{percent}% saved",
     savedAmount: "Saved: {amount}",
     totalCostLabel: "Total cost",
-    saveAnnually: "Save {amount} annually"
+    saveAnnually: "Save {amount} annually",
+    duration: "Duration",
+    months: "months",
+    durationHelp: "How many months per year you need this route"
   },
   de: {
     title: "SBB Abo-Vergleichsrechner",
@@ -181,7 +184,10 @@ export const translations: Translations = {
     percentageSaved: "{percent}% gespart",
     savedAmount: "Gespart: {amount}",
     totalCostLabel: "Gesamtkosten",
-    saveAnnually: "Sparen Sie {amount} jährlich"
+    saveAnnually: "Sparen Sie {amount} jährlich",
+    duration: "Dauer",
+    months: "Monate",
+    durationHelp: "Wie viele Monate pro Jahr Sie diese Strecke benötigen"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements CFF",
@@ -269,7 +275,10 @@ export const translations: Translations = {
     percentageSaved: "{percent}% économisé",
     savedAmount: "Économisé: {amount}",
     totalCostLabel: "Coût total",
-    saveAnnually: "Économisez {amount} par an"
+    saveAnnually: "Économisez {amount} par an",
+    duration: "Durée",
+    months: "mois",
+    durationHelp: "Combien de mois par an vous avez besoin de ce trajet"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti FFS",
@@ -357,7 +366,10 @@ export const translations: Translations = {
     percentageSaved: "{percent}% risparmiato",
     savedAmount: "Risparmiato: {amount}",
     totalCostLabel: "Costo totale",
-    saveAnnually: "Risparmiate {amount} all'anno"
+    saveAnnually: "Risparmiate {amount} all'anno",
+    duration: "Durata",
+    months: "mesi",
+    durationHelp: "Quanti mesi all'anno avete bisogno di questa tratta"
   }
 };
 

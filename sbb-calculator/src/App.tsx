@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
@@ -26,6 +26,7 @@ interface Route {
   cost: number | '';
   isHalbtaxPrice: boolean;
   colorScheme: RouteColorScheme;
+  durationMonths: number;
 }
 
 interface CalculationResults {
@@ -127,7 +128,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0] }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12 }
   ]);
   
   // Direct input
@@ -190,7 +191,8 @@ const SBBCalculator: React.FC = () => {
       yearlySpendingFull = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        const routeYearly = trips * cost * 52;
+        const durationFactor = route.durationMonths / 12;
+        const routeYearly = trips * cost * 52 * durationFactor;
         return total + (route.isHalbtaxPrice ? routeYearly * 2 : routeYearly);
       }, 0);
     } else {
@@ -209,7 +211,8 @@ const SBBCalculator: React.FC = () => {
       halbtaxTicketCosts = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        const routeYearly = trips * cost * 52;
+        const durationFactor = route.durationMonths / 12;
+        const routeYearly = trips * cost * 52 * durationFactor;
         return total + (route.isHalbtaxPrice ? routeYearly : routeYearly / 2);
       }, 0);
     } else {
@@ -316,7 +319,8 @@ const SBBCalculator: React.FC = () => {
       const actualCost = route.isHalbtaxPrice ? cost * 2 : cost;
       const annualPrice = calculateStreckenabo(actualCost);
       const monthlyCost = annualPrice / 12;
-      const annualRouteSpending = trips * actualCost * 52;
+      const durationFactor = route.durationMonths / 12;
+      const annualRouteSpending = trips * actualCost * 52 * durationFactor;
       const isWorthwhile = annualPrice < annualRouteSpending && actualCost >= 4 && actualCost <= 50;
       const isInValidRange = actualCost >= 4 && actualCost <= 50;
       
@@ -374,7 +378,7 @@ const SBBCalculator: React.FC = () => {
   const addRoute = useCallback(() => {
     const newId = Math.max(...routes.map(r => r.id)) + 1;
     const newColorScheme = getColorSchemeForRoute(routes.length);
-    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme }]);
+    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12 }]);
   }, [routes, getColorSchemeForRoute]);
 
   const removeRoute = useCallback((id: number) => {
@@ -554,7 +558,7 @@ const SBBCalculator: React.FC = () => {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
                     <div className="relative">
                       <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -598,6 +602,32 @@ const SBBCalculator: React.FC = () => {
                         <span className="text-xs">{t('costPerTripHelp')}</span>
                       </div>
                     </div>
+                    <div className="relative">
+                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                        <Link className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {t('duration')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="number" 
+                          value={route.durationMonths || ''}
+                          onChange={(e) => updateRoute(route.id, 'durationMonths', e.target.value === '' ? '' : parseInt(e.target.value) || 1)}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          className={`flex-1 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                          placeholder="12"
+                          step="1"
+                          min="1"
+                          max="12"
+                        />
+                        <span className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} whitespace-nowrap`}>
+                          {t('months')}
+                        </span>
+                      </div>
+                      <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
+                        <span>ℹ️</span>
+                        <span className="text-xs">{t('durationHelp')}</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Halbtax-Checkbox */}
@@ -623,7 +653,7 @@ const SBBCalculator: React.FC = () => {
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
                       💰 {t('routeYearlyCost', { 
                         index: index + 1, 
-                        cost: formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * 52) 
+                        cost: formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * 52 * (route.durationMonths / 12)) 
                       })}
                       {route.isHalbtaxPrice && <span className="text-orange-700 ml-2 block sm:inline mt-1 sm:mt-0">✨ {t('alreadyHalbtaxPrice')}</span>}
                     </div>
@@ -653,7 +683,8 @@ const SBBCalculator: React.FC = () => {
                       cost: formatCurrency(routes.reduce((total, route) => {
                         const trips = typeof route.trips === 'number' ? route.trips : 0;
                         const cost = typeof route.cost === 'number' ? route.cost : 0;
-                        return total + trips * cost * 52;
+                        const durationFactor = route.durationMonths / 12;
+                        return total + trips * cost * 52 * durationFactor;
                       }, 0)) 
                     })}
                   </span>

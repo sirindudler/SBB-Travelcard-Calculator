@@ -9,7 +9,10 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(cp:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm start)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

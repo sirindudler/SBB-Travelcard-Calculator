@@ -58,6 +58,11 @@ npm run build
 npm run build
 ```
 
+## ⚠️ IMPORTANT BUILD RULE
+**DO NOT run `npm run build` unless explicitly asked by the user**
+- Only use `npm start` for development testing
+- Only run build commands when the user specifically requests it
+
 ## Git Commit Guidelines
 
 **CRITICAL**: This section is repeated at the top of this file for emphasis. When creating git commits:

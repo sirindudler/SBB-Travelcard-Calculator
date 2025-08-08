@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload } from 'lucide-react';
 import { Language, useTranslation } from './translations';
-import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
+import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
 
@@ -40,6 +40,8 @@ interface CalculationResults {
   halbtaxTotal: number;
   halbtaxPlusOptions: any[];
   gaTotal: number;
+  gaMonthsUsed?: number;
+  gaIsMonthlyPricing?: boolean;
   streckenabos: { route: Route, annualPrice: number, monthlyCost: number, isWorthwhile: boolean, isInValidRange: boolean }[];
   options: any[];
   bestOption: any;
@@ -305,15 +307,15 @@ const SBBCalculator: React.FC = () => {
 
   // useCallback for functions passed to child components or used in effects
   const calculate = useCallback(() => {
-    // Jährliche Kosten ohne Abo berechnen
+    // Calculate costs for the actual duration, not extrapolated to full year
     let yearlySpendingFull: number;
     if (inputMode === 'simple') {
       yearlySpendingFull = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        const durationFactor = route.durationMonths / 12;
-        const routeYearly = trips * cost * 52 * durationFactor;
-        return total + (route.isHalbtaxPrice ? routeYearly * 2 : routeYearly);
+        // Calculate for actual duration in months, not extrapolated to yearly
+        const actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        return total + (route.isHalbtaxPrice ? actualRouteCost * 2 : actualRouteCost);
       }, 0);
     } else if (inputMode === 'direct') {
       yearlySpendingFull = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
@@ -336,9 +338,9 @@ const SBBCalculator: React.FC = () => {
       halbtaxTicketCosts = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        const durationFactor = route.durationMonths / 12;
-        const routeYearly = trips * cost * 52 * durationFactor;
-        return total + (route.isHalbtaxPrice ? routeYearly : routeYearly / 2);
+        // Calculate for actual duration in months
+        const actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        return total + (route.isHalbtaxPrice ? actualRouteCost : actualRouteCost / 2);
       }, 0);
     } else if (inputMode === 'direct') {
       halbtaxTicketCosts = (typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0) / 2;
@@ -439,8 +441,24 @@ const SBBCalculator: React.FC = () => {
     })
       : [];
     
-    // Option 4: GA
-    const gaTotal = gaPrice;
+    // Option 4: GA - Compare annual vs monthly pricing based on longest route duration
+    let gaTotal = gaPrice;
+    let gaMonthsUsed: number | undefined;
+    let gaIsMonthlyPricing = false;
+    
+    if (inputMode === 'simple' && routes.length > 0) {
+      // Find the longest duration route
+      const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+      const monthlyGAPrice = getMonthlyGAPrice(age, isFirstClass);
+      const monthlyTotal = monthlyGAPrice * longestDuration;
+      
+      // Use monthly pricing if it's cheaper than annual
+      if (monthlyTotal < gaPrice) {
+        gaTotal = monthlyTotal;
+        gaMonthsUsed = longestDuration;
+        gaIsMonthlyPricing = true;
+      }
+    }
     
     // Option 5: Streckenabo calculations (only for simple input mode with individual routes)
     const streckenabos = inputMode === 'simple' ? routes.map(route => {
@@ -449,9 +467,8 @@ const SBBCalculator: React.FC = () => {
       const actualCost = route.isHalbtaxPrice ? cost * 2 : cost;
       const annualPrice = calculateStreckenabo(actualCost);
       const monthlyCost = annualPrice / 12;
-      const durationFactor = route.durationMonths / 12;
-      const annualRouteSpending = trips * actualCost * 52 * durationFactor;
-      const isWorthwhile = annualPrice < annualRouteSpending && actualCost >= 4 && actualCost <= 50;
+      const actualRouteSpending = trips * actualCost * (route.durationMonths * 4.33);
+      const isWorthwhile = annualPrice < actualRouteSpending && actualCost >= 4 && actualCost <= 50;
       const isInValidRange = actualCost >= 4 && actualCost <= 50;
       
       return {
@@ -462,6 +479,11 @@ const SBBCalculator: React.FC = () => {
         isInValidRange
       };
     }) : [];
+    
+    // Calculate duration information for point-to-point tickets
+    const longestDuration = inputMode === 'simple' && routes.length > 0 
+      ? Math.max(...routes.map(route => route.durationMonths))
+      : undefined;
     
     // Beste Option finden
     const options = [
@@ -474,7 +496,11 @@ const SBBCalculator: React.FC = () => {
         credit: opt.credit,
         details: opt
       })),
-      { name: t('ga'), total: gaTotal, type: 'ga' }
+      { 
+        name: gaIsMonthlyPricing && gaMonthsUsed ? `${t('ga')} (${gaMonthsUsed} months)` : t('ga'), 
+        total: gaTotal, 
+        type: 'ga' 
+      }
     ];
     
     const bestOption = options.reduce((best, current) => 
@@ -488,6 +514,8 @@ const SBBCalculator: React.FC = () => {
       halbtaxTotal,
       halbtaxPlusOptions,
       gaTotal,
+      gaMonthsUsed,
+      gaIsMonthlyPricing,
       streckenabos,
       options,
       bestOption
@@ -859,10 +887,7 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      💰 {t('routeYearlyCost', { 
-                        index: index + 1, 
-                        cost: formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * 52 * (route.durationMonths / 12)) 
-                      })}
+                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33))}
                       {route.isHalbtaxPrice && <span className="text-orange-700 ml-2 block sm:inline mt-1 sm:mt-0">✨ {t('alreadyHalbtaxPrice')}</span>}
                     </div>
                   </div>
@@ -887,14 +912,11 @@ const SBBCalculator: React.FC = () => {
                     <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <span className="font-bold text-amber-900 text-base sm:text-lg">
-                    {t('totalYearlyCosts', { 
-                      cost: formatCurrency(routes.reduce((total, route) => {
-                        const trips = typeof route.trips === 'number' ? route.trips : 0;
-                        const cost = typeof route.cost === 'number' ? route.cost : 0;
-                        const durationFactor = route.durationMonths / 12;
-                        return total + trips * cost * 52 * durationFactor;
-                      }, 0)) 
-                    })}
+                    Total travel costs: {formatCurrency(routes.reduce((total, route) => {
+                      const trips = typeof route.trips === 'number' ? route.trips : 0;
+                      const cost = typeof route.cost === 'number' ? route.cost : 0;
+                      return total + trips * cost * (route.durationMonths * 4.33);
+                    }, 0))}
                   </span>
                 </div>
                 <div className="text-xs sm:text-sm text-amber-700">
@@ -1182,7 +1204,18 @@ const SBBCalculator: React.FC = () => {
                           
                           {option.type === 'ga' && (
                             <>
-                              <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
+                              {results.gaIsMonthlyPricing && results.gaMonthsUsed ? (
+                                <>
+                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getMonthlyGAPrice(age, isFirstClass))} × {results.gaMonthsUsed} months</div>
+                                  <div className="text-green-600 font-medium">✓ Monthly pricing (valid for {results.gaMonthsUsed} months)</div>
+                                  <div className="text-gray-600 text-xs">Annual price would be: {formatCurrency(getGAPrice(age, isFirstClass))}</div>
+                                </>
+                              ) : (
+                                <>
+                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
+                                  <div className="text-blue-600 font-medium">Annual subscription</div>
+                                </>
+                              )}
                               <div>{t('unlimitedTravel')}</div>
                             </>
                           )}
@@ -1224,7 +1257,7 @@ const SBBCalculator: React.FC = () => {
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
                             <span className="flex items-center gap-1">
-                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex}</span>
+                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex} ({streckenabo.route.durationMonths} months)</span>
                             </span>
                             <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor} whitespace-nowrap`}>
                               {t('estimate')}
@@ -1233,7 +1266,7 @@ const SBBCalculator: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                           <div className="text-base sm:text-lg font-bold text-purple-700">
-                            {formatCurrency(streckenabo.annualPrice)}
+                            {formatCurrency(streckenabo.monthlyCost * streckenabo.route.durationMonths)}
                           </div>
                           {isExpanded ? (
                             <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
@@ -1266,8 +1299,9 @@ const SBBCalculator: React.FC = () => {
                             </div>
                           )}
                           
+                          <div className="text-green-600 font-medium">✓ Pass for {streckenabo.route.durationMonths} months: {formatCurrency(streckenabo.monthlyCost * streckenabo.route.durationMonths)}</div>
                           <div>{t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}</div>
-                          <div>{t('annualPass', { cost: formatCurrency(streckenabo.annualPrice) })}</div>
+                          <div className="text-gray-600 text-xs">Annual price would be: {formatCurrency(streckenabo.annualPrice)}</div>
                           <div className="pt-1 sm:pt-2 border-t border-gray-200/50">
                             <div className="font-medium text-purple-700 mb-1 text-xs sm:text-sm">{t('streckenabosInfo')}</div>
                             <div className="text-gray-600 text-xs sm:text-sm">{t('streckenabosExplanation')}</div>

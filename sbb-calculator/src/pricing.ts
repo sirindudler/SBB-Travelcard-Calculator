@@ -122,6 +122,12 @@ export const getGAPrice = (ageGroup: AgeGroup, firstClass: boolean = false): num
     : sbbPricing.ga[ageGroup].secondClass;
 };
 
+export const getMonthlyGAPrice = (ageGroup: AgeGroup, firstClass: boolean = false): number => {
+  return firstClass 
+    ? monthlyPricing.ga[ageGroup].firstClass
+    : monthlyPricing.ga[ageGroup].secondClass;
+};
+
 export const getHalbtaxPlusOptions = (ageGroup: 'jugend' | 'erwachsene'): Record<string, HalbtaxPlusOption> => {
   return sbbPricing.halbtaxPlus[ageGroup];
 };
@@ -158,11 +164,11 @@ export const gaFamilia: FamiliaGAPrices = {
 // Monthly pricing (for reference - 6 month minimum contract)
 export const monthlyPricing = {
   ga: {
-    kind: { secondClass: 75, firstClass: 260 },
-    jugend: { secondClass: 260, firstClass: 440 },
-    fuenfundzwanzig: { secondClass: 320, firstClass: 520 },
-    erwachsene: { secondClass: 355, firstClass: 580 },
-    senior: { secondClass: 275, firstClass: 450 },
-    behinderung: { secondClass: 240, firstClass: 380 }
+    kind: { secondClass: 165, firstClass: 260 },
+    jugend: { secondClass: 260, firstClass: 400 },
+    fuenfundzwanzig: { secondClass: 310, firstClass: 490 },
+    erwachsene: { secondClass: 355, firstClass: 565 },
+    senior: { secondClass: 275, firstClass: 440 },
+    behinderung: { secondClass: 240, firstClass: 365 }
   }
 };

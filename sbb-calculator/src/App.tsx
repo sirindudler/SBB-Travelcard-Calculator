@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload } from 'lucide-react';
 import { Language, useTranslation } from './translations';
-import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions } from './pricing';
+import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
 
@@ -32,6 +32,7 @@ interface Route {
   colorScheme: RouteColorScheme;
   durationMonths: number;
   frequencyType: 'weekly' | 'monthly';
+  isGANightEligible: boolean;
 }
 
 interface CalculationResults {
@@ -135,7 +136,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12, frequencyType: 'weekly' }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
   ]);
   
   // Direct input
@@ -153,6 +154,7 @@ const SBBCalculator: React.FC = () => {
   const [additionalBudgetFrequency, setAdditionalBudgetFrequency] = useState<'weekly' | 'monthly' | 'yearly'>('yearly');
   const [additionalBudgetExpanded, setAdditionalBudgetExpanded] = useState<boolean>(false);
   const [additionalBudgetIsHalbtax, setAdditionalBudgetIsHalbtax] = useState<boolean>(false);
+  const [additionalBudgetIsGANight, setAdditionalBudgetIsGANight] = useState<boolean>(false);
   
   const [results, setResults] = useState<CalculationResults | null>(null);
 
@@ -521,7 +523,136 @@ const SBBCalculator: React.FC = () => {
       }
     }
     
-    // Option 5: Streckenabo calculations (only for simple input mode with individual routes)
+    // Option 5: GA Night calculation with best complementary option
+    let gaNightBestOption = null;
+    
+    if (inputMode === 'simple' && isGANightEligible(age, isFirstClass)) {
+      // Check if any routes or additional budget are GA Night eligible
+      const hasGANightRoutes = routes.some(route => route.isGANightEligible);
+      const hasGANightBudget = additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && additionalBudgetIsGANight;
+      
+      if (hasGANightRoutes || hasGANightBudget) {
+        // Calculate costs not covered by GA Night (full price)
+        const nonCoveredFullCosts = routes.reduce((total, route) => {
+          if (route.isGANightEligible) {
+            return total; // Covered by GA Night, costs 0
+          } else {
+            const trips = typeof route.trips === 'number' ? route.trips : 0;
+            const cost = typeof route.cost === 'number' ? route.cost : 0;
+            let actualRouteCost: number;
+            if (route.frequencyType === 'weekly') {
+              actualRouteCost = trips * cost * (route.durationMonths * 4.33);
+            } else {
+              actualRouteCost = trips * cost * route.durationMonths;
+            }
+            return total + (route.isHalbtaxPrice ? actualRouteCost * 2 : actualRouteCost);
+          }
+        }, 0);
+        
+        // Add non-covered additional budget costs
+        let nonCoveredAdditionalCosts = 0;
+        if (additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && !additionalBudgetIsGANight) {
+          const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+          switch (additionalBudgetFrequency) {
+            case 'weekly':
+              nonCoveredAdditionalCosts = additionalBudget * (longestDuration * 4.33);
+              break;
+            case 'monthly':
+              nonCoveredAdditionalCosts = additionalBudget * longestDuration;
+              break;
+            case 'yearly':
+              nonCoveredAdditionalCosts = additionalBudget;
+              break;
+          }
+          nonCoveredAdditionalCosts = additionalBudgetIsHalbtax ? nonCoveredAdditionalCosts * 2 : nonCoveredAdditionalCosts;
+        }
+        
+        const totalNonCoveredCosts = nonCoveredFullCosts + nonCoveredAdditionalCosts;
+        const gaNightPrice = getGANightPrice();
+        
+        if (totalNonCoveredCosts > 0) {
+          // Test different options for non-covered costs
+          const gaNightOptions = [];
+          
+          // Option A: GA Night + Full price for non-covered
+          gaNightOptions.push({
+            total: gaNightPrice + totalNonCoveredCosts,
+            name: `${t('ganight')}`,
+            complementary: null,
+            nonCoveredCosts: totalNonCoveredCosts
+          });
+          
+          // Option B: GA Night + Halbtax
+          const halbtaxPrice = getHalbtaxPrice(age, true);
+          gaNightOptions.push({
+            total: gaNightPrice + halbtaxPrice + (totalNonCoveredCosts / 2),
+            name: `${t('ganight')} + ${t('halbtaxOnly')}`,
+            complementary: 'halbtax',
+            halbtaxPrice: halbtaxPrice,
+            nonCoveredCosts: totalNonCoveredCosts / 2
+          });
+          
+          // Option C: GA Night + Halbtax + Halbtax Plus variants (most optimal)
+          if (age === 'jugend' || age === 'erwachsene') {
+            const halbtaxPlusOptions = getHalbtaxPlusOptions(age);
+            Object.entries(halbtaxPlusOptions).forEach(([credit, option]) => {
+              const creditAmount = parseInt(credit);
+              // Include base Halbtax for 50% discount on all non-covered costs
+              let totalCost = gaNightPrice + halbtaxPrice + option.cost;
+              let coveredByCredit = Math.min(totalNonCoveredCosts / 2, creditAmount);
+              let remainingCosts = (totalNonCoveredCosts / 2) - coveredByCredit;
+              
+              let reloadCost = 0;
+              let reloadCount = 0;
+              let lastReloadRatio = 0;
+              
+              if (remainingCosts > 0 && allowHalbtaxPlusReload) {
+                reloadCount = Math.floor(remainingCosts / creditAmount);
+                const finalRemainder = remainingCosts % creditAmount;
+                if (finalRemainder > 0) {
+                  reloadCount += 1;
+                  lastReloadRatio = finalRemainder / creditAmount;
+                }
+                reloadCost = (reloadCount - (finalRemainder > 0 ? 1 : 0)) * option.cost + 
+                           (finalRemainder > 0 ? option.cost * lastReloadRatio : 0);
+                totalCost += reloadCost;
+              } else if (remainingCosts > 0) {
+                totalCost += remainingCosts;
+              }
+              
+              gaNightOptions.push({
+                total: totalCost,
+                name: `${t('ganight')} + ${t('halbtaxOnly')} + ${t('halbtaxPlus', { credit })}`,
+                complementary: 'halbtaxplus',
+                credit: creditAmount,
+                halbtaxPrice: halbtaxPrice,
+                halbtaxPlusCost: option.cost,
+                coveredByCredit,
+                reloadCost,
+                reloadCount,
+                lastReloadRatio,
+                remainingCosts: allowHalbtaxPlusReload ? 0 : remainingCosts
+              });
+            });
+          }
+          
+          // Find the best option
+          gaNightBestOption = gaNightOptions.reduce((best, current) => 
+            current.total < best.total ? current : best
+          );
+        } else {
+          // No non-covered costs, just GA Night
+          gaNightBestOption = {
+            total: gaNightPrice,
+            name: t('ganight'),
+            complementary: null,
+            nonCoveredCosts: 0
+          };
+        }
+      }
+    }
+    
+    // Option 6: Streckenabo calculations (only for simple input mode with individual routes)
     const streckenabos = inputMode === 'simple' ? routes.map(route => {
       const cost = typeof route.cost === 'number' ? route.cost : 0;
       const trips = typeof route.trips === 'number' ? route.trips : 0;
@@ -559,6 +690,12 @@ const SBBCalculator: React.FC = () => {
         credit: opt.credit,
         details: opt
       })),
+      ...(gaNightBestOption !== null ? [{ 
+        name: gaNightBestOption.name, 
+        total: gaNightBestOption.total, 
+        type: 'ganight',
+        gaNightDetails: gaNightBestOption
+      }] : []),
       { 
         name: gaIsMonthlyPricing && gaMonthsUsed ? `${t('ga')} (${gaMonthsUsed} months)` : t('ga'), 
         total: gaTotal, 
@@ -583,7 +720,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax]);
+  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
 
   useEffect(() => {
     calculate();
@@ -599,7 +736,7 @@ const SBBCalculator: React.FC = () => {
   const addRoute = useCallback(() => {
     const newId = Math.max(...routes.map(r => r.id)) + 1;
     const newColorScheme = getColorSchemeForRoute(routes.length);
-    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12, frequencyType: 'weekly' }]);
+    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }]);
   }, [routes, getColorSchemeForRoute]);
 
   const removeRoute = useCallback((id: number) => {
@@ -975,6 +1112,27 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* GA Night Checkbox - only show if eligible */}
+                  {isGANightEligible(age, isFirstClass) && (
+                    <div className={`bg-white p-3 sm:p-4 rounded-lg border ${route.colorScheme.border200} mb-3 sm:mb-4`}>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <input
+                          type="checkbox"
+                          id={`ganight-${route.id}`}
+                          checked={route.isGANightEligible}
+                          onChange={(e) => updateRoute(route.id, 'isGANightEligible', e.target.checked)}
+                          className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                        />
+                        <label htmlFor={`ganight-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
+                          <span className="flex items-center gap-2">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="text-xs sm:text-sm">{t('ganightCheckbox')}</span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
                       💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
@@ -1108,6 +1266,27 @@ const SBBCalculator: React.FC = () => {
                         </label>
                       </div>
                     </div>
+
+                    {/* GA Night Checkbox - only show if eligible */}
+                    {isGANightEligible(age, isFirstClass) && (
+                      <div className="bg-white/70 p-3 sm:p-4 rounded-lg border border-indigo-200">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <input
+                            type="checkbox"
+                            id="additional-budget-ganight"
+                            checked={additionalBudgetIsGANight}
+                            onChange={(e) => setAdditionalBudgetIsGANight(e.target.checked)}
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 border-2 border-indigo-400 rounded-md focus:ring-indigo-500 transition-all"
+                          />
+                          <label htmlFor="additional-budget-ganight" className="text-xs sm:text-sm font-medium text-indigo-800 cursor-pointer flex-1">
+                            <span className="flex items-center gap-2">
+                              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs sm:text-sm">{t('additionalBudgetGANight')}</span>
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1447,6 +1626,66 @@ const SBBCalculator: React.FC = () => {
                                 </>
                               )}
                               <div>{t('unlimitedTravel')}</div>
+                            </>
+                          )}
+                          
+                          {option.type === 'ganight' && (
+                            <>
+                              <div>GA Night (2nd Class): {formatCurrency(getGANightPrice())}</div>
+                              <div className="text-purple-600 font-medium">{t('ganightDescription')}</div>
+                              
+                              {option.gaNightDetails.complementary === 'halbtax' && (
+                                <>
+                                  <div className="mt-2 pt-2 border-t border-gray-200/50">
+                                    <div className="text-blue-600 font-medium">Plus Halbtax for non-covered routes:</div>
+                                    <div>Halbtax: {formatCurrency(option.gaNightDetails.halbtaxPrice)}</div>
+                                    <div>Non-covered costs (with Halbtax discount): {formatCurrency(option.gaNightDetails.nonCoveredCosts)}</div>
+                                  </div>
+                                </>
+                              )}
+                              
+                              {option.gaNightDetails.complementary === 'halbtaxplus' && (
+                                <>
+                                  <div className="mt-2 pt-2 border-t border-gray-200/50">
+                                    <div className="text-blue-600 font-medium">Plus Halbtax + Halbtax Plus for non-covered routes:</div>
+                                    <div>Halbtax: {formatCurrency(option.gaNightDetails.halbtaxPrice)}</div>
+                                    <div>Halbtax Plus {option.gaNightDetails.credit}: {formatCurrency(option.gaNightDetails.halbtaxPlusCost)}</div>
+                                    <div>Credit covered: {formatCurrency(option.gaNightDetails.coveredByCredit)}</div>
+                                    
+                                    {option.gaNightDetails.reloadCount > 0 && allowHalbtaxPlusReload && (
+                                      <>
+                                        <div className="text-orange-600 font-medium mt-1">{t('reloads')}</div>
+                                        {option.gaNightDetails.reloadCount > 1 && option.gaNightDetails.lastReloadRatio === 0 && (
+                                          <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount, cost: formatCurrency(option.gaNightDetails.reloadCost) })}</div>
+                                        )}
+                                        {option.gaNightDetails.reloadCount > 1 && option.gaNightDetails.lastReloadRatio > 0 && (
+                                          <>
+                                            <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount - 1, cost: formatCurrency((option.gaNightDetails.reloadCount - 1) * option.gaNightDetails.halbtaxPlusCost) })}</div>
+                                            <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrency(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
+                                          </>
+                                        )}
+                                        {option.gaNightDetails.reloadCount === 1 && option.gaNightDetails.lastReloadRatio > 0 && (
+                                          <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrency(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
+                                        )}
+                                        <div className="font-medium">Total reloads: {formatCurrency(option.gaNightDetails.reloadCost)}</div>
+                                      </>
+                                    )}
+                                    
+                                    {option.gaNightDetails.remainingCosts > 0 && !allowHalbtaxPlusReload && (
+                                      <div className="text-gray-600 mt-1">Remaining costs (Halbtax price): {formatCurrency(option.gaNightDetails.remainingCosts)}</div>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {option.gaNightDetails.complementary === null && option.gaNightDetails.nonCoveredCosts > 0 && (
+                                <>
+                                  <div className="mt-2 pt-2 border-t border-gray-200/50">
+                                    <div className="text-gray-600 font-medium">Plus full-price tickets:</div>
+                                    <div>Non-covered costs: {formatCurrency(option.gaNightDetails.nonCoveredCosts)}</div>
+                                  </div>
+                                </>
+                              )}
                             </>
                           )}
 

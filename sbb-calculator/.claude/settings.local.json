@@ -12,7 +12,8 @@
       "Bash(mkdir:*)",
       "Bash(npm run build:*)",
       "Bash(npm start)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -29,6 +29,7 @@ export interface PriceStructure {
   halbtax: Record<AgeGroup, HalbtaxPrice>;
   ga: Record<AgeGroup, GAPrice>;
   halbtaxPlus: Record<'jugend' | 'erwachsene', Record<string, HalbtaxPlusOption>>;
+  ganight: number; // CHF 99 for under 25, 2nd class only
 }
 
 // Current SBB pricing as of 2025
@@ -101,7 +102,10 @@ export const sbbPricing: PriceStructure = {
       '2000': { cost: 1500, credit: 2000 },  // CHF 1500 for CHF 2000 credit (CHF 500 bonus)
       '3000': { cost: 2100, credit: 3000 }   // CHF 2100 for CHF 3000 credit (CHF 900 bonus)
     }
-  }
+  },
+
+  // GA Night - only for under 25, 2nd class, night hours (19:00-05:00, weekends until 07:00)
+  ganight: 99
 };
 
 // Utility function to get pricing data (future-proofing for dynamic pricing)
@@ -135,6 +139,16 @@ export const getHalbtaxPlusOptions = (ageGroup: 'jugend' | 'erwachsene'): Record
 export const getHalbtaxPlusBonus = (ageGroup: 'jugend' | 'erwachsene', creditAmount: string): number => {
   const option = sbbPricing.halbtaxPlus[ageGroup][creditAmount];
   return option ? option.credit - option.cost : 0;
+};
+
+// GA Night helper functions
+export const getGANightPrice = (): number => {
+  return sbbPricing.ganight;
+};
+
+export const isGANightEligible = (ageGroup: AgeGroup, isFirstClass: boolean): boolean => {
+  // GA Night is only available for under 25 (kind, jugend) and 2nd class only
+  return (ageGroup === 'kind' || ageGroup === 'jugend') && !isFirstClass;
 };
 
 // Age group validation helpers

@@ -31,6 +31,7 @@ interface Route {
   isHalbtaxPrice: boolean;
   colorScheme: RouteColorScheme;
   durationMonths: number;
+  frequencyType: 'weekly' | 'monthly';
 }
 
 interface CalculationResults {
@@ -134,7 +135,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12 }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12, frequencyType: 'weekly' }
   ]);
   
   // Direct input
@@ -313,8 +314,13 @@ const SBBCalculator: React.FC = () => {
       yearlySpendingFull = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        // Calculate for actual duration in months, not extrapolated to yearly
-        const actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        // Calculate for actual duration based on frequency type
+        let actualRouteCost: number;
+        if (route.frequencyType === 'weekly') {
+          actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        } else {
+          actualRouteCost = trips * cost * route.durationMonths; // monthly frequency
+        }
         return total + (route.isHalbtaxPrice ? actualRouteCost * 2 : actualRouteCost);
       }, 0);
     } else if (inputMode === 'direct') {
@@ -338,8 +344,13 @@ const SBBCalculator: React.FC = () => {
       halbtaxTicketCosts = routes.reduce((total, route) => {
         const trips = typeof route.trips === 'number' ? route.trips : 0;
         const cost = typeof route.cost === 'number' ? route.cost : 0;
-        // Calculate for actual duration in months
-        const actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        // Calculate for actual duration based on frequency type
+        let actualRouteCost: number;
+        if (route.frequencyType === 'weekly') {
+          actualRouteCost = trips * cost * (route.durationMonths * 4.33); // 4.33 weeks per month average
+        } else {
+          actualRouteCost = trips * cost * route.durationMonths; // monthly frequency
+        }
         return total + (route.isHalbtaxPrice ? actualRouteCost : actualRouteCost / 2);
       }, 0);
     } else if (inputMode === 'direct') {
@@ -467,7 +478,9 @@ const SBBCalculator: React.FC = () => {
       const actualCost = route.isHalbtaxPrice ? cost * 2 : cost;
       const annualPrice = calculateStreckenabo(actualCost);
       const monthlyCost = annualPrice / 12;
-      const actualRouteSpending = trips * actualCost * (route.durationMonths * 4.33);
+      const actualRouteSpending = route.frequencyType === 'weekly' 
+        ? trips * actualCost * (route.durationMonths * 4.33) 
+        : trips * actualCost * route.durationMonths;
       const isWorthwhile = annualPrice < actualRouteSpending && actualCost >= 4 && actualCost <= 50;
       const isInValidRange = actualCost >= 4 && actualCost <= 50;
       
@@ -536,7 +549,7 @@ const SBBCalculator: React.FC = () => {
   const addRoute = useCallback(() => {
     const newId = Math.max(...routes.map(r => r.id)) + 1;
     const newColorScheme = getColorSchemeForRoute(routes.length);
-    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12 }]);
+    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12, frequencyType: 'weekly' }]);
   }, [routes, getColorSchemeForRoute]);
 
   const removeRoute = useCallback((id: number) => {
@@ -776,7 +789,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="relative">
                       <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {t('tripsPerWeek')}
+                        {route.frequencyType === 'weekly' ? t('tripsPerWeek') : t('tripsPerMonth')}
                       </label>
                       <input 
                         type="number" 
@@ -788,9 +801,36 @@ const SBBCalculator: React.FC = () => {
                         step="0.5"
                         min="0"
                       />
+                      
+                      {/* Frequency Toggle */}
+                      <div className="mt-2">
+                        <div className="flex rounded-lg border-2 ${route.colorScheme.border200} overflow-hidden bg-white h-12">
+                          <button
+                            onClick={() => updateRoute(route.id, 'frequencyType', 'weekly')}
+                            className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${
+                              route.frequencyType === 'weekly'
+                                ? `${route.colorScheme.buttonBg} text-white`
+                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            {t('weekly')}
+                          </button>
+                          <button
+                            onClick={() => updateRoute(route.id, 'frequencyType', 'monthly')}
+                            className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all border-l-2 ${route.colorScheme.border200} flex items-center justify-center ${
+                              route.frequencyType === 'monthly'
+                                ? `${route.colorScheme.buttonBg} text-white`
+                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            {t('monthly')}
+                          </button>
+                        </div>
+                      </div>
+                      
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
-                        <span className="text-xs">{t('tripsPerWeekHelp')}</span>
+                        <span className="text-xs">{route.frequencyType === 'weekly' ? t('tripsPerWeekHelp') : t('tripsPerMonthHelp')}</span>
                       </div>
                     </div>
                     <div className="relative">
@@ -823,7 +863,7 @@ const SBBCalculator: React.FC = () => {
                       </label>
                       <div className="relative">
                         {/* Value Display */}
-                        <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-sm text-sm sm:text-base`}>
+                        <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-sm text-sm sm:text-base h-12`}>
                           <span className={`font-bold ${route.colorScheme.text}`}>
                             {route.durationMonths} {t('months')}
                           </span>
@@ -887,7 +927,11 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency((typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33))}
+                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
+                        route.frequencyType === 'weekly' 
+                          ? (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33)
+                          : (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * route.durationMonths
+                      )}
                       {route.isHalbtaxPrice && <span className="text-orange-700 ml-2 block sm:inline mt-1 sm:mt-0">✨ {t('alreadyHalbtaxPrice')}</span>}
                     </div>
                   </div>
@@ -915,7 +959,9 @@ const SBBCalculator: React.FC = () => {
                     Total travel costs: {formatCurrency(routes.reduce((total, route) => {
                       const trips = typeof route.trips === 'number' ? route.trips : 0;
                       const cost = typeof route.cost === 'number' ? route.cost : 0;
-                      return total + trips * cost * (route.durationMonths * 4.33);
+                      return total + (route.frequencyType === 'weekly' 
+                        ? trips * cost * (route.durationMonths * 4.33)
+                        : trips * cost * route.durationMonths);
                     }, 0))}
                   </span>
                 </div>

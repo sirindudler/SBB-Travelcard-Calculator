@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getHalbtaxPlusOptions } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
+import * as pdfjs from 'pdfjs-dist';
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ''}/pdf.worker.min.js`;
 
 // Types for better TypeScript
 type AgeGroup = PricingAgeGroup; // Use the same type from pricing
-type InputMode = 'simple' | 'direct';
+type InputMode = 'simple' | 'direct' | 'pdf';
 
 interface RouteColorScheme {
   bg: string;
@@ -134,6 +138,13 @@ const SBBCalculator: React.FC = () => {
   // Direct input
   const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number | ''>(2500);
   
+  // PDF input
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfTotal, setPdfTotal] = useState<number | null>(null);
+  const [pdfIsHalbtaxPrice, setPdfIsHalbtaxPrice] = useState<boolean>(false);
+  const [pdfProcessing, setPdfProcessing] = useState<boolean>(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  
   const [results, setResults] = useState<CalculationResults | null>(null);
 
   // Use translation hook
@@ -176,6 +187,115 @@ const SBBCalculator: React.FC = () => {
   }, []);
 
 
+  // Process PDF file to extract total cost using PDF.js
+  const processPdfFile = useCallback(async (file: File) => {
+    setPdfProcessing(true);
+    try {
+      // Convert file to array buffer
+      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as ArrayBuffer);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+
+      // Load PDF document with PDF.js
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      // Extract text from all pages
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+
+      console.log('Extracted PDF text:', fullText); // Debug logging
+
+      // Blacklist of subscription types to exclude (in all languages)
+      const subscriptionBlacklist = [
+        // German
+        'HALBTAX', 'HALBTAX PLUS', 'GA TRAVELCARD', 'GENERALABONNEMENT', 
+        'STRECKENABONNEMENT', 'GLEIS 7', 'TAGESKARTE GEMEINDE',
+        // French  
+        'DEMI-TARIF', 'DEMI-TARIF PLUS', 'AG VOYAGEUR', 'ABONNEMENT GENERAL',
+        'ABONNEMENT DE PARCOURS', 'CARTE JOURNALIERE COMMUNE',
+        // Italian
+        'METÀ-PREZZO', 'METÀ-PREZZO PLUS', 'AG VIAGGIATORI', 'ABBONAMENTO GENERALE',
+        'ABBONAMENTO TRATTA', 'BIGLIETTO GIORNALIERO COMUNALE',
+        // English (just in case)
+        'HALF-FARE', 'HALF-FARE PLUS', 'GENERAL ABONNEMENT', 'GA TRAVEL CARD'
+      ];
+
+      // Find all ticket entries with their prices
+      // Pattern: any text followed by amount and CHF
+      const allTicketMatches = Array.from(fullText.matchAll(/^(.+?)\s+(\d+(?:\.\d{1,2})?)\s+CHF\s*$/gm));
+      
+      if (allTicketMatches.length === 0) {
+        // Fallback pattern for different formatting
+        const fallbackMatches = Array.from(fullText.matchAll(/(.+?)\s+(\d+(?:\.\d{1,2})?)\s+CHF/g));
+        if (fallbackMatches.length === 0) {
+          throw new Error('Could not find any ticket entries in PDF. Please ensure this is a valid SBB receipt.');
+        }
+        allTicketMatches.push(...fallbackMatches);
+      }
+
+      console.log('Found ticket matches:', allTicketMatches.map(m => `${m[1].trim()} - ${m[2]} CHF`));
+
+      let validTicketPrices: number[] = [];
+      let excludedItems: string[] = [];
+
+      for (const match of allTicketMatches) {
+        const ticketDescription = match[1].trim().toUpperCase();
+        const price = parseFloat(match[2]);
+
+        // Skip if price is 0 or invalid
+        if (isNaN(price) || price <= 0) continue;
+
+        // Check if this ticket should be excluded
+        const isExcluded = subscriptionBlacklist.some(blacklistedItem => 
+          ticketDescription.includes(blacklistedItem)
+        );
+
+        // Also exclude "Total" lines in any language
+        const isTotalLine = /\b(TOTAL|TOTALE|SOMME|SUMA)\b/i.test(ticketDescription);
+
+        if (isExcluded || isTotalLine) {
+          excludedItems.push(`${ticketDescription} (${price} CHF)`);
+          console.log('Excluding:', ticketDescription, price, 'CHF');
+        } else {
+          validTicketPrices.push(price);
+          console.log('Including:', ticketDescription, price, 'CHF');
+        }
+      }
+
+      if (validTicketPrices.length === 0) {
+        throw new Error('No valid travel tickets found in PDF. All entries appear to be subscriptions or invalid items.');
+      }
+
+      const total = validTicketPrices.reduce((sum, price) => sum + price, 0);
+      
+      console.log('Valid ticket prices:', validTicketPrices);
+      console.log('Excluded items:', excludedItems);
+      console.log('Calculated total:', total);
+
+      setPdfTotal(total);
+      return total;
+
+    } catch (error) {
+      console.error('Error processing PDF:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error processing PDF';
+      setPdfError(errorMessage);
+      setPdfTotal(null);
+      return null;
+    } finally {
+      setPdfProcessing(false);
+    }
+  }, []);
+
   // Calculate Streckenabo using linear regression formula
   const calculateStreckenabo = (roundTripPrice: number): number => {
     // Formula: AnnualPass(p) ≈ 173.5 * p - 2.44 * p²
@@ -195,8 +315,13 @@ const SBBCalculator: React.FC = () => {
         const routeYearly = trips * cost * 52 * durationFactor;
         return total + (route.isHalbtaxPrice ? routeYearly * 2 : routeYearly);
       }, 0);
-    } else {
+    } else if (inputMode === 'direct') {
       yearlySpendingFull = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
+    } else if (inputMode === 'pdf') {
+      const pdfAmount = pdfTotal || 0;
+      yearlySpendingFull = pdfIsHalbtaxPrice ? pdfAmount * 2 : pdfAmount;
+    } else {
+      yearlySpendingFull = 0;
     }
     
     const halbtaxPrice = getHalbtaxPrice(age, true);
@@ -215,8 +340,13 @@ const SBBCalculator: React.FC = () => {
         const routeYearly = trips * cost * 52 * durationFactor;
         return total + (route.isHalbtaxPrice ? routeYearly : routeYearly / 2);
       }, 0);
-    } else {
+    } else if (inputMode === 'direct') {
       halbtaxTicketCosts = (typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0) / 2;
+    } else if (inputMode === 'pdf') {
+      const pdfAmount = pdfTotal || 0;
+      halbtaxTicketCosts = pdfIsHalbtaxPrice ? pdfAmount : pdfAmount / 2;
+    } else {
+      halbtaxTicketCosts = 0;
     }
     const halbtaxTotal = halbtaxTicketCosts + halbtaxPrice;
     
@@ -362,7 +492,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass]);
+  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice]);
 
   useEffect(() => {
     calculate();
@@ -577,6 +707,18 @@ const SBBCalculator: React.FC = () => {
               {inputMode === 'direct' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
               <span className="font-medium">{t('directInput')}</span>
             </button>
+            <button
+              onClick={() => setInputMode('pdf')}
+              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
+                inputMode === 'pdf' 
+                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
+              }`}
+            >
+              <FileText className="w-4 h-4 flex-shrink-0" />
+              {inputMode === 'pdf' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
+              <span className="font-medium">{t('pdfInput')}</span>
+            </button>
           </div>
 
           {inputMode === 'simple' ? (
@@ -767,7 +909,7 @@ const SBBCalculator: React.FC = () => {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : inputMode === 'direct' ? (
             <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 sm:p-6 rounded-xl border-2 border-orange-200 shadow-sm">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <Banknote className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
@@ -787,7 +929,134 @@ const SBBCalculator: React.FC = () => {
                 />
               </div>
             </div>
-          )}
+          ) : inputMode === 'pdf' ? (
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-6 rounded-xl border-2 border-purple-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                <label className="text-base sm:text-lg font-semibold text-purple-900">
+                  Upload SBB PDF Receipt
+                </label>
+              </div>
+              
+              {/* Instructions */}
+              <div className="bg-purple-100 p-4 rounded-lg mb-4 border border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-2">{t('pdfInstructions')}</h4>
+                <div className="text-sm text-purple-700 space-y-1">
+                  <div>{t('pdfStep1')}</div>
+                  <div>{t('pdfStep2')}</div>
+                  <div>{t('pdfStep3')}</div>
+                  <div>{t('pdfStep4')}</div>
+                </div>
+                <div className="mt-3">
+                  <a
+                    href="https://www.sbb.ch/de/kaufen/pages/bestellung/bestellungen.xhtml"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-sm font-medium"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>{t('pdfSbbLink')}</span>
+                  </a>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {/* File Upload */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setPdfFile(file);
+                        setPdfError(null); // Clear previous errors
+                        await processPdfFile(file);
+                      }
+                    }}
+                    className="hidden"
+                    id="pdf-upload"
+                  />
+                  <label
+                    htmlFor="pdf-upload"
+                    className={`flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                      pdfFile 
+                        ? 'border-purple-400 bg-purple-100 text-purple-800' 
+                        : 'border-purple-300 bg-white text-purple-600 hover:border-purple-400 hover:bg-purple-50'
+                    }`}
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span className="font-medium flex-1 text-center">
+                      {pdfFile ? pdfFile.name : 'Click to upload PDF'}
+                    </span>
+                  </label>
+                  
+                  {/* Delete button - only show when file is uploaded */}
+                  {pdfFile && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPdfFile(null);
+                        setPdfTotal(null);
+                        setPdfError(null);
+                        setPdfIsHalbtaxPrice(false);
+                        // Reset file input
+                        const fileInput = document.getElementById('pdf-upload') as HTMLInputElement;
+                        if (fileInput) fileInput.value = '';
+                      }}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-purple-600 hover:text-purple-800 p-1 rounded-lg hover:bg-purple-200 transition-all transform hover:scale-110 min-h-[28px] min-w-[28px] flex items-center justify-center"
+                      title="Clear PDF"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Processing Status */}
+                {pdfProcessing && (
+                  <div className="flex items-center gap-2 text-purple-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                    <span className="text-sm">Processing PDF...</span>
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {pdfError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg">
+                    <div className="text-sm font-medium">
+                      ❌ PDF Processing Error: {pdfError}
+                    </div>
+                    <div className="text-xs mt-1">
+                      Please upload a valid SBB receipt PDF.
+                    </div>
+                  </div>
+                )}
+
+                {/* Extracted Total */}
+                {pdfTotal !== null && !pdfError && (
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <div className="text-sm text-purple-700 font-medium">
+                      ✅ Extracted Total: <span className="text-lg font-bold">{formatCurrency(pdfTotal)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Halbtax Checkbox */}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="pdf-halbtax"
+                    checked={pdfIsHalbtaxPrice}
+                    onChange={(e) => setPdfIsHalbtaxPrice(e.target.checked)}
+                    className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
+                  />
+                  <label htmlFor="pdf-halbtax" className="text-sm text-purple-800 font-medium">
+                    {t('pdfAlreadyHalbtax')}
+                  </label>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Ergebnisse */}

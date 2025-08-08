@@ -101,7 +101,15 @@ export const translations: Translations = {
     mostYear: "Most of year",
     halfYear: "Half year",
     fewMonths: "Few months",
-    shortTerm: "Short term"
+    shortTerm: "Short term",
+    pdfInput: "PDF Upload",
+    pdfInstructions: "To get your PDF receipt:",
+    pdfStep1: "1. Go to SBB order history:",
+    pdfStep2: "2. Select a time period (e.g., one year)",
+    pdfStep3: "3. Download the PDF receipt",
+    pdfStep4: "4. Upload it here for automatic calculation",
+    pdfAlreadyHalbtax: "Prices in PDF are already with Half Fare discount",
+    pdfSbbLink: "Go to SBB Order History"
   },
   de: {
     title: "SBB Abo-Vergleichsrechner",
@@ -197,7 +205,15 @@ export const translations: Translations = {
     mostYear: "Fast ganzes Jahr",
     halfYear: "Halbes Jahr",
     fewMonths: "Wenige Monate",
-    shortTerm: "Kurzzeitig"
+    shortTerm: "Kurzzeitig",
+    pdfInput: "PDF-Upload",
+    pdfInstructions: "So erhalten Sie Ihre PDF-Bestellung:",
+    pdfStep1: "1. Gehen Sie zur SBB-Bestellhistorie:",
+    pdfStep2: "2. Wählen Sie einen Zeitraum (z.B. ein Jahr)",
+    pdfStep3: "3. Laden Sie die PDF-Bestellung herunter",
+    pdfStep4: "4. Laden Sie sie hier hoch für automatische Berechnung",
+    pdfAlreadyHalbtax: "Preise in PDF sind bereits mit Halbtax-Rabatt",
+    pdfSbbLink: "Zur SBB-Bestellhistorie"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements CFF",
@@ -293,7 +309,15 @@ export const translations: Translations = {
     mostYear: "Presque toute l'année",
     halfYear: "Demi-année",
     fewMonths: "Quelques mois",
-    shortTerm: "Court terme"
+    shortTerm: "Court terme",
+    pdfInput: "Téléchargement PDF",
+    pdfInstructions: "Pour obtenir votre reçu PDF:",
+    pdfStep1: "1. Allez à l'historique des commandes CFF:",
+    pdfStep2: "2. Sélectionnez une période (ex: une année)",
+    pdfStep3: "3. Téléchargez le reçu PDF",
+    pdfStep4: "4. Téléchargez-le ici pour calcul automatique",
+    pdfAlreadyHalbtax: "Les prix dans le PDF sont déjà avec réduction Demi-tarif",
+    pdfSbbLink: "Aller à l'historique CFF"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti FFS",
@@ -389,7 +413,15 @@ export const translations: Translations = {
     mostYear: "Quasi tutto l'anno",
     halfYear: "Metà anno",
     fewMonths: "Pochi mesi",
-    shortTerm: "Breve termine"
+    shortTerm: "Breve termine",
+    pdfInput: "Caricamento PDF",
+    pdfInstructions: "Per ottenere la ricevuta PDF:",
+    pdfStep1: "1. Andare alla cronologia ordini FFS:",
+    pdfStep2: "2. Selezionare un periodo (es: un anno)",
+    pdfStep3: "3. Scaricare la ricevuta PDF",
+    pdfStep4: "4. Caricarla qui per calcolo automatico",
+    pdfAlreadyHalbtax: "I prezzi nel PDF sono già con sconto Metà-prezzo",
+    pdfSbbLink: "Vai alla cronologia FFS"
   }
 };
 

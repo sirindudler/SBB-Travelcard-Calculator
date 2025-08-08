@@ -148,6 +148,12 @@ const SBBCalculator: React.FC = () => {
   const [pdfProcessing, setPdfProcessing] = useState<boolean>(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   
+  // Additional travel budget (for route-based input)
+  const [additionalBudget, setAdditionalBudget] = useState<number | ''>(0);
+  const [additionalBudgetFrequency, setAdditionalBudgetFrequency] = useState<'weekly' | 'monthly' | 'yearly'>('yearly');
+  const [additionalBudgetExpanded, setAdditionalBudgetExpanded] = useState<boolean>(false);
+  const [additionalBudgetIsHalbtax, setAdditionalBudgetIsHalbtax] = useState<boolean>(false);
+  
   const [results, setResults] = useState<CalculationResults | null>(null);
 
   // Use translation hook
@@ -323,6 +329,28 @@ const SBBCalculator: React.FC = () => {
         }
         return total + (route.isHalbtaxPrice ? actualRouteCost * 2 : actualRouteCost);
       }, 0);
+      
+      // Add additional budget if present
+      if (additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0) {
+        let additionalCost: number;
+        const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+        
+        switch (additionalBudgetFrequency) {
+          case 'weekly':
+            additionalCost = additionalBudget * (longestDuration * 4.33);
+            break;
+          case 'monthly':
+            additionalCost = additionalBudget * longestDuration;
+            break;
+          case 'yearly':
+            additionalCost = additionalBudget;
+            break;
+          default:
+            additionalCost = 0;
+        }
+        
+        yearlySpendingFull += additionalBudgetIsHalbtax ? additionalCost * 2 : additionalCost;
+      }
     } else if (inputMode === 'direct') {
       yearlySpendingFull = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
     } else if (inputMode === 'pdf') {
@@ -353,6 +381,28 @@ const SBBCalculator: React.FC = () => {
         }
         return total + (route.isHalbtaxPrice ? actualRouteCost : actualRouteCost / 2);
       }, 0);
+      
+      // Add additional budget halbtax costs if present
+      if (additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0) {
+        let additionalCost: number;
+        const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+        
+        switch (additionalBudgetFrequency) {
+          case 'weekly':
+            additionalCost = additionalBudget * (longestDuration * 4.33);
+            break;
+          case 'monthly':
+            additionalCost = additionalBudget * longestDuration;
+            break;
+          case 'yearly':
+            additionalCost = additionalBudget;
+            break;
+          default:
+            additionalCost = 0;
+        }
+        
+        halbtaxTicketCosts += additionalBudgetIsHalbtax ? additionalCost : additionalCost / 2;
+      }
     } else if (inputMode === 'direct') {
       halbtaxTicketCosts = (typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0) / 2;
     } else if (inputMode === 'pdf') {
@@ -533,7 +583,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice]);
+  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax]);
 
   useEffect(() => {
     calculate();
@@ -949,6 +999,119 @@ const SBBCalculator: React.FC = () => {
                 <span className="font-semibold">{t('addRoute')}</span>
               </button>
 
+              {/* Additional Travel Budget Section */}
+              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border-2 border-indigo-200 shadow-sm">
+                <button
+                  onClick={() => setAdditionalBudgetExpanded(!additionalBudgetExpanded)}
+                  className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-blue-50/50 transition-all rounded-xl"
+                >
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center">
+                      <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-indigo-900 text-sm sm:text-base">{t('additionalBudget')}</span>
+                      <div className="text-xs text-indigo-700">{t('additionalBudgetHelp')}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && (
+                      <span className="text-sm font-medium text-indigo-700">
+                        {formatCurrency(additionalBudget)}
+                      </span>
+                    )}
+                    {additionalBudgetExpanded ? (
+                      <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                    )}
+                  </div>
+                </button>
+
+                {additionalBudgetExpanded && (
+                  <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-indigo-200/50 space-y-4">
+                    {/* Budget Amount Input */}
+                    <div className="relative">
+                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-indigo-800 mb-2 sm:mb-3">
+                        <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {t('additionalBudgetAmount')}
+                      </label>
+                      <div className="relative max-w-sm">
+                        <span className="absolute left-3 sm:left-4 top-3 sm:top-4 text-indigo-600 font-bold text-base sm:text-lg">CHF</span>
+                        <input 
+                          type="number" 
+                          value={additionalBudget || ''}
+                          onChange={(e) => setAdditionalBudget(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-indigo-400"
+                          placeholder="0"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Frequency Toggle */}
+                    <div className="relative">
+                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-indigo-800 mb-2 sm:mb-3">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {t('frequencyToggle')}
+                      </label>
+                      <div className="flex rounded-lg border-2 border-indigo-300 overflow-hidden bg-white h-12 max-w-sm">
+                        <button
+                          onClick={() => setAdditionalBudgetFrequency('weekly')}
+                          className={`flex-1 px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${
+                            additionalBudgetFrequency === 'weekly'
+                              ? 'bg-indigo-500 text-white'
+                              : 'bg-white text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {t('weekly')}
+                        </button>
+                        <button
+                          onClick={() => setAdditionalBudgetFrequency('monthly')}
+                          className={`flex-1 px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium transition-all border-l-2 border-indigo-300 flex items-center justify-center ${
+                            additionalBudgetFrequency === 'monthly'
+                              ? 'bg-indigo-500 text-white'
+                              : 'bg-white text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {t('monthly')}
+                        </button>
+                        <button
+                          onClick={() => setAdditionalBudgetFrequency('yearly')}
+                          className={`flex-1 px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium transition-all border-l-2 border-indigo-300 flex items-center justify-center ${
+                            additionalBudgetFrequency === 'yearly'
+                              ? 'bg-indigo-500 text-white'
+                              : 'bg-white text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {t('yearly')}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Halbtax Checkbox */}
+                    <div className="bg-white/70 p-3 sm:p-4 rounded-lg border border-indigo-200">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <input
+                          type="checkbox"
+                          id="additional-budget-halbtax"
+                          checked={additionalBudgetIsHalbtax}
+                          onChange={(e) => setAdditionalBudgetIsHalbtax(e.target.checked)}
+                          className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 border-2 border-indigo-400 rounded-md focus:ring-indigo-500 transition-all"
+                        />
+                        <label htmlFor="additional-budget-halbtax" className="text-xs sm:text-sm font-medium text-indigo-800 cursor-pointer flex-1">
+                          <span className="flex items-center gap-2">
+                            <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="text-xs sm:text-sm">{t('additionalBudgetAlreadyHalbtax')}</span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Gesamtkosten Anzeige */}
               <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 sm:p-5 rounded-xl border-2 border-amber-200 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -956,13 +1119,34 @@ const SBBCalculator: React.FC = () => {
                     <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <span className="font-bold text-amber-900 text-base sm:text-lg">
-                    Total travel costs: {formatCurrency(routes.reduce((total, route) => {
-                      const trips = typeof route.trips === 'number' ? route.trips : 0;
-                      const cost = typeof route.cost === 'number' ? route.cost : 0;
-                      return total + (route.frequencyType === 'weekly' 
-                        ? trips * cost * (route.durationMonths * 4.33)
-                        : trips * cost * route.durationMonths);
-                    }, 0))}
+                    Total travel costs: {formatCurrency((() => {
+                      const routesCost = routes.reduce((total, route) => {
+                        const trips = typeof route.trips === 'number' ? route.trips : 0;
+                        const cost = typeof route.cost === 'number' ? route.cost : 0;
+                        return total + (route.frequencyType === 'weekly' 
+                          ? trips * cost * (route.durationMonths * 4.33)
+                          : trips * cost * route.durationMonths);
+                      }, 0);
+                      
+                      // Add additional budget if present
+                      let additionalCost = 0;
+                      if (additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0) {
+                        const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+                        switch (additionalBudgetFrequency) {
+                          case 'weekly':
+                            additionalCost = additionalBudget * (longestDuration * 4.33);
+                            break;
+                          case 'monthly':
+                            additionalCost = additionalBudget * longestDuration;
+                            break;
+                          case 'yearly':
+                            additionalCost = additionalBudget;
+                            break;
+                        }
+                      }
+                      
+                      return routesCost + additionalCost;
+                    })())}
                   </span>
                 </div>
                 <div className="text-xs sm:text-sm text-amber-700">

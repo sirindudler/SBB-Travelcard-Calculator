@@ -1155,7 +1155,7 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
+                      Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
                         route.frequencyType === 'weekly' 
                           ? (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33)
                           : (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * route.durationMonths
@@ -1353,7 +1353,12 @@ const SBBCalculator: React.FC = () => {
                     <div className="flex items-start gap-1 mt-2 p-2 sm:p-3 bg-orange-100 rounded-lg border border-orange-200">
                       <span className="flex-shrink-0">⚠️</span>
                       <span className="font-medium text-orange-800 text-xs sm:text-sm">
-                        {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
+                        {t('routesWithHalbtax', { 
+                          count: routes.filter(r => r.isHalbtaxPrice).length,
+                          routes: routes.filter(r => r.isHalbtaxPrice).length === 1 ? 
+                            (language === 'de' ? 'Strecke' : language === 'fr' ? 'trajet' : language === 'it' ? 'tratta' : 'route') :
+                            (language === 'de' ? 'Strecken' : language === 'fr' ? 'trajets' : language === 'it' ? 'tratte' : 'routes')
+                        })}
                       </span>
                     </div>
                   )}
@@ -1746,7 +1751,7 @@ const SBBCalculator: React.FC = () => {
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
                             <span className="flex items-center gap-1">
-                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex} ({streckenabo.route.durationMonths} months)</span>
+                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex}{streckenabo.route.durationMonths !== 12 ? ` (${streckenabo.route.durationMonths} months)` : ''}</span>
                             </span>
                             <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor} whitespace-nowrap`}>
                               {t('estimate')}

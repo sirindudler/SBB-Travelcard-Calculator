@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download } from 'lucide-react';
-import { Language, useTranslation, getRouteWarningText } from './translations';
+import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
@@ -65,7 +65,6 @@ const SBBCalculator: React.FC = () => {
   const [routes, setRoutes] = useState<Route[]>([
     { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: getColorScheme(0), durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
   ]);
-
   
   // Direct input
   const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number | ''>(2500);
@@ -92,9 +91,9 @@ const SBBCalculator: React.FC = () => {
   // Get pricing data from external pricing file
   const prices: PriceStructure = getPricing();
 
-  // Format currency helper - now uses the centralized formatCurrency from utils
-  const formatCurrencyLocal = useCallback((amount: number): string => {
-    return formatCurrency(amount, true);
+  // Format currency helper
+  const formatCurrency = useCallback((amount: number): string => {
+    return `CHF ${Math.round(amount).toLocaleString()}`;
   }, []);
 
   // Export results to PDF using html2canvas
@@ -772,27 +771,6 @@ const SBBCalculator: React.FC = () => {
     ));
   }, []);
 
-  // Simple input handlers - let users type anything, parse what we can
-  const handleTripsInput = useCallback((routeId: number, value: string) => {
-    if (value === '') {
-      updateRoute(routeId, 'trips', '');
-      return;
-    }
-    const parsed = parseInt(value);
-    updateRoute(routeId, 'trips', isNaN(parsed) ? value : Math.max(0, parsed));
-  }, [updateRoute]);
-
-  const handleCostInput = useCallback((routeId: number, value: string) => {
-    if (value === '') {
-      updateRoute(routeId, 'cost', '');
-      return;
-    }
-    // Replace comma with period for European users
-    const normalizedValue = value.replace(',', '.');
-    const parsed = parseFloat(normalizedValue);
-    updateRoute(routeId, 'cost', isNaN(parsed) ? value : Math.max(0, parsed));
-  }, [updateRoute]);
-
   const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
     if (option.total === bestOptionTotal) {
       return 'bg-green-50 border-green-200 text-green-800';
@@ -1021,12 +999,14 @@ const SBBCalculator: React.FC = () => {
                         {route.frequencyType === 'weekly' ? t('tripsPerWeek') : t('tripsPerMonth')}
                       </label>
                       <input 
-                        type="text" 
+                        type="number" 
                         value={route.trips || ''}
-                        onChange={(e) => handleTripsInput(route.id, e.target.value)}
+                        onChange={(e) => updateRoute(route.id, 'trips', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                         onWheel={(e) => e.currentTarget.blur()}
                         className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
                         placeholder={t('placeholderTrips')}
+                        step="0.5"
+                        min="0"
                       />
                       
                       {/* Frequency Toggle */}
@@ -1068,13 +1048,15 @@ const SBBCalculator: React.FC = () => {
                       <div className="relative">
                         <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium text-sm sm:text-base`}>CHF</span>
                         <input 
-                          type="text" 
+                          type="number" 
                           value={route.cost || ''}
-                          onChange={(e) => handleCostInput(route.id, e.target.value)}
+                          onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                           onWheel={(e) => e.currentTarget.blur()}
                           className={`w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                          placeholder={t('placeholderCost')}
-                        />
+                        placeholder={t('placeholderCost')}
+                        step="0.10"
+                        min="0"
+                      />
                       </div>
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
@@ -1173,7 +1155,7 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrencyLocal(
+                      💰 Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
                         route.frequencyType === 'weekly' 
                           ? (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33)
                           : (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * route.durationMonths
@@ -1213,7 +1195,7 @@ const SBBCalculator: React.FC = () => {
                   <div className="flex items-center gap-2">
                     {additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && (
                       <span className="text-sm font-medium text-indigo-700">
-                        {formatCurrencyLocal(additionalBudget)}
+                        {formatCurrency(additionalBudget)}
                       </span>
                     )}
                     {additionalBudgetExpanded ? (
@@ -1336,7 +1318,7 @@ const SBBCalculator: React.FC = () => {
                     <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <span className="font-bold text-amber-900 text-base sm:text-lg">
-                    Total travel costs: {formatCurrencyLocal((() => {
+                    Total travel costs: {formatCurrency((() => {
                       const routesCost = routes.reduce((total, route) => {
                         const trips = typeof route.trips === 'number' ? route.trips : 0;
                         const cost = typeof route.cost === 'number' ? route.cost : 0;
@@ -1369,8 +1351,9 @@ const SBBCalculator: React.FC = () => {
                 <div className="text-xs sm:text-sm text-amber-700">
                   {routes.filter(r => r.isHalbtaxPrice).length > 0 && (
                     <div className="flex items-start gap-1 mt-2 p-2 sm:p-3 bg-orange-100 rounded-lg border border-orange-200">
+                      <span className="flex-shrink-0">⚠️</span>
                       <span className="font-medium text-orange-800 text-xs sm:text-sm">
-                        {getRouteWarningText(language, routes.filter(r => r.isHalbtaxPrice).length)}
+                        {t('routesWithHalbtax', { count: routes.filter(r => r.isHalbtaxPrice).length })}
                       </span>
                     </div>
                   )}
@@ -1504,7 +1487,7 @@ const SBBCalculator: React.FC = () => {
                 {pdfTotal !== null && !pdfError && (
                   <div className="bg-purple-100 p-3 rounded-lg">
                     <div className="text-sm text-purple-700 font-medium">
-                      ✅ Extracted Total: <span className="text-lg font-bold">{formatCurrencyLocal(pdfTotal)}</span>
+                      ✅ Extracted Total: <span className="text-lg font-bold">{formatCurrency(pdfTotal)}</span>
                     </div>
                   </div>
                 )}
@@ -1534,7 +1517,7 @@ const SBBCalculator: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 leading-tight">
-                  {t('costComparison', { cost: formatCurrencyLocal(results.yearlySpendingFull) })}
+                  {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
                 </h2>
               </div>
               
@@ -1582,7 +1565,7 @@ const SBBCalculator: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                           <div className="text-base sm:text-lg font-bold">
-                            {formatCurrencyLocal(option.total)}
+                            {formatCurrency(option.total)}
                           </div>
                           {isExpanded ? (
                             <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
@@ -1612,37 +1595,37 @@ const SBBCalculator: React.FC = () => {
                           )}
                           
                           {option.type === 'none' && (
-                            <div>{t('fullTicketPrices', { cost: formatCurrencyLocal(results.yearlySpendingFull) })}</div>
+                            <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
                           )}
                           
                           {option.type === 'halbtax' && (
                             <>
-                              <div>{t('halbtaxLabel')} {formatCurrencyLocal(getHalbtaxPrice(age, true))}</div>
-                              <div>{t('ticketsDiscount', { cost: formatCurrencyLocal(results.halbtaxTicketCosts) })}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
                             </>
                           )}
                           
                           {option.type === 'halbtaxplus' && (
                             <>
-                              <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrencyLocal(option.details.cost)}</div>
-                              <div>{t('halbtaxLabel')} {formatCurrencyLocal(getHalbtaxPrice(age, true))}</div>
-                              <div>{t('creditCovered', { cost: formatCurrencyLocal(option.details.coveredByCredit) })}</div>
+                              <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                               
                               {option.details.reloadCount > 0 && allowHalbtaxPlusReload && (
                                 <>
                                   <div className="text-orange-600 font-medium">{t('reloads')}</div>
                                   {option.details.reloadCount > 1 && (
-                                    <div>{t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrencyLocal((option.details.reloadCount - 1) * option.details.cost) })}</div>
+                                    <div>{t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrency((option.details.reloadCount - 1) * option.details.cost) })}</div>
                                   )}
-                                  <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrencyLocal(option.details.cost * option.details.lastReloadRatio) })}</div>
-                                  <div className="font-medium">{t('reloadTotal', { cost: formatCurrencyLocal(option.details.reloadCost) })}</div>
+                                  <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
+                                  <div className="font-medium">{t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}</div>
                                 </>
                               )}
                               
                               {option.details.halbtaxTicketsAfterCredit > 0 && !allowHalbtaxPlusReload && (
                                 <>
                                   <div className="text-blue-600 font-medium">Regular Halbtax Tickets</div>
-                                  <div>Remaining ticket costs (already with Halbtax discount): {formatCurrencyLocal(option.details.halbtaxTicketsAfterCredit)}</div>
+                                  <div>Remaining ticket costs (already with Halbtax discount): {formatCurrency(option.details.halbtaxTicketsAfterCredit)}</div>
                                 </>
                               )}
                             </>
@@ -1652,13 +1635,13 @@ const SBBCalculator: React.FC = () => {
                             <>
                               {results.gaIsMonthlyPricing && results.gaMonthsUsed ? (
                                 <>
-                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrencyLocal(getMonthlyGAPrice(age, isFirstClass))} × {results.gaMonthsUsed} months</div>
+                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getMonthlyGAPrice(age, isFirstClass))} × {results.gaMonthsUsed} months</div>
                                   <div className="text-green-600 font-medium">✓ Monthly pricing (valid for {results.gaMonthsUsed} months)</div>
-                                  <div className="text-gray-600 text-xs">Annual price would be: {formatCurrencyLocal(getGAPrice(age, isFirstClass))}</div>
+                                  <div className="text-gray-600 text-xs">Annual price would be: {formatCurrency(getGAPrice(age, isFirstClass))}</div>
                                 </>
                               ) : (
                                 <>
-                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrencyLocal(getGAPrice(age, isFirstClass))}</div>
+                                  <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
                                   <div className="text-blue-600 font-medium">Annual subscription</div>
                                 </>
                               )}
@@ -1668,15 +1651,15 @@ const SBBCalculator: React.FC = () => {
                           
                           {option.type === 'ganight' && (
                             <>
-                              <div>GA Night (2nd Class): {formatCurrencyLocal(getGANightPrice())}</div>
+                              <div>GA Night (2nd Class): {formatCurrency(getGANightPrice())}</div>
                               <div className="text-purple-600 font-medium">{t('ganightDescription')}</div>
                               
                               {option.gaNightDetails.complementary === 'halbtax' && (
                                 <>
                                   <div className="mt-2 pt-2 border-t border-gray-200/50">
                                     <div className="text-blue-600 font-medium">Plus Halbtax for non-covered routes:</div>
-                                    <div>Halbtax: {formatCurrencyLocal(option.gaNightDetails.halbtaxPrice)}</div>
-                                    <div>Non-covered costs (with Halbtax discount): {formatCurrencyLocal(option.gaNightDetails.nonCoveredCosts)}</div>
+                                    <div>Halbtax: {formatCurrency(option.gaNightDetails.halbtaxPrice)}</div>
+                                    <div>Non-covered costs (with Halbtax discount): {formatCurrency(option.gaNightDetails.nonCoveredCosts)}</div>
                                   </div>
                                 </>
                               )}
@@ -1685,31 +1668,31 @@ const SBBCalculator: React.FC = () => {
                                 <>
                                   <div className="mt-2 pt-2 border-t border-gray-200/50">
                                     <div className="text-blue-600 font-medium">Plus Halbtax + Halbtax Plus for non-covered routes:</div>
-                                    <div>Halbtax: {formatCurrencyLocal(option.gaNightDetails.halbtaxPrice)}</div>
-                                    <div>Halbtax Plus {option.gaNightDetails.credit}: {formatCurrencyLocal(option.gaNightDetails.halbtaxPlusCost)}</div>
-                                    <div>Credit covered: {formatCurrencyLocal(option.gaNightDetails.coveredByCredit)}</div>
+                                    <div>Halbtax: {formatCurrency(option.gaNightDetails.halbtaxPrice)}</div>
+                                    <div>Halbtax Plus {option.gaNightDetails.credit}: {formatCurrency(option.gaNightDetails.halbtaxPlusCost)}</div>
+                                    <div>Credit covered: {formatCurrency(option.gaNightDetails.coveredByCredit)}</div>
                                     
                                     {option.gaNightDetails.reloadCount > 0 && allowHalbtaxPlusReload && (
                                       <>
                                         <div className="text-orange-600 font-medium mt-1">{t('reloads')}</div>
                                         {option.gaNightDetails.reloadCount > 1 && option.gaNightDetails.lastReloadRatio === 0 && (
-                                          <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount, cost: formatCurrencyLocal(option.gaNightDetails.reloadCost) })}</div>
+                                          <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount, cost: formatCurrency(option.gaNightDetails.reloadCost) })}</div>
                                         )}
                                         {option.gaNightDetails.reloadCount > 1 && option.gaNightDetails.lastReloadRatio > 0 && (
                                           <>
-                                            <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount - 1, cost: formatCurrencyLocal((option.gaNightDetails.reloadCount - 1) * option.gaNightDetails.halbtaxPlusCost) })}</div>
-                                            <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrencyLocal(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
+                                            <div>{t('reloadFull', { count: option.gaNightDetails.reloadCount - 1, cost: formatCurrency((option.gaNightDetails.reloadCount - 1) * option.gaNightDetails.halbtaxPlusCost) })}</div>
+                                            <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrency(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
                                           </>
                                         )}
                                         {option.gaNightDetails.reloadCount === 1 && option.gaNightDetails.lastReloadRatio > 0 && (
-                                          <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrencyLocal(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
+                                          <div>{t('reloadPartial', { percent: Math.round(option.gaNightDetails.lastReloadRatio * 100), cost: formatCurrency(option.gaNightDetails.halbtaxPlusCost * option.gaNightDetails.lastReloadRatio) })}</div>
                                         )}
-                                        <div className="font-medium">Total reloads: {formatCurrencyLocal(option.gaNightDetails.reloadCost)}</div>
+                                        <div className="font-medium">Total reloads: {formatCurrency(option.gaNightDetails.reloadCost)}</div>
                                       </>
                                     )}
                                     
                                     {option.gaNightDetails.remainingCosts > 0 && !allowHalbtaxPlusReload && (
-                                      <div className="text-gray-600 mt-1">Remaining costs (Halbtax price): {formatCurrencyLocal(option.gaNightDetails.remainingCosts)}</div>
+                                      <div className="text-gray-600 mt-1">Remaining costs (Halbtax price): {formatCurrency(option.gaNightDetails.remainingCosts)}</div>
                                     )}
                                   </div>
                                 </>
@@ -1719,7 +1702,7 @@ const SBBCalculator: React.FC = () => {
                                 <>
                                   <div className="mt-2 pt-2 border-t border-gray-200/50">
                                     <div className="text-gray-600 font-medium">Plus full-price tickets:</div>
-                                    <div>Non-covered costs: {formatCurrencyLocal(option.gaNightDetails.nonCoveredCosts)}</div>
+                                    <div>Non-covered costs: {formatCurrency(option.gaNightDetails.nonCoveredCosts)}</div>
                                   </div>
                                 </>
                               )}
@@ -1728,7 +1711,7 @@ const SBBCalculator: React.FC = () => {
 
                           {option.total !== results.bestOption.total && (
                             <div className="text-orange-600 font-medium pt-1 sm:pt-2 border-t border-gray-200/50 text-xs sm:text-sm">
-                              {t('moreExpensive', { cost: formatCurrencyLocal(option.total - results.bestOption.total) })}
+                              {t('moreExpensive', { cost: formatCurrency(option.total - results.bestOption.total) })}
                             </div>
                           )}
                         </div>
@@ -1772,7 +1755,7 @@ const SBBCalculator: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                           <div className="text-base sm:text-lg font-bold text-purple-700">
-                            {formatCurrencyLocal(streckenabo.monthlyCost * streckenabo.route.durationMonths)}
+                            {formatCurrency(streckenabo.monthlyCost * streckenabo.route.durationMonths)}
                           </div>
                           {isExpanded ? (
                             <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
@@ -1805,9 +1788,9 @@ const SBBCalculator: React.FC = () => {
                             </div>
                           )}
                           
-                          <div className="text-green-600 font-medium">✓ Pass for {streckenabo.route.durationMonths} months: {formatCurrencyLocal(streckenabo.monthlyCost * streckenabo.route.durationMonths)}</div>
-                          <div>{t('monthlyPass', { cost: formatCurrencyLocal(streckenabo.monthlyCost) })}</div>
-                          <div className="text-gray-600 text-xs">Annual price would be: {formatCurrencyLocal(streckenabo.annualPrice)}</div>
+                          <div className="text-green-600 font-medium">✓ Pass for {streckenabo.route.durationMonths} months: {formatCurrency(streckenabo.monthlyCost * streckenabo.route.durationMonths)}</div>
+                          <div>{t('monthlyPass', { cost: formatCurrency(streckenabo.monthlyCost) })}</div>
+                          <div className="text-gray-600 text-xs">Annual price would be: {formatCurrency(streckenabo.annualPrice)}</div>
                           <div className="pt-1 sm:pt-2 border-t border-gray-200/50">
                             <div className="font-medium text-purple-700 mb-1 text-xs sm:text-sm">{t('streckenabosInfo')}</div>
                             <div className="text-gray-600 text-xs sm:text-sm">{t('streckenabosExplanation')}</div>
@@ -1872,7 +1855,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('halbtaxLabel')}</span>
-                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrencyLocal(getHalbtaxPrice(age, true) * 2)}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(getHalbtaxPrice(age, true) * 2)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
@@ -1883,7 +1866,7 @@ const SBBCalculator: React.FC = () => {
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        {t('yourCostsLabel')} {formatCurrencyLocal(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%)
                       </div>
                     </div>
                     
@@ -1891,7 +1874,7 @@ const SBBCalculator: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('gaLabel')}</span>
-                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrencyLocal(results.gaTotal)}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(results.gaTotal)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
@@ -1902,7 +1885,7 @@ const SBBCalculator: React.FC = () => {
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        {t('yourCostsLabel')} {formatCurrencyLocal(results.noAboTotal)} ({Math.round((results.noAboTotal / results.gaTotal) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / results.gaTotal) * 100)}%)
                       </div>
                     </div>
                   </div>
@@ -1918,11 +1901,11 @@ const SBBCalculator: React.FC = () => {
                     <div className="relative">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs sm:text-sm text-gray-600">{t('withoutSubscription')}</span>
-                        <span className="font-medium text-gray-800 text-xs sm:text-sm">{formatCurrencyLocal(results.noAboTotal)}</span>
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">{formatCurrency(results.noAboTotal)}</span>
                       </div>
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-xs sm:text-sm text-gray-600 truncate pr-2">{t('bestOptionLabel', { option: results.bestOption.name })}</span>
-                        <span className="font-medium text-emerald-700 text-xs sm:text-sm whitespace-nowrap">{formatCurrencyLocal(results.bestOption.total)}</span>
+                        <span className="font-medium text-emerald-700 text-xs sm:text-sm whitespace-nowrap">{formatCurrency(results.bestOption.total)}</span>
                       </div>
                       
                       {/* Visual Savings Bar */}
@@ -1942,7 +1925,7 @@ const SBBCalculator: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500">
-                          <span className="truncate pr-2">{t('savedAmount', { amount: formatCurrencyLocal(results.noAboTotal - results.bestOption.total) })}</span>
+                          <span className="truncate pr-2">{t('savedAmount', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
                           <span className="whitespace-nowrap">{t('totalCostLabel')}</span>
                         </div>
                       </div>
@@ -1953,10 +1936,10 @@ const SBBCalculator: React.FC = () => {
                       <div className="space-y-2">
                         <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm text-xs sm:text-sm">
                           <span>💰</span>
-                          <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrencyLocal(results.noAboTotal - results.bestOption.total) })}</span>
+                          <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
                         </div>
                         <div className="text-xs text-gray-500 text-center">
-                          Monthly: {formatCurrencyLocal((results.noAboTotal - results.bestOption.total) / 12)}
+                          Monthly: {formatCurrency((results.noAboTotal - results.bestOption.total) / 12)}
                         </div>
                       </div>
                     </div>

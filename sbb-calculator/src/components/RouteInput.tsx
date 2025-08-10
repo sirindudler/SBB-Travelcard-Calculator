@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Trash2, Clock, MapPin, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Route } from '../services/CalculatorService';
 import { Language } from '../translations';
@@ -23,23 +23,13 @@ export const RouteInput: React.FC<RouteInputProps> = ({
   showRemoveButton
 }) => {
   const handleTripsChange = (value: string) => {
-    if (value === '') {
-      onUpdateRoute(route.id, { trips: '' });
-      return;
-    }
-    const parsed = parseInt(value);
-    onUpdateRoute(route.id, { trips: isNaN(parsed) ? value : Math.max(0, parsed) });
+    const numValue = value === '' ? '' : Math.max(0, parseInt(value) || 0);
+    onUpdateRoute(route.id, { trips: numValue });
   };
 
   const handleCostChange = (value: string) => {
-    if (value === '') {
-      onUpdateRoute(route.id, { cost: '' });
-      return;
-    }
-    // Replace comma with period for European users
-    const normalizedValue = value.replace(',', '.');
-    const parsed = parseFloat(normalizedValue);
-    onUpdateRoute(route.id, { cost: isNaN(parsed) ? value : Math.max(0, parsed) });
+    const numValue = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
+    onUpdateRoute(route.id, { cost: numValue });
   };
 
   return (
@@ -63,11 +53,12 @@ export const RouteInput: React.FC<RouteInputProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={`block text-sm font-medium ${route.colorScheme.text} mb-1`}>
-              {route.frequencyType === 'weekly' ? t('tripsPerWeek') : t('tripsPerMonth')}
+              {t('tripsPerFrequency', { frequency: t(route.frequencyType) })}
             </label>
             <input
-              type="text"
-              value={route.trips || ''}
+              type="number"
+              min="0"
+              value={route.trips}
               onChange={(e) => handleTripsChange(e.target.value)}
               className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent`}
               placeholder="0"
@@ -80,8 +71,10 @@ export const RouteInput: React.FC<RouteInputProps> = ({
             </label>
             <div className="relative">
               <input
-                type="text"
-                value={route.cost || ''}
+                type="number"
+                min="0"
+                step="0.10"
+                value={route.cost}
                 onChange={(e) => handleCostChange(e.target.value)}
                 className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent pr-12`}
                 placeholder="0.00"

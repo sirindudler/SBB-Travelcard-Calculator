@@ -123,7 +123,11 @@ export const translations: Translations = {
     pdfStep3: "3. Download the PDF receipt",
     pdfStep4: "4. Upload it here for automatic calculation",
     pdfAlreadyHalbtax: "Prices in PDF are already with Half Fare discount",
-    pdfSbbLink: "Go to SBB Order History"
+    pdfSbbLink: "Go to SBB Order History",
+    exportPdf: "Export to PDF",
+    exportPdfTitle: "SBB Subscription Comparison Results",
+    exportPdfSubtitle: "Calculation Results Summary",
+    exportPdfError: "Error generating PDF. Please try again."
   },
   de: {
     title: "SBB Abo-Vergleichsrechner",
@@ -241,7 +245,11 @@ export const translations: Translations = {
     pdfStep3: "3. Laden Sie die PDF-Bestellung herunter",
     pdfStep4: "4. Laden Sie sie hier hoch für automatische Berechnung",
     pdfAlreadyHalbtax: "Preise in PDF sind bereits mit Halbtax-Rabatt",
-    pdfSbbLink: "Zur SBB-Bestellhistorie"
+    pdfSbbLink: "Zur SBB-Bestellhistorie",
+    exportPdf: "Als PDF exportieren",
+    exportPdfTitle: "SBB Abo-Vergleichsrechner Ergebnisse",
+    exportPdfSubtitle: "Berechnungsergebnisse Zusammenfassung",
+    exportPdfError: "Fehler beim Erstellen der PDF. Bitte versuchen Sie es erneut."
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements CFF",
@@ -359,7 +367,11 @@ export const translations: Translations = {
     pdfStep3: "3. Téléchargez le reçu PDF",
     pdfStep4: "4. Téléchargez-le ici pour calcul automatique",
     pdfAlreadyHalbtax: "Les prix dans le PDF sont déjà avec réduction Demi-tarif",
-    pdfSbbLink: "Aller à l'historique CFF"
+    pdfSbbLink: "Aller à l'historique CFF",
+    exportPdf: "Exporter en PDF",
+    exportPdfTitle: "Résultats Comparaison Abonnements CFF",
+    exportPdfSubtitle: "Résumé des Résultats de Calcul",
+    exportPdfError: "Erreur lors de la génération du PDF. Veuillez réessayer."
   },
   it: {
     title: "Calcolatore di confronto abbonamenti FFS",
@@ -477,7 +489,11 @@ export const translations: Translations = {
     pdfStep3: "3. Scaricare la ricevuta PDF",
     pdfStep4: "4. Caricarla qui per calcolo automatico",
     pdfAlreadyHalbtax: "I prezzi nel PDF sono già con sconto Metà-prezzo",
-    pdfSbbLink: "Vai alla cronologia FFS"
+    pdfSbbLink: "Vai alla cronologia FFS",
+    exportPdf: "Esporta in PDF",
+    exportPdfTitle: "Risultati Confronto Abbonamenti FFS",
+    exportPdfSubtitle: "Riepilogo dei Risultati di Calcolo",
+    exportPdfError: "Errore nella generazione del PDF. Riprova."
   }
 };
 

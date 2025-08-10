@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ''}/pdf.worker.min.js`;
@@ -169,6 +171,99 @@ const SBBCalculator: React.FC = () => {
     return `CHF ${Math.round(amount).toLocaleString()}`;
   }, []);
 
+  // Export results to PDF using html2canvas
+  const exportToPDF = useCallback(async () => {
+    if (!results) return;
+
+    try {
+      // Scroll to top to ensure we capture from the beginning
+      window.scrollTo(0, 0);
+      
+      // Wait for scroll and any animations to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Get the main app container
+      const appElement = document.getElementById('root') || document.body;
+      
+      // Create canvas with Full HD quality settings
+      const canvas = await html2canvas(appElement, {
+        scale: 2.5, // Full HD quality - good balance of size vs quality
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        foreignObjectRendering: true, // Better text rendering
+        removeContainer: false,
+        imageTimeout: 0,
+        ignoreElements: (element) => {
+          // Skip any problematic elements that might cause issues
+          return element.tagName === 'IFRAME' || element.tagName === 'SCRIPT';
+        },
+        onclone: (clonedDoc) => {
+          // Ensure all content is visible in the cloned document
+          const clonedBody = clonedDoc.body;
+          clonedBody.style.height = 'auto';
+          clonedBody.style.overflow = 'visible';
+          clonedBody.style.transform = 'none';
+          
+          // Fix any elements that might be cut off
+          const allElements = clonedBody.querySelectorAll('*');
+          allElements.forEach(el => {
+            const element = el as HTMLElement;
+            if (element.style) {
+              element.style.overflow = 'visible';
+              element.style.height = 'auto';
+              element.style.maxHeight = 'none';
+              element.style.transform = 'none';
+            }
+          });
+        }
+      });
+
+      // Create PDF with margins
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const margin = 10; // 10mm margin
+      const pdfWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
+      const pdfHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
+      
+      // Scale image to fit PDF width with margins
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height / canvas.width) * pdfWidth;
+
+      // Convert canvas to optimized image for reasonable file size
+      const imgData = canvas.toDataURL('image/jpeg', 0.92); // High quality JPEG with compression
+
+      // Calculate pages needed
+      const totalPages = Math.ceil(imgHeight / pdfHeight);
+      
+      // Add content to PDF pages
+      for (let page = 0; page < totalPages && page < 8; page++) {
+        if (page > 0) {
+          pdf.addPage();
+        }
+        
+        const yPosition = margin - (page * pdfHeight);
+        pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+      }
+
+      // Save the PDF
+      const fileName = `SBB_Subscription_Comparison_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert(t('exportPdfError') || 'Error generating PDF. Please try again.');
+    }
+  }, [results, t]);
 
   // Get purchase link for option type
   const getPurchaseLink = useCallback((optionType: string): string => {
@@ -1492,7 +1587,7 @@ const SBBCalculator: React.FC = () => {
 
         {/* Ergebnisse */}
         {results && (
-          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div data-results-section className="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
@@ -1910,6 +2005,20 @@ const SBBCalculator: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* PDF Export Button */}
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <button
+                  onClick={exportToPDF}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>{t('exportPdf')}</span>
+                </button>
+                <p className="text-xs text-blue-600 text-center mt-2">
+                  {t('exportPdfSubtitle')}
+                </p>
+              </div>
             </div>
           </div>
         )}

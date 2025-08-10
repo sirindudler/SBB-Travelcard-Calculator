@@ -12,6 +12,8 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.536.0",
     "pdfjs-dist": "^5.4.54",
     "react": "^19.1.1",

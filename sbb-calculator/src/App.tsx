@@ -135,6 +135,7 @@ const SBBCalculator: React.FC = () => {
   const [allowHalbtaxPlusReload, setAllowHalbtaxPlusReload] = useState<boolean>(true);
   const [purchaseLinks, setPurchaseLinks] = useState<PurchaseLinks>(() => getStoredLinks());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] = useState<boolean>(false);
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
@@ -1879,16 +1880,47 @@ const SBBCalculator: React.FC = () => {
               })}
             </div>
 
-            {/* Zusätzliche Insights */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-                  💡
+            {/* Halbtax Plus Erklärung wenn relevant */}
+            {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
+              <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
+                    🔄
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-orange-900 mb-2 flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                      <span>{t('halbtaxPlusInfo')}</span>
+                      <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800 whitespace-nowrap">{t('autoReload')}</div>
+                    </div>
+                    <div className="text-xs sm:text-sm text-orange-800 leading-relaxed">
+                      {t('halbtaxPlusExplanation')}
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-blue-900 text-base sm:text-lg">{t('additionalInfo')}</h3>
               </div>
+            )}
+
+            {/* Zusätzliche Insights - Collapsible */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-200 shadow-sm">
+              <button 
+                onClick={() => setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded)}
+                className="w-full flex items-center justify-between gap-2 mb-3 sm:mb-4 hover:bg-blue-100/50 -m-2 p-2 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+                    💡
+                  </div>
+                  <h3 className="font-semibold text-blue-900 text-base sm:text-lg">{t('additionalInfo')}</h3>
+                </div>
+                {isAdditionalInfoExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-blue-600" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-blue-600" />
+                )}
+              </button>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {isAdditionalInfoExpanded && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -1918,18 +1950,18 @@ const SBBCalculator: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('gaLabel')}</span>
-                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(results.gaTotal * 2)}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(results.gaTotal)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
                           className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
-                            width: `${Math.min(100, (results.noAboTotal / (results.gaTotal * 2)) * 100)}%`
+                            width: `${Math.min(100, (results.noAboTotal / results.gaTotal) * 100)}%`
                           }}
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (results.gaTotal * 2)) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / results.gaTotal) * 100)}%)
                       </div>
                     </div>
                   </div>
@@ -1977,33 +2009,19 @@ const SBBCalculator: React.FC = () => {
                     
                     {/* Summary Badge */}
                     <div className="text-center">
-                      <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm text-xs sm:text-sm">
-                        <span>💰</span>
-                        <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
+                      <div className="space-y-2">
+                        <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm text-xs sm:text-sm">
+                          <span>💰</span>
+                          <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 text-center">
+                          Monthly: {formatCurrency((results.noAboTotal - results.bestOption.total) / 12)}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Halbtax Plus Erklärung wenn relevant */}
-              {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
-                <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
-                      🔄
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-orange-900 mb-2 flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
-                        <span>{t('halbtaxPlusInfo')}</span>
-                        <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800 whitespace-nowrap">{t('autoReload')}</div>
-                      </div>
-                      <div className="text-xs sm:text-sm text-orange-800 leading-relaxed">
-                        {t('halbtaxPlusExplanation')}
-                      </div>
-                    </div>
-                  </div>
-                </div>
               )}
 
               {/* PDF Export Button */}
@@ -2015,9 +2033,6 @@ const SBBCalculator: React.FC = () => {
                   <Download className="w-5 h-5" />
                   <span>{t('exportPdf')}</span>
                 </button>
-                <p className="text-xs text-blue-600 text-center mt-2">
-                  {t('exportPdfSubtitle')}
-                </p>
               </div>
             </div>
           </div>

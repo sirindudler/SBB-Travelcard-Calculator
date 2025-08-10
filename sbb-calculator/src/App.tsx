@@ -6,6 +6,9 @@ import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+// Import new utilities (keeping existing functionality)
+import { RouteColorScheme, routeColorSchemes, getColorScheme } from './utils/colorSchemes';
+import { formatCurrency } from './utils/formatters';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ''}/pdf.worker.min.js`;
@@ -14,17 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ''}/pdf.worke
 type AgeGroup = PricingAgeGroup; // Use the same type from pricing
 type InputMode = 'simple' | 'direct' | 'pdf';
 
-interface RouteColorScheme {
-  bg: string;
-  border: string;
-  border200: string;
-  border300: string;
-  text: string;
-  accent: string;
-  buttonBg: string;
-  focusRing: string;
-  summaryBg: string;
-}
+// RouteColorScheme now imported from utils
 
 interface Route {
   id: number;
@@ -54,79 +47,10 @@ interface CalculationResults {
 // Remove duplicate interfaces - now imported from pricing.ts
 
 const SBBCalculator: React.FC = () => {
-  // Define color schemes that match the overall design
-  const routeColorSchemes: RouteColorScheme[] = useMemo(() => [
-    {
-      bg: 'from-green-50 to-emerald-50',
-      border: 'border-green-100',
-      border200: 'border-green-200',
-      border300: 'border-green-300',
-      text: 'text-green-800',
-      accent: 'text-green-600',
-      buttonBg: 'bg-green-500',
-      focusRing: 'focus:ring-green-500 focus:border-green-500',
-      summaryBg: 'bg-green-100'
-    },
-    {
-      bg: 'from-blue-50 to-sky-50',
-      border: 'border-blue-100',
-      border200: 'border-blue-200',
-      border300: 'border-blue-300',
-      text: 'text-blue-800',
-      accent: 'text-blue-600',
-      buttonBg: 'bg-blue-500',
-      focusRing: 'focus:ring-blue-500 focus:border-blue-500',
-      summaryBg: 'bg-blue-100'
-    },
-    {
-      bg: 'from-purple-50 to-violet-50',
-      border: 'border-purple-100',
-      border200: 'border-purple-200',
-      border300: 'border-purple-300',
-      text: 'text-purple-800',
-      accent: 'text-purple-600',
-      buttonBg: 'bg-purple-500',
-      focusRing: 'focus:ring-purple-500 focus:border-purple-500',
-      summaryBg: 'bg-purple-100'
-    },
-    {
-      bg: 'from-orange-50 to-amber-50',
-      border: 'border-orange-100',
-      border200: 'border-orange-200',
-      border300: 'border-orange-300',
-      text: 'text-orange-800',
-      accent: 'text-orange-600',
-      buttonBg: 'bg-orange-500',
-      focusRing: 'focus:ring-orange-500 focus:border-orange-500',
-      summaryBg: 'bg-orange-100'
-    },
-    {
-      bg: 'from-rose-50 to-pink-50',
-      border: 'border-rose-100',
-      border200: 'border-rose-200',
-      border300: 'border-rose-300',
-      text: 'text-rose-800',
-      accent: 'text-rose-600',
-      buttonBg: 'bg-rose-500',
-      focusRing: 'focus:ring-rose-500 focus:border-rose-500',
-      summaryBg: 'bg-rose-100'
-    },
-    {
-      bg: 'from-teal-50 to-cyan-50',
-      border: 'border-teal-100',
-      border200: 'border-teal-200',
-      border300: 'border-teal-300',
-      text: 'text-teal-800',
-      accent: 'text-teal-600',
-      buttonBg: 'bg-teal-500',
-      focusRing: 'focus:ring-teal-500 focus:border-teal-500',
-      summaryBg: 'bg-teal-100'
-    }
-  ], []);
-
+  // Use imported color schemes (refactored)
   const getColorSchemeForRoute = useCallback((routeIndex: number): RouteColorScheme => {
-    return routeColorSchemes[routeIndex % routeColorSchemes.length];
-  }, [routeColorSchemes]);
+    return getColorScheme(routeIndex);
+  }, []);
 
   const [age, setAge] = useState<AgeGroup>('erwachsene');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
@@ -139,7 +63,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: routeColorSchemes[0], durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
+    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: getColorScheme(0), durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
   ]);
   
   // Direct input

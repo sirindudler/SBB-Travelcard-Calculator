@@ -68,6 +68,7 @@ const SBBCalculator: React.FC = () => {
   
   // Direct input
   const [yearlySpendingDirect, setYearlySpendingDirect] = useState<number | ''>(2500);
+  const [directIsHalbtaxPrice, setDirectIsHalbtaxPrice] = useState<boolean>(false);
   
   // PDF input
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -374,7 +375,8 @@ const SBBCalculator: React.FC = () => {
         yearlySpendingFull += additionalBudgetIsHalbtax ? additionalCost * 2 : additionalCost;
       }
     } else if (inputMode === 'direct') {
-      yearlySpendingFull = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
+      const directAmount = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
+      yearlySpendingFull = directIsHalbtaxPrice ? directAmount * 2 : directAmount;
     } else if (inputMode === 'pdf') {
       const pdfAmount = pdfTotal || 0;
       yearlySpendingFull = pdfIsHalbtaxPrice ? pdfAmount * 2 : pdfAmount;
@@ -426,7 +428,8 @@ const SBBCalculator: React.FC = () => {
         halbtaxTicketCosts += additionalBudgetIsHalbtax ? additionalCost : additionalCost / 2;
       }
     } else if (inputMode === 'direct') {
-      halbtaxTicketCosts = (typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0) / 2;
+      const directAmount = typeof yearlySpendingDirect === 'number' ? yearlySpendingDirect : 0;
+      halbtaxTicketCosts = directIsHalbtaxPrice ? directAmount : directAmount / 2;
     } else if (inputMode === 'pdf') {
       const pdfAmount = pdfTotal || 0;
       halbtaxTicketCosts = pdfIsHalbtaxPrice ? pdfAmount : pdfAmount / 2;
@@ -740,7 +743,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
+  }, [age, inputMode, routes, yearlySpendingDirect, directIsHalbtaxPrice, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
 
   useEffect(() => {
     calculate();
@@ -1378,16 +1381,35 @@ const SBBCalculator: React.FC = () => {
                   {t('yearlyTravelCosts')}
                 </label>
               </div>
-              <div className="relative max-w-full sm:max-w-sm">
-                <span className="absolute left-3 sm:left-4 top-3 sm:top-4 text-orange-600 font-bold text-base sm:text-lg">CHF</span>
-                <input 
-                  type="number" 
-                  value={yearlySpendingDirect || ''}
-                  onChange={(e) => setYearlySpendingDirect(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-orange-400"
-                  placeholder={t('placeholderYearly')}
-                />
+              <div className="space-y-3 sm:space-y-4">
+                <div className="relative max-w-full sm:max-w-sm">
+                  <span className="absolute left-3 sm:left-4 top-3 sm:top-4 text-orange-600 font-bold text-base sm:text-lg">CHF</span>
+                  <input 
+                    type="number" 
+                    value={yearlySpendingDirect || ''}
+                    onChange={(e) => setYearlySpendingDirect(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-orange-400"
+                    placeholder={t('placeholderYearly')}
+                  />
+                </div>
+                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-orange-300 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <input
+                      type="checkbox"
+                      id="direct-halbtax"
+                      checked={directIsHalbtaxPrice}
+                      onChange={(e) => setDirectIsHalbtaxPrice(e.target.checked)}
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 border-2 border-orange-400 rounded-md focus:ring-orange-500 transition-all"
+                    />
+                    <label htmlFor="direct-halbtax" className="text-xs sm:text-sm font-medium text-orange-800 cursor-pointer flex-1">
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           ) : inputMode === 'pdf' ? (
@@ -1503,17 +1525,22 @@ const SBBCalculator: React.FC = () => {
                 )}
 
                 {/* Halbtax Checkbox */}
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="pdf-halbtax"
-                    checked={pdfIsHalbtaxPrice}
-                    onChange={(e) => setPdfIsHalbtaxPrice(e.target.checked)}
-                    className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
-                  />
-                  <label htmlFor="pdf-halbtax" className="text-sm text-purple-800 font-medium">
-                    {t('pdfAlreadyHalbtax')}
-                  </label>
+                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-purple-300 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <input
+                      type="checkbox"
+                      id="pdf-halbtax"
+                      checked={pdfIsHalbtaxPrice}
+                      onChange={(e) => setPdfIsHalbtaxPrice(e.target.checked)}
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 border-2 border-purple-400 rounded-md focus:ring-purple-500 transition-all"
+                    />
+                    <label htmlFor="pdf-halbtax" className="text-xs sm:text-sm font-medium text-purple-800 cursor-pointer flex-1">
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t('pdfAlreadyHalbtax')}</span>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

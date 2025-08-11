@@ -2063,6 +2063,166 @@ const SBBCalculator: React.FC = () => {
                   </div>
                 </div>
                 
+                {/* Actual Break-even Calculation */}
+                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('actualBreakEvenPoints')}</div>
+                  </div>
+                  <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm">
+                    {(() => {
+                      // Calculate actual breakeven by testing different annual travel costs
+                      // to find when each option becomes the best
+                      
+                      const calculateTotalForTravelCost = (annualTravelCost: number) => {
+                        const halbtaxPrice = getHalbtaxPrice(age, !hasExistingHalbtax);
+                        const gaPrice = getGAPrice(age, isFirstClass);
+                        
+                        // No subscription
+                        const noAboTotal = annualTravelCost;
+                        
+                        // Halbtax
+                        const halbtaxTicketCosts = annualTravelCost * 0.5;
+                        const halbtaxTotal = halbtaxPrice + halbtaxTicketCosts;
+                        
+                        // Halbtax Plus options - use same mapping as main app
+                        const getHalbtaxPlusCategory = (ageGroup: AgeGroup): 'jugend' | 'erwachsene' | null => {
+                          switch (ageGroup) {
+                            case 'kind':           // 6-16 years -> jugend category
+                            case 'jugend':         // 16-25 years -> jugend category
+                              return 'jugend';
+                            case 'fuenfundzwanzig': // 25 years -> erwachsene category
+                            case 'erwachsene':      // 26-64/65 years -> erwachsene category
+                            case 'senior':          // 64+/65+ years -> erwachsene category
+                            case 'behinderung':     // disability -> erwachsene category
+                              return 'erwachsene';
+                            default:
+                              return null;
+                          }
+                        };
+                        const halbtaxPlusCategory = getHalbtaxPlusCategory(age);
+                        const halbtaxPlusOptions = halbtaxPlusCategory 
+                          ? Object.entries(getHalbtaxPlusOptions(halbtaxPlusCategory)).map(([credit, data]) => ({
+                              credit: parseInt(credit),
+                              cost: data.cost
+                            }))
+                          : [];
+                        const halbtaxPlusResults = halbtaxPlusOptions.map((option: {credit: number, cost: number}) => {
+                          if (halbtaxTicketCosts <= option.credit) {
+                            // All costs covered by initial credit
+                            const totalCost = option.cost + halbtaxPrice;
+                            return { ...option, totalCost };
+                          } else {
+                            // More costs than initial credit
+                            const remainingAfterFirst = halbtaxTicketCosts - option.credit;
+                            
+                            if (allowHalbtaxPlusReload) {
+                              // Use same logic as main app
+                              const reloadCount = Math.ceil(remainingAfterFirst / option.credit);
+                              const lastReloadUsage = remainingAfterFirst % option.credit || option.credit;
+                              
+                              let totalReloadCost = 0;
+                              for (let i = 0; i < reloadCount; i++) {
+                                if (i === reloadCount - 1) {
+                                  const usageRatio = lastReloadUsage / option.credit;
+                                  totalReloadCost += option.cost * usageRatio;
+                                } else {
+                                  totalReloadCost += option.cost;
+                                }
+                              }
+                              
+                              const totalCost = option.cost + halbtaxPrice + totalReloadCost;
+                              return { ...option, totalCost };
+                            } else {
+                              // Use initial credit + regular Halbtax tickets for remaining
+                              const totalCost = option.cost + halbtaxPrice + remainingAfterFirst;
+                              return { ...option, totalCost };
+                            }
+                          }
+                        });
+                        
+                        // GA
+                        const gaTotal = gaPrice;
+                        
+                        // Find best option
+                        const allOptions = [
+                          { name: 'No Subscription', total: noAboTotal, type: 'none' },
+                          { name: 'Halbtax', total: halbtaxTotal, type: 'halbtax' },
+                          ...halbtaxPlusResults.map((hp: {credit: number, totalCost: number}) => ({ name: `Halbtax Plus ${hp.credit}`, total: hp.totalCost, type: 'halbtaxplus' })),
+                          { name: 'GA', total: gaTotal, type: 'ga' }
+                        ];
+                        
+                        return allOptions.reduce((best, current) => 
+                          current.total < best.total ? current : best
+                        );
+                      };
+                      
+                      // Binary search to find breakeven points
+                      const findBreakevenPoint = (targetType: string, maxCost = 20000, precision = 10) => {
+                        let low = 0, high = maxCost;
+                        let bestPoint = null;
+                        
+                        while (high - low > precision) {
+                          const mid = Math.floor((low + high) / 2);
+                          const bestOption = calculateTotalForTravelCost(mid);
+                          
+                          if (bestOption.type === targetType) {
+                            bestPoint = mid;
+                            high = mid;
+                          } else {
+                            low = mid;
+                          }
+                        }
+                        
+                        // Fine-tune to find exact point
+                        for (let cost = Math.max(0, (bestPoint || low) - precision); cost <= Math.min(maxCost, (bestPoint || high) + precision); cost += 1) {
+                          const bestOption = calculateTotalForTravelCost(cost);
+                          if (bestOption.type === targetType) {
+                            return cost;
+                          }
+                        }
+                        
+                        return bestPoint;
+                      };
+                      
+                      const actualHalbtaxBreakeven = findBreakevenPoint('halbtax');
+                      const actualGABreakeven = findBreakevenPoint('ga');
+                      
+                      return (
+                        <>
+                          {/* Actual Halbtax Break-even */}
+                          {actualHalbtaxBreakeven && (
+                            <div className="flex items-center justify-between">
+                              <div className="text-gray-700 text-xs sm:text-sm">
+                                <span className="font-medium">{t('actualHalbtaxBreakEven')} </span>
+                                <span className="font-bold text-blue-600">{formatCurrency(actualHalbtaxBreakeven)} </span>
+                                <span>{t('annualTravelCost')}</span>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Actual GA Break-even */}
+                          {actualGABreakeven && (
+                            <div className="flex items-center justify-between">
+                              <div className="text-gray-700 text-xs sm:text-sm">
+                                <span className="font-medium">{t('actualGABreakEven')} </span>
+                                <span className="font-bold text-purple-600">{formatCurrency(actualGABreakeven)} </span>
+                                <span>{t('annualTravelCost')}</span>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {!actualHalbtaxBreakeven && !actualGABreakeven && (
+                            <div className="text-gray-500 text-xs sm:text-sm italic">
+                              No clear breakeven points found in typical range
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+
                 <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>

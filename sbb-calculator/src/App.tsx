@@ -56,6 +56,8 @@ const SBBCalculator: React.FC = () => {
   const [inputMode, setInputMode] = useState<InputMode>('simple');
   const [language, setLanguage] = useState<Language>('en');
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
+  const [hasExistingHalbtax, setHasExistingHalbtax] = useState<boolean>(false);
+  const [getFreeHalbtax, setGetFreeHalbtax] = useState<boolean>(false);
   const [allowHalbtaxPlusReload, setAllowHalbtaxPlusReload] = useState<boolean>(true);
   const [purchaseLinks, setPurchaseLinks] = useState<PurchaseLinks>(() => getStoredLinks());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -384,7 +386,7 @@ const SBBCalculator: React.FC = () => {
       yearlySpendingFull = 0;
     }
     
-    const halbtaxPrice = getHalbtaxPrice(age, true);
+    const halbtaxPrice = getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax);
     const gaPrice = getGAPrice(age, isFirstClass);
     
     // Option 1: Kein Abo
@@ -606,7 +608,7 @@ const SBBCalculator: React.FC = () => {
           });
           
           // Option B: GA Night + Halbtax
-          const halbtaxPrice = getHalbtaxPrice(age, true);
+          const halbtaxPrice = getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax);
           gaNightOptions.push({
             total: gaNightPrice + halbtaxPrice + (totalNonCoveredCosts / 2),
             name: `${t('ganight')} + ${t('halbtaxOnly')}`,
@@ -743,7 +745,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, directIsHalbtaxPrice, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
+  }, [age, inputMode, routes, yearlySpendingDirect, directIsHalbtaxPrice, hasExistingHalbtax, getFreeHalbtax, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
 
   useEffect(() => {
     calculate();
@@ -922,6 +924,57 @@ const SBBCalculator: React.FC = () => {
                   {t('firstClass')}
                 </option>
               </select>
+            </div>
+            
+            {/* Halbtax Options */}
+            <div className="flex-1 lg:max-w-md">
+              <div className="space-y-3">
+                {/* Existing Halbtax Checkbox */}
+                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-blue-300 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 w-full">
+                    <input
+                      type="checkbox"
+                      id="existing-halbtax"
+                      checked={hasExistingHalbtax}
+                      onChange={(e) => setHasExistingHalbtax(e.target.checked)}
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-2 border-blue-400 rounded-md focus:ring-blue-500 transition-all"
+                      disabled={getFreeHalbtax}
+                    />
+                    <label htmlFor="existing-halbtax" className={`text-xs sm:text-sm font-medium cursor-pointer flex-1 ${
+                      getFreeHalbtax ? 'text-blue-400' : 'text-blue-800'
+                    }`}>
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t('hasExistingHalbtax')}</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                
+                {/* Free Halbtax Checkbox */}
+                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-green-300 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 w-full">
+                    <input
+                      type="checkbox"
+                      id="free-halbtax"
+                      checked={getFreeHalbtax}
+                      onChange={(e) => {
+                        setGetFreeHalbtax(e.target.checked);
+                        if (e.target.checked) {
+                          setHasExistingHalbtax(false);
+                        }
+                      }}
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 border-2 border-green-400 rounded-md focus:ring-green-500 transition-all"
+                    />
+                    <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-green-800 cursor-pointer flex-1">
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t('getFreeHalbtax')}</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1637,7 +1690,7 @@ const SBBCalculator: React.FC = () => {
                           
                           {option.type === 'halbtax' && (
                             <>
-                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax))}</div>
                               <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
                             </>
                           )}
@@ -1645,7 +1698,7 @@ const SBBCalculator: React.FC = () => {
                           {option.type === 'halbtaxplus' && (
                             <>
                               <div>{t('halbtaxPlus', { credit: option.credit })}: {formatCurrency(option.details.cost)}</div>
-                              <div>{t('halbtaxLabel')} {formatCurrency(getHalbtaxPrice(age, true))}</div>
+                              <div>{t('halbtaxLabel')} {formatCurrency(getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax))}</div>
                               <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                               
                               {option.details.reloadCount > 0 && allowHalbtaxPlusReload && (
@@ -1892,18 +1945,18 @@ const SBBCalculator: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium text-xs sm:text-sm">{t('halbtaxLabel')}</span>
-                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(getHalbtaxPrice(age, true) * 2)}</span>
+                        <span className="font-semibold text-gray-800 text-xs sm:text-sm">{formatCurrency(getHalbtaxPrice(age, !hasExistingHalbtax) * 2)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
                           className="bg-gradient-to-r from-blue-500 to-green-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
-                            width: `${Math.min(100, (results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%`
+                            width: `${Math.min(100, (results.noAboTotal / (getHalbtaxPrice(age, !hasExistingHalbtax) * 2)) * 100)}%`
                           }}
                         ></div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, true) * 2)) * 100)}%)
+                        {t('yourCostsLabel')} {formatCurrency(results.noAboTotal)} ({Math.round((results.noAboTotal / (getHalbtaxPrice(age, !hasExistingHalbtax) * 2)) * 100)}%)
                       </div>
                     </div>
                     

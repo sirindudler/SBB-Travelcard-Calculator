@@ -1318,7 +1318,7 @@ const SBBCalculator: React.FC = () => {
                     <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <span className="font-bold text-amber-900 text-base sm:text-lg">
-                    Total travel costs: {formatCurrency((() => {
+                    {t('totalTravelCosts', { cost: formatCurrency((() => {
                       const routesCost = routes.reduce((total, route) => {
                         const trips = typeof route.trips === 'number' ? route.trips : 0;
                         const cost = typeof route.cost === 'number' ? route.cost : 0;
@@ -1345,7 +1345,7 @@ const SBBCalculator: React.FC = () => {
                       }
                       
                       return routesCost + additionalCost;
-                    })())}
+                    })()) })}
                   </span>
                 </div>
                 <div className="text-xs sm:text-sm text-amber-700">
@@ -1594,7 +1594,7 @@ const SBBCalculator: React.FC = () => {
                                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
                               >
                                 <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                                <span>Purchase this subscription</span>
+                                <span>{t('purchaseSubscription')}</span>
                               </a>
                             </div>
                           )}
@@ -1647,7 +1647,7 @@ const SBBCalculator: React.FC = () => {
                               ) : (
                                 <>
                                   <div>GA ({isFirstClass ? t('firstClass') : t('secondClass')}): {formatCurrency(getGAPrice(age, isFirstClass))}</div>
-                                  <div className="text-blue-600 font-medium">Annual subscription</div>
+                                  <div className="text-blue-600 font-medium">{t('annualSubscription')}</div>
                                 </>
                               )}
                               <div>{t('unlimitedTravel')}</div>
@@ -1788,7 +1788,7 @@ const SBBCalculator: React.FC = () => {
                                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
                               >
                                 <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                                <span>Purchase this route pass</span>
+                                <span>{t('purchaseRoutePass')}</span>
                               </a>
                             </div>
                           )}

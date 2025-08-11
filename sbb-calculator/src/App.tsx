@@ -2075,7 +2075,7 @@ const SBBCalculator: React.FC = () => {
                       // to find when each option becomes the best
                       
                       const calculateTotalForTravelCost = (annualTravelCost: number) => {
-                        const halbtaxPrice = getHalbtaxPrice(age, !hasExistingHalbtax);
+                        const halbtaxPrice = getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax);
                         const gaPrice = getGAPrice(age, isFirstClass);
                         
                         // No subscription
@@ -2189,35 +2189,96 @@ const SBBCalculator: React.FC = () => {
                       const actualGABreakeven = findBreakevenPoint('ga');
                       
                       return (
-                        <>
+                        <div className="space-y-4">
                           {/* Actual Halbtax Break-even */}
                           {actualHalbtaxBreakeven && (
-                            <div className="flex items-center justify-between">
-                              <div className="text-gray-700 text-xs sm:text-sm">
-                                <span className="font-medium">{t('actualHalbtaxBreakEven')} </span>
-                                <span className="font-bold text-blue-600">{formatCurrency(actualHalbtaxBreakeven)} </span>
-                                <span>{t('annualTravelCost')}</span>
+                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 sm:p-4 rounded-xl border border-blue-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                                <div className="font-semibold text-blue-900 text-sm">{t('actualHalbtaxBreakEven')}</div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="text-2xl sm:text-3xl font-bold text-blue-700">
+                                  {formatCurrency(actualHalbtaxBreakeven)}
+                                </div>
+                                <div className="text-xs sm:text-sm text-blue-600 font-medium">
+                                  {t('annualTravelCost')}
+                                </div>
+                              </div>
+                              <div className="mt-2 text-xs text-blue-600">
+                                💡 {t('halbtaxBestChoice')}
                               </div>
                             </div>
                           )}
                           
                           {/* Actual GA Break-even */}
                           {actualGABreakeven && (
-                            <div className="flex items-center justify-between">
-                              <div className="text-gray-700 text-xs sm:text-sm">
-                                <span className="font-medium">{t('actualGABreakEven')} </span>
-                                <span className="font-bold text-purple-600">{formatCurrency(actualGABreakeven)} </span>
-                                <span>{t('annualTravelCost')}</span>
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 sm:p-4 rounded-xl border border-purple-200 relative overflow-hidden">
+                              {/* Animated background pattern */}
+                              <div className="absolute inset-0 opacity-10">
+                                <div className="absolute top-2 left-2 w-4 h-4 bg-purple-400 rounded-full animate-bounce"></div>
+                                <div className="absolute top-4 right-4 w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                <div className="absolute bottom-3 left-1/3 w-3 h-3 bg-purple-300 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                              </div>
+                              
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                  <div className="font-semibold text-purple-900 text-sm">{t('actualGABreakEven')}</div>
+                                  <div className="ml-auto">
+                                    <div className="px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full text-xs font-medium text-purple-700 border border-purple-200">
+                                      🚄 {t('unlimitedTravelBadge')}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                                    {formatCurrency(actualGABreakeven)}
+                                  </div>
+                                  <div className="text-xs sm:text-sm text-purple-600 font-medium">
+                                    {t('annualTravelCost')}
+                                  </div>
+                                </div>
+                                
+                                {/* Progress bar showing how far current costs are */}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between text-xs text-purple-600">
+                                    <span>{t('yourCurrentCosts')}</span>
+                                    <span>{t('gaBreakeven')}</span>
+                                  </div>
+                                  <div className="w-full bg-purple-100 rounded-full h-2">
+                                    <div 
+                                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-1000"
+                                      style={{
+                                        width: `${Math.min(100, (results.noAboTotal / actualGABreakeven) * 100)}%`
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <div className="text-center text-xs text-purple-600">
+                                    {Math.round((results.noAboTotal / actualGABreakeven) * 100)}% {t('percentageOfWayThere')}
+                                    {results.noAboTotal >= actualGABreakeven && (
+                                      <span className="ml-2 text-green-600 font-bold">🎉 {t('gaIsOptimal')}</span>
+                                    )}
+                                  </div>
+                                </div>
+                                
                               </div>
                             </div>
                           )}
                           
                           {!actualHalbtaxBreakeven && !actualGABreakeven && (
-                            <div className="text-gray-500 text-xs sm:text-sm italic">
-                              No clear breakeven points found in typical range
+                            <div className="text-center p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200">
+                              <div className="text-4xl mb-2">🤔</div>
+                              <div className="text-gray-500 text-xs sm:text-sm italic">
+                                No clear breakeven points found in typical range
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">
+                                Try adjusting your travel patterns or settings
+                              </div>
                             </div>
                           )}
-                        </>
+                        </div>
                       );
                     })()}
                   </div>

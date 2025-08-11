@@ -1,8 +1,8 @@
 export const formatCurrency = (amount: number, includeSymbol: boolean = true): string => {
   if (includeSymbol) {
-    return `${amount.toFixed(2)} CHF`;
+    return `CHF ${Math.round(amount).toLocaleString('de-CH')}`;
   }
-  return amount.toFixed(2);
+  return Math.round(amount).toLocaleString('de-CH');
 };
 
 export const formatPercentage = (value: number, decimals: number = 1): string => {

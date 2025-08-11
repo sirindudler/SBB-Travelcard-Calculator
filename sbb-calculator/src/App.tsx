@@ -93,7 +93,7 @@ const SBBCalculator: React.FC = () => {
 
   // Format currency helper
   const formatCurrency = useCallback((amount: number): string => {
-    return `CHF ${Math.round(amount).toLocaleString()}`;
+    return `CHF ${Math.round(amount).toLocaleString('de-CH')}`;
   }, []);
 
   // Export results to PDF using html2canvas

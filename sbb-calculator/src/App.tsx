@@ -1755,13 +1755,19 @@ const SBBCalculator: React.FC = () => {
                           )}
                           
                           {option.type === 'none' && (
-                            <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
+                            <>
+                              <div>{t('fullTicketPrices', { cost: formatCurrency(results.yearlySpendingFull) })}</div>
+                              {hasHundePass && <div>{t('hundePassCost')}: {formatCurrency(350)}</div>}
+                              {hasVeloPass && <div>{t('veloPassCost')}: {formatCurrency(260)}</div>}
+                            </>
                           )}
                           
                           {option.type === 'halbtax' && (
                             <>
                               <div>{t('halbtaxLabel')} {formatCurrency(getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax))}</div>
                               <div>{t('ticketsDiscount', { cost: formatCurrency(results.halbtaxTicketCosts) })}</div>
+                              {hasHundePass && <div>{t('hundePassCost')}: {formatCurrency(350)}</div>}
+                              {hasVeloPass && <div>{t('veloPassCost')}: {formatCurrency(260)}</div>}
                             </>
                           )}
                           
@@ -1788,6 +1794,8 @@ const SBBCalculator: React.FC = () => {
                                   <div>Remaining ticket costs (already with Halbtax discount): {formatCurrency(option.details.halbtaxTicketsAfterCredit)}</div>
                                 </>
                               )}
+                              {hasHundePass && <div>{t('hundePassCost')}: {formatCurrency(350)}</div>}
+                              {hasVeloPass && <div>{t('veloPassCost')}: {formatCurrency(260)}</div>}
                             </>
                           )}
                           
@@ -1806,6 +1814,8 @@ const SBBCalculator: React.FC = () => {
                                 </>
                               )}
                               <div>{t('unlimitedTravel')}</div>
+                              {hasHundePass && <div>{t('hundePassCost')}: {formatCurrency(350)}</div>}
+                              {hasVeloPass && <div>{t('veloPassCost')}: {formatCurrency(260)}</div>}
                             </>
                           )}
                           
@@ -1866,6 +1876,8 @@ const SBBCalculator: React.FC = () => {
                                   </div>
                                 </>
                               )}
+                              {hasHundePass && <div>{t('hundePassCost')}: {formatCurrency(350)}</div>}
+                              {hasVeloPass && <div>{t('veloPassCost')}: {formatCurrency(260)}</div>}
                             </>
                           )}
 

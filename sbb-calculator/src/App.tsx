@@ -58,6 +58,9 @@ const SBBCalculator: React.FC = () => {
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
   const [hasExistingHalbtax, setHasExistingHalbtax] = useState<boolean>(false);
   const [getFreeHalbtax, setGetFreeHalbtax] = useState<boolean>(false);
+  const [hasHundePass, setHasHundePass] = useState<boolean>(false);
+  const [hasVeloPass, setHasVeloPass] = useState<boolean>(false);
+  const [isHalbtaxSettingsExpanded, setIsHalbtaxSettingsExpanded] = useState<boolean>(false);
   const [allowHalbtaxPlusReload, setAllowHalbtaxPlusReload] = useState<boolean>(true);
   const [purchaseLinks, setPurchaseLinks] = useState<PurchaseLinks>(() => getStoredLinks());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -389,8 +392,11 @@ const SBBCalculator: React.FC = () => {
     const halbtaxPrice = getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax);
     const gaPrice = getGAPrice(age, isFirstClass);
     
+    // Additional pass costs
+    const additionalPassCosts = (hasHundePass ? 350 : 0) + (hasVeloPass ? 260 : 0);
+    
     // Option 1: Kein Abo
-    const noAboTotal = yearlySpendingFull;
+    const noAboTotal = yearlySpendingFull + additionalPassCosts;
     
     // Option 2: Nur Halbtax
     let halbtaxTicketCosts: number;
@@ -438,7 +444,7 @@ const SBBCalculator: React.FC = () => {
     } else {
       halbtaxTicketCosts = 0;
     }
-    const halbtaxTotal = halbtaxTicketCosts + halbtaxPrice;
+    const halbtaxTotal = halbtaxTicketCosts + halbtaxPrice + additionalPassCosts;
     
     // Option 3: Halbtax Plus (alle Varianten) - mit Nachladung
     // Map all age groups to Halbtax PLUS categories: 'jugend' (6-24.99 years) or 'erwachsene' (25+ years)
@@ -466,7 +472,7 @@ const SBBCalculator: React.FC = () => {
       
       if (halbtaxTicketCosts <= creditAmount) {
         // All costs covered by initial credit
-        const total = packageCost + halbtaxPrice;
+        const total = packageCost + halbtaxPrice + additionalPassCosts;
         return {
           credit: parseInt(credit),
           cost: packageCost,
@@ -496,7 +502,7 @@ const SBBCalculator: React.FC = () => {
             }
           }
           
-          const total = packageCost + halbtaxPrice + totalReloadCost;
+          const total = packageCost + halbtaxPrice + totalReloadCost + additionalPassCosts;
           
           return {
             credit: parseInt(credit),
@@ -512,7 +518,7 @@ const SBBCalculator: React.FC = () => {
           };
         } else {
           // New logic: use initial credit + regular Halbtax tickets for remaining
-          const total = packageCost + halbtaxPrice + remainingAfterFirst;
+          const total = packageCost + halbtaxPrice + remainingAfterFirst + additionalPassCosts;
           
           return {
             credit: parseInt(credit),
@@ -530,7 +536,7 @@ const SBBCalculator: React.FC = () => {
       : [];
     
     // Option 4: GA - Compare annual vs monthly pricing based on longest route duration
-    let gaTotal = gaPrice;
+    let gaTotal = gaPrice + additionalPassCosts;
     let gaMonthsUsed: number | undefined;
     let gaIsMonthlyPricing = false;
     
@@ -542,7 +548,7 @@ const SBBCalculator: React.FC = () => {
       
       // Use monthly pricing if it's cheaper than annual
       if (monthlyTotal < gaPrice) {
-        gaTotal = monthlyTotal;
+        gaTotal = monthlyTotal + additionalPassCosts;
         gaMonthsUsed = longestDuration;
         gaIsMonthlyPricing = true;
       }
@@ -601,7 +607,7 @@ const SBBCalculator: React.FC = () => {
           
           // Option A: GA Night + Full price for non-covered
           gaNightOptions.push({
-            total: gaNightPrice + totalNonCoveredCosts,
+            total: gaNightPrice + totalNonCoveredCosts + additionalPassCosts,
             name: `${t('ganight')}`,
             complementary: null,
             nonCoveredCosts: totalNonCoveredCosts
@@ -610,7 +616,7 @@ const SBBCalculator: React.FC = () => {
           // Option B: GA Night + Halbtax
           const halbtaxPrice = getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax);
           gaNightOptions.push({
-            total: gaNightPrice + halbtaxPrice + (totalNonCoveredCosts / 2),
+            total: gaNightPrice + halbtaxPrice + (totalNonCoveredCosts / 2) + additionalPassCosts,
             name: `${t('ganight')} + ${t('halbtaxOnly')}`,
             complementary: 'halbtax',
             halbtaxPrice: halbtaxPrice,
@@ -623,7 +629,7 @@ const SBBCalculator: React.FC = () => {
             Object.entries(halbtaxPlusOptions).forEach(([credit, option]) => {
               const creditAmount = parseInt(credit);
               // Include base Halbtax for 50% discount on all non-covered costs
-              let totalCost = gaNightPrice + halbtaxPrice + option.cost;
+              let totalCost = gaNightPrice + halbtaxPrice + option.cost + additionalPassCosts;
               let coveredByCredit = Math.min(totalNonCoveredCosts / 2, creditAmount);
               let remainingCosts = (totalNonCoveredCosts / 2) - coveredByCredit;
               
@@ -668,7 +674,7 @@ const SBBCalculator: React.FC = () => {
         } else {
           // No non-covered costs, just GA Night
           gaNightBestOption = {
-            total: gaNightPrice,
+            total: gaNightPrice + additionalPassCosts,
             name: t('ganight'),
             complementary: null,
             nonCoveredCosts: 0
@@ -745,7 +751,7 @@ const SBBCalculator: React.FC = () => {
       options,
       bestOption
     });
-  }, [age, inputMode, routes, yearlySpendingDirect, directIsHalbtaxPrice, hasExistingHalbtax, getFreeHalbtax, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
+  }, [age, inputMode, routes, yearlySpendingDirect, directIsHalbtaxPrice, hasExistingHalbtax, getFreeHalbtax, hasHundePass, hasVeloPass, t, allowHalbtaxPlusReload, isFirstClass, pdfTotal, pdfIsHalbtaxPrice, additionalBudget, additionalBudgetFrequency, additionalBudgetIsHalbtax, additionalBudgetIsGANight]);
 
   useEffect(() => {
     calculate();
@@ -925,57 +931,121 @@ const SBBCalculator: React.FC = () => {
                 </option>
               </select>
             </div>
-            
-            {/* Halbtax Options */}
-            <div className="flex-1 lg:max-w-md">
-              <div className="space-y-3">
-                {/* Existing Halbtax Checkbox */}
-                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-blue-300 shadow-sm">
-                  <div className="flex items-center gap-2 sm:gap-3 w-full">
-                    <input
-                      type="checkbox"
-                      id="existing-halbtax"
-                      checked={hasExistingHalbtax}
-                      onChange={(e) => setHasExistingHalbtax(e.target.checked)}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-2 border-blue-400 rounded-md focus:ring-blue-500 transition-all"
-                      disabled={getFreeHalbtax}
-                    />
-                    <label htmlFor="existing-halbtax" className={`text-xs sm:text-sm font-medium cursor-pointer flex-1 ${
-                      getFreeHalbtax ? 'text-blue-400' : 'text-blue-800'
-                    }`}>
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">{t('hasExistingHalbtax')}</span>
-                      </span>
-                    </label>
+          </div>
+
+          {/* Additional Halbtax Settings and Subscriptions */}
+          <div className="mt-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border-2 border-gray-200 shadow-sm">
+            <button
+              onClick={() => setIsHalbtaxSettingsExpanded(!isHalbtaxSettingsExpanded)}
+              className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100/50 rounded-xl transition-all"
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                <span className="text-sm sm:text-base font-semibold text-gray-800">
+                  {t('halbtaxSettingsTitle')}
+                </span>
+                {(hasExistingHalbtax || getFreeHalbtax || hasHundePass || hasVeloPass) && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                    {[hasExistingHalbtax, getFreeHalbtax, hasHundePass, hasVeloPass].filter(Boolean).length}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {isHalbtaxSettingsExpanded ? (
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                )}
+              </div>
+            </button>
+
+            {isHalbtaxSettingsExpanded && (
+              <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  {/* Existing Halbtax Checkbox */}
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-blue-300 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <input
+                        type="checkbox"
+                        id="existing-halbtax"
+                        checked={hasExistingHalbtax}
+                        onChange={(e) => setHasExistingHalbtax(e.target.checked)}
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-2 border-blue-400 rounded-md focus:ring-blue-500 transition-all"
+                        disabled={getFreeHalbtax}
+                      />
+                      <label htmlFor="existing-halbtax" className={`text-xs sm:text-sm font-medium cursor-pointer flex-1 ${
+                        getFreeHalbtax ? 'text-blue-400' : 'text-blue-800'
+                      }`}>
+                        <span className="flex items-center gap-2">
+                          <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm">{t('hasExistingHalbtax')}</span>
+                        </span>
+                      </label>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Free Halbtax Checkbox */}
-                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-green-300 shadow-sm">
-                  <div className="flex items-center gap-2 sm:gap-3 w-full">
-                    <input
-                      type="checkbox"
-                      id="free-halbtax"
-                      checked={getFreeHalbtax}
-                      onChange={(e) => {
-                        setGetFreeHalbtax(e.target.checked);
-                        if (e.target.checked) {
-                          setHasExistingHalbtax(false);
-                        }
-                      }}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 border-2 border-green-400 rounded-md focus:ring-green-500 transition-all"
-                    />
-                    <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-green-800 cursor-pointer flex-1">
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">{t('getFreeHalbtax')}</span>
-                      </span>
-                    </label>
+                  
+                  {/* Free Halbtax Checkbox */}
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-green-300 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <input
+                        type="checkbox"
+                        id="free-halbtax"
+                        checked={getFreeHalbtax}
+                        onChange={(e) => {
+                          setGetFreeHalbtax(e.target.checked);
+                          if (e.target.checked) {
+                            setHasExistingHalbtax(false);
+                          }
+                        }}
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 border-2 border-green-400 rounded-md focus:ring-green-500 transition-all"
+                      />
+                      <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-green-800 cursor-pointer flex-1">
+                        <span className="flex items-center gap-2">
+                          <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm">{t('getFreeHalbtax')}</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* Hunde-Pass Checkbox */}
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-amber-300 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <input
+                        type="checkbox"
+                        id="hunde-pass"
+                        checked={hasHundePass}
+                        onChange={(e) => setHasHundePass(e.target.checked)}
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 border-2 border-amber-400 rounded-md focus:ring-amber-500 transition-all"
+                      />
+                      <label htmlFor="hunde-pass" className="text-xs sm:text-sm font-medium text-amber-800 cursor-pointer flex-1">
+                        <span className="flex items-center gap-2">
+                          <span className="text-xs sm:text-sm">{t('hundePass')} (CHF 350)</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* Velo-Pass Checkbox */}
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-purple-300 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <input
+                        type="checkbox"
+                        id="velo-pass"
+                        checked={hasVeloPass}
+                        onChange={(e) => setHasVeloPass(e.target.checked)}
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 border-2 border-purple-400 rounded-md focus:ring-purple-500 transition-all"
+                      />
+                      <label htmlFor="velo-pass" className="text-xs sm:text-sm font-medium text-purple-800 cursor-pointer flex-1">
+                        <span className="flex items-center gap-2">
+                          <span className="text-xs sm:text-sm">{t('veloPass')} (CHF 260)</span>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

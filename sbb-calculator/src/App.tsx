@@ -1156,11 +1156,15 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      Route {index + 1} cost for {route.durationMonths} months: {formatCurrency(
-                        route.frequencyType === 'weekly' 
-                          ? (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33)
-                          : (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * route.durationMonths
-                      )}
+                      {t('routeCostForMonths', {
+                        index: (index + 1).toString(),
+                        months: route.durationMonths.toString(),
+                        cost: formatCurrency(
+                          route.frequencyType === 'weekly' 
+                            ? (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * (route.durationMonths * 4.33)
+                            : (typeof route.trips === 'number' ? route.trips : 0) * (typeof route.cost === 'number' ? route.cost : 0) * route.durationMonths
+                        )
+                      })}
                       {route.isHalbtaxPrice && <span className="text-orange-700 ml-2 block sm:inline mt-1 sm:mt-0">✨ {t('alreadyHalbtaxPrice')}</span>}
                     </div>
                   </div>

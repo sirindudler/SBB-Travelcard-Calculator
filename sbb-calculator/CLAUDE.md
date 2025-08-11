@@ -20,18 +20,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React-based SBB (Swiss Federal Railways) subscription calculator that helps users compare different public transport subscription options in Switzerland. The application calculates the most cost-effective subscription based on user travel patterns and preferences.
+This is a React-based Swiss Federal Railways subscription calculator that helps users compare different public transport subscription options in Switzerland. The application calculates the most cost-effective subscription based on user travel patterns and preferences.
 
 ## Key Architecture
 
 ### Core Components
 - **App.tsx**: Main application component containing all calculator logic, state management, and UI
-- **pricing.ts**: Swiss railway pricing data and utility functions - acts as the single source of truth for all SBB pricing
+- **pricing.ts**: Swiss railway pricing data and utility functions - acts as the single source of truth for all Swiss railway pricing
 - **translations.ts**: Multi-language support (English, German, French, Italian) with translation utilities
 
 ### Data Flow
 The application follows a centralized pricing model:
-1. All SBB pricing data is stored in `pricing.ts` with type-safe interfaces
+1. All Swiss railway pricing data is stored in `pricing.ts` with type-safe interfaces
 2. `App.tsx` imports pricing functions and performs calculations based on user inputs
 3. Results are displayed with color-coded comparison showing percentage-based cost differences
 

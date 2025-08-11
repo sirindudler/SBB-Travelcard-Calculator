@@ -1,13 +1,13 @@
-# SBB Travelcard Calculator
+# Swiss Travelcard Calculator
 
-🚆 **A comprehensive calculator for Swiss Federal Railways (SBB) subscription options**
+🚆 **A comprehensive calculator for Swiss Federal Railways subscription options**
 
 ## 🌐 Live Website
 **Try it now:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)
 
 ## 📋 Overview
 
-The SBB Travelcard Calculator helps Swiss public transport users find the most cost-effective subscription option based on their travel patterns. Compare different SBB subscription types and get personalized recommendations with detailed cost breakdowns.
+The Swiss Travelcard Calculator helps Swiss public transport users find the most cost-effective subscription option based on their travel patterns. Compare different Swiss subscription types and get personalized recommendations with detailed cost breakdowns.
 
 ## ✨ Features
 
@@ -33,7 +33,7 @@ The SBB Travelcard Calculator helps Swiss public transport users find the most c
 - **Halbtax Plus reload logic**: Automatic credit top-ups and proportional billing
 - **Loyalty pricing**: New customer vs. existing customer rates
 - **Percentage-based comparisons**: See exactly how much you save or spend
-- **Dynamic pricing**: Real SBB pricing data with type-safe calculations
+- **Dynamic pricing**: Real Swiss railway pricing data with type-safe calculations
 
 ## 🚀 Quick Start
 
@@ -80,7 +80,7 @@ This project automatically deploys to GitHub Pages via GitHub Actions when chang
 ## 🎨 Design Principles
 
 - **User-centric**: Intuitive interface for comparing complex pricing options
-- **Accurate calculations**: Based on official SBB pricing structures
+- **Accurate calculations**: Based on official Swiss railway pricing structures
 - **Performance**: Optimized React components and efficient state management
 - **Accessibility**: Semantic HTML and keyboard navigation support
 
@@ -97,9 +97,9 @@ This project automatically deploys to GitHub Pages via GitHub Actions when chang
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 🇨🇭 About SBB
+## 🇨🇭 About Swiss Railways
 
-The Swiss Federal Railways (SBB) is Switzerland's national railway company. This calculator uses official SBB pricing structures to help travelers make informed decisions about their public transport subscriptions.
+The Swiss Federal Railways is Switzerland's national railway company. This calculator uses official Swiss railway pricing structures to help travelers make informed decisions about their public transport subscriptions.
 
 ---
 

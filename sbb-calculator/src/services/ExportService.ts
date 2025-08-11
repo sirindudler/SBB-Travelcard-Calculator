@@ -13,7 +13,7 @@ export class ExportService {
         scale: 2,
         useCORS: true,
         allowTaint: true
-      });
+      } as any);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');

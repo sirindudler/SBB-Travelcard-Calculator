@@ -47,6 +47,8 @@
     ]
   },
   "devDependencies": {
+    "@types/html2canvas": "^0.5.35",
+    "@types/jspdf": "^1.3.3",
     "@types/pdfjs-dist": "^2.10.377",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

@@ -124,11 +124,11 @@ const SBBCalculator: React.FC = () => {
         foreignObjectRendering: true, // Better text rendering
         removeContainer: false,
         imageTimeout: 0,
-        ignoreElements: (element) => {
+        ignoreElements: (element: Element) => {
           // Skip any problematic elements that might cause issues
           return element.tagName === 'IFRAME' || element.tagName === 'SCRIPT';
         },
-        onclone: (clonedDoc) => {
+        onclone: (clonedDoc: Document) => {
           // Ensure all content is visible in the cloned document
           const clonedBody = clonedDoc.body;
           clonedBody.style.height = 'auto';
@@ -137,7 +137,7 @@ const SBBCalculator: React.FC = () => {
           
           // Fix any elements that might be cut off
           const allElements = clonedBody.querySelectorAll('*');
-          allElements.forEach(el => {
+          allElements.forEach((el: Element) => {
             const element = el as HTMLElement;
             if (element.style) {
               element.style.overflow = 'visible';
@@ -147,7 +147,7 @@ const SBBCalculator: React.FC = () => {
             }
           });
         }
-      });
+      } as any);
 
       // Create PDF with margins
       const pdf = new jsPDF({
@@ -870,6 +870,7 @@ const SBBCalculator: React.FC = () => {
             <option value="de">Deutsch</option>
             <option value="fr">Français</option>
             <option value="it">Italiano</option>
+            <option value="rm">Rumantsch</option>
           </select>
         </div>
       </div>

@@ -54,7 +54,29 @@ const SBBCalculator: React.FC = () => {
 
   const [age, setAge] = useState<AgeGroup>('erwachsene');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
-  const [language, setLanguage] = useState<Language>('en');
+  // Detect browser language with English fallback
+  const detectBrowserLanguage = (): Language => {
+    // Get browser language preferences
+    const browserLanguages = navigator.languages || [navigator.language];
+    
+    // Supported languages in your app
+    const supportedLanguages: Language[] = ['en', 'de', 'fr', 'it', 'rm'];
+    
+    for (const browserLang of browserLanguages) {
+      // Extract language code (e.g., 'de-CH' -> 'de')
+      const langCode = browserLang.split('-')[0].toLowerCase() as Language;
+      
+      // Check if we support this language
+      if (supportedLanguages.includes(langCode)) {
+        return langCode;
+      }
+    }
+    
+    // Fallback to English if no supported language found
+    return 'en';
+  };
+
+  const [language, setLanguage] = useState<Language>(detectBrowserLanguage());
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
   const [hasExistingHalbtax, setHasExistingHalbtax] = useState<boolean>(false);
   const [getFreeHalbtax, setGetFreeHalbtax] = useState<boolean>(false);

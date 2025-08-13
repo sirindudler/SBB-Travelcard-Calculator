@@ -1570,10 +1570,29 @@ const SBBCalculator: React.FC = () => {
               <div className="bg-purple-100 p-4 rounded-lg mb-4 border border-purple-200">
                 <h4 className="font-semibold text-purple-800 mb-2">{t('pdfInstructions')}</h4>
                 <div className="text-sm text-purple-700 space-y-1">
-                  <div>{t('pdfStep1')}</div>
+                  <div>
+                    {language === 'en' ? '1. Log in to ' :
+                     language === 'de' ? '1. Loggen Sie sich auf ' :
+                     language === 'fr' ? '1. Connectez-vous sur ' :
+                     language === 'it' ? '1. Accedere a ' :
+                     '1. S\'annunziar sin '}
+                    <a 
+                      href={t('pdfStep1Link')} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-purple-600 hover:text-purple-800 underline font-medium"
+                    >
+                      {language === 'en' ? 'SBB.ch' : 
+                       language === 'de' ? 'SBB.ch' : 
+                       language === 'fr' ? 'CFF.ch' : 
+                       language === 'it' ? 'FFS.ch' : 'VFF.ch'}
+                    </a>
+                    {language === 'de' ? ' ein' : ''}
+                  </div>
                   <div>{t('pdfStep2')}</div>
                   <div>{t('pdfStep3')}</div>
                   <div>{t('pdfStep4')}</div>
+                  <div>{t('pdfStep5')}</div>
                 </div>
                 <div className="mt-3">
                   <a

@@ -3,7 +3,7 @@
 🚆 **A comprehensive calculator for Swiss Federal Railways subscription options**
 
 ## 🌐 Live Website
-**Try it now:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)
+**Try it now:** [http://travelcards.ch](http://travelcards.ch)
 
 ## 📋 Overview
 
@@ -14,26 +14,46 @@ The Swiss Travelcard Calculator helps Swiss public transport users find the most
 ### 🎯 Smart Calculation Modes
 - **Route-based calculation**: Input specific travel routes with frequency and costs
 - **Direct cost input**: Enter your annual travel expenses directly
-- **Multi-route support**: Add multiple travel routes for comprehensive analysis
+- **Multi-route support**: Add unlimited travel routes for comprehensive analysis
+- **Mixed calculation**: Combine route-based and direct cost inputs in one calculation
 
 ### 🎫 Subscription Options Compared
 - **No Subscription** (regular tickets)
 - **Halbtax** (50% discount card)
-- **Halbtax Plus** (prepaid credit system with reload logic)
-- **GA Travelcard** (unlimited travel)
+- **Halbtax Plus** (prepaid credit system with intelligent reload logic)
+- **GA Travelcard** (unlimited travel for all ages and classes)
+- **All age variants**: Youth, Adult, Senior pricing for each subscription type
+- **All class variants**: 1st and 2nd class options with accurate price differences
 
 ### 🎨 User Experience
-- **Multi-language support**: English, German, French, Italian
-- **Age group pricing**: Different rates for adults, seniors, youth
-- **Travel class options**: 1st and 2nd class pricing
-- **Color-coded results**: Visual comparison of subscription costs
-- **Responsive design**: Works on desktop and mobile
+- **Multi-language support**: English, German, French, Italian with automatic browser detection
+- **Age group pricing**: Comprehensive rates for youth, adults, seniors with smooth transitions
+- **Travel class options**: 1st and 2nd class pricing with class-specific calculations
+- **Color-coded results**: Dynamic visual comparison with percentage-based color coding
+- **Responsive design**: Optimized for desktop, tablet, and mobile devices
+- **Route color schemes**: Unique color identification for each travel route
+- **Interactive UI**: Smooth animations and intuitive controls
 
 ### 🧮 Advanced Calculations
-- **Halbtax Plus reload logic**: Automatic credit top-ups and proportional billing
-- **Loyalty pricing**: New customer vs. existing customer rates
-- **Percentage-based comparisons**: See exactly how much you save or spend
-- **Dynamic pricing**: Real Swiss railway pricing data with type-safe calculations
+- **Halbtax Plus reload logic**: Intelligent credit management with automatic top-ups and proportional billing
+- **Loyalty pricing**: Accurate new customer vs. existing customer rates for all subscription types
+- **Percentage-based comparisons**: Precise savings calculations showing cost differences
+- **Dynamic pricing**: Real-time Swiss railway pricing data with type-safe calculations
+- **Complex route analysis**: Handles irregular travel patterns and seasonal variations
+- **Cost optimization**: Automatically finds the most economical subscription combination
+
+### 📊 Data Management & Export
+- **PDF export**: Generate detailed calculation reports with all routes and comparisons
+- **Screenshot capture**: Save visual summaries of your calculations
+- **Data persistence**: Remember your routes and preferences across sessions
+- **Import/Export**: Share calculation setups with others
+
+### 🔧 Technical Features
+- **Real-time calculations**: Instant updates as you modify inputs
+- **Error handling**: Comprehensive validation and user-friendly error messages
+- **Performance optimized**: Fast calculations even with many routes
+- **Offline capable**: Core functionality works without internet connection
+- **Browser compatibility**: Works across all modern browsers
 
 ## 🚀 Quick Start
 
@@ -103,4 +123,4 @@ The Swiss Federal Railways is Switzerland's national railway company. This calcu
 
 ---
 
-**🌐 Visit the live calculator:** [https://sirindudler.github.io/SBB-Travelcard-Calculator](https://sirindudler.github.io/SBB-Travelcard-Calculator)
+**🌐 Visit the live calculator:** [http://travelcards.ch](http://travelcards.ch)

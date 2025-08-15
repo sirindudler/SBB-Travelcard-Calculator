@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download } from 'lucide-react';
 import { Language, useTranslation } from './translations';
-import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
+import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible, calculateMyRideAnnualCost, compareMyRideAgainstBest, MyRideCalculationResult, MyRideComparison, calculateMyRideMonthlyBill } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
 import * as pdfjs from 'pdfjs-dist';
 import html2canvas from 'html2canvas';
@@ -40,6 +40,7 @@ interface CalculationResults {
   gaMonthsUsed?: number;
   gaIsMonthlyPricing?: boolean;
   streckenabos: { route: Route, annualPrice: number, monthlyCost: number, isWorthwhile: boolean, isInValidRange: boolean }[];
+  myRide: { total: number, comparison: MyRideComparison, details: MyRideCalculationResult } | null;
   options: any[];
   bestOption: any;
 }
@@ -732,7 +733,7 @@ const SBBCalculator: React.FC = () => {
       ? Math.max(...routes.map(route => route.durationMonths))
       : undefined;
     
-    // Beste Option finden
+    // Beste Option finden (needed for MyRide comparison)
     const options = [
       { name: t('noSubscription'), total: noAboTotal, type: 'none' },
       { name: t('halbtaxOnly'), total: halbtaxTotal, type: 'halbtax' },
@@ -760,6 +761,19 @@ const SBBCalculator: React.FC = () => {
       current.total < best.total ? current : best
     );
     
+    // Option 7: MyRide.ch Smart-Abo calculation (after bestOption is known)
+    const myRide = (() => {
+      const annualCost = calculateMyRideAnnualCost(yearlySpendingFull, isFirstClass, hasExistingHalbtax || getFreeHalbtax);
+      const comparison = compareMyRideAgainstBest(annualCost, bestOption.total);
+      const monthlyDetails = calculateMyRideMonthlyBill(yearlySpendingFull / 12, isFirstClass, hasExistingHalbtax || getFreeHalbtax);
+      
+      return {
+        total: annualCost,
+        comparison,
+        details: monthlyDetails
+      };
+    })();
+    
     setResults({
       yearlySpendingFull,
       halbtaxTicketCosts,
@@ -770,6 +784,7 @@ const SBBCalculator: React.FC = () => {
       gaMonthsUsed,
       gaIsMonthlyPricing,
       streckenabos,
+      myRide,
       options,
       bestOption
     });
@@ -2015,6 +2030,107 @@ const SBBCalculator: React.FC = () => {
                   </div>
                 );
               })}
+              
+              {/* MyRide.ch Smart-Abo card */}
+              {results.myRide && (() => {
+                const getColorScheme = (status: string) => {
+                  switch (status) {
+                    case 'worthwhile':
+                      return { border: 'border-green-200', bg: 'bg-green-50', badge: 'bg-green-100 text-green-700', price: 'text-green-700', chevron: 'text-green-500' };
+                    case 'close':
+                      return { border: 'border-yellow-200', bg: 'bg-yellow-50', badge: 'bg-yellow-100 text-yellow-700', price: 'text-yellow-700', chevron: 'text-yellow-500' };
+                    case 'expensive':
+                      return { border: 'border-red-200', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700', price: 'text-red-700', chevron: 'text-red-500' };
+                    default:
+                      return { border: 'border-gray-200', bg: 'bg-gray-50', badge: 'bg-gray-100 text-gray-700', price: 'text-gray-700', chevron: 'text-gray-500' };
+                  }
+                };
+                const colors = getColorScheme(results.myRide.comparison.status);
+                
+                return (
+                  <div 
+                    className={`rounded-lg border-2 transition-all duration-200 ${colors.border} ${colors.bg}`}
+                >
+                  <div 
+                    className="p-3 sm:p-4 cursor-pointer hover:bg-black/5 transition-colors"
+                    onClick={() => toggleCardExpansion('myride')}
+                  >
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                          <span className="flex items-center gap-1">
+                            🚀 <span className="truncate">{t('myRideSmartAbo')}</span>
+                          </span>
+                          <div className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${colors.badge}`}>
+                            {t('estimate')}
+                          </div>
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+                        <div className={`text-base sm:text-lg font-bold ${colors.price}`}>
+                          {formatCurrency(results.myRide.total)}
+                        </div>
+                        {expandedCards.has('myride') ? (
+                          <ChevronUp className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.chevron}`} />
+                        ) : (
+                          <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.chevron}`} />
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className={`text-xs mt-2 sm:mt-3 px-2 py-1 rounded inline-block ${colors.badge}`}>
+                      {results.myRide.comparison.status === 'worthwhile' ? t('worthwhile') : 
+                       results.myRide.comparison.status === 'close' ? t('closeToBest') : 
+                       t('expensive')}
+                    </div>
+                  </div>
+
+                  {expandedCards.has('myride') && (
+                    <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
+                      <div className="pt-2 sm:pt-3 text-xs sm:text-sm space-y-1 sm:space-y-2">
+                        {/* Purchase Link */}
+                        {purchaseLinks.myride && (
+                          <div className="mb-3 pb-2 border-b border-gray-200/50">
+                            <a
+                              href={purchaseLinks.myride}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
+                            >
+                              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span>{t('visitMyRide')}</span>
+                            </a>
+                          </div>
+                        )}
+                        
+                        <div className="text-teal-600 font-medium">✓ {t('annualCost')}: {formatCurrency(results.myRide.total)}</div>
+                        <div>{t('monthlyBill')}: {formatCurrency(results.myRide.details.monthlyBill)}</div>
+                        <div className="text-gray-600 text-xs">{t('monthlyTravelCosts')}: {formatCurrency(results.myRide.details.totalTravelCosts)}</div>
+                        
+                        {/* Progressive bonus breakdown */}
+                        <div className="pt-1 sm:pt-2 border-t border-gray-200/50">
+                          <div className="font-medium text-teal-700 mb-1 text-xs sm:text-sm">{t('progressiveBonusBreakdown')}</div>
+                          {results.myRide.details.secondClassBonus > 0 && (
+                            <div className="text-green-600 text-xs">{t('secondClassBonus')}: -{formatCurrency(results.myRide.details.secondClassBonus)}/month</div>
+                          )}
+                          {results.myRide.details.firstClassBonus > 0 && (
+                            <div className="text-green-600 text-xs">{t('firstClassUpgradeBonus')}: -{formatCurrency(results.myRide.details.firstClassBonus)}/month</div>
+                          )}
+                          <div className="text-gray-600 text-xs">{t('smartAboFee')}: +{formatCurrency(results.myRide.details.smartAboFee)}/month</div>
+                          {results.myRide.details.halbtaxCredit > 0 && (
+                            <div className="text-green-600 text-xs">{t('halbtaxCredit')}: -{formatCurrency(results.myRide.details.halbtaxCredit)}/month</div>
+                          )}
+                          
+                          <div className="pt-1 mt-1 border-t border-gray-200/50">
+                            <div className="text-gray-600 text-xs">{t('myRideDescription')}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                );
+              })()}
             </div>
 
             {/* Halbtax Plus Erklärung wenn relevant */}

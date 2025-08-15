@@ -3,13 +3,15 @@ export interface PurchaseLinks {
   halbtaxPlus: string;
   ga: string;
   streckenabo: string;
+  myride: string;
 }
 
 export const defaultLinks: PurchaseLinks = {
   halbtax: 'https://www.sbb.ch/de/billette-angebote/abos/halbtax.html',
   halbtaxPlus: 'https://www.sbb.ch/de/angebote/halbtax-plus',
   ga: 'https://www.sbb.ch/de/billette-angebote/abos/ga/ga-preise.html',
-  streckenabo: 'https://www.sbb.ch/de/billette-angebote/abos/strecken-verbund-abo/streckenabonnemente.html'
+  streckenabo: 'https://www.sbb.ch/de/billette-angebote/abos/strecken-verbund-abo/streckenabonnemente.html',
+  myride: 'https://myride.ch'
 };
 
 export const getStoredLinks = (): PurchaseLinks => {

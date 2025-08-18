@@ -15,6 +15,9 @@ let nextRouteId = 1;
 
 const createNewRoute = (): Route => ({
   id: nextRouteId++,
+  name: `Route ${nextRouteId}`,
+  from: '',
+  to: '',
   trips: '',
   cost: '',
   isHalbtaxPrice: false,

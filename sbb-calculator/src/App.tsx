@@ -21,6 +21,9 @@ type InputMode = 'simple' | 'direct' | 'pdf';
 
 interface Route {
   id: number;
+  name: string;
+  from: string;
+  to: string;
   trips: number | '';
   cost: number | '';
   isHalbtaxPrice: boolean;
@@ -91,7 +94,7 @@ const SBBCalculator: React.FC = () => {
   
   // Simple input - Strecken (Array)
   const [routes, setRoutes] = useState<Route[]>([
-    { id: 1, trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: getColorScheme(0), durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
+    { id: 1, name: 'Route 1', from: '', to: '', trips: 2, cost: 20, isHalbtaxPrice: false, colorScheme: getColorScheme(0), durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }
   ]);
   
   // Direct input
@@ -804,7 +807,7 @@ const SBBCalculator: React.FC = () => {
   const addRoute = useCallback(() => {
     const newId = Math.max(...routes.map(r => r.id)) + 1;
     const newColorScheme = getColorSchemeForRoute(routes.length);
-    setRoutes(prev => [...prev, { id: newId, trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }]);
+    setRoutes(prev => [...prev, { id: newId, name: `Route ${newId}`, from: '', to: '', trips: 1, cost: 20, isHalbtaxPrice: false, colorScheme: newColorScheme, durationMonths: 12, frequencyType: 'weekly', isGANightEligible: false }]);
   }, [routes, getColorSchemeForRoute]);
 
   const removeRoute = useCallback((id: number) => {
@@ -817,6 +820,18 @@ const SBBCalculator: React.FC = () => {
     setRoutes(prev => prev.map(r => 
       r.id === id ? { ...r, [field]: value } : r
     ));
+  }, []);
+
+  const doublePriceForRoute = useCallback((id: number) => {
+    setRoutes(prev => prev.map(r => {
+      if (r.id === id) {
+        const currentCost = typeof r.cost === 'number' ? r.cost : parseFloat(r.cost as string) || 0;
+        if (currentCost > 0) {
+          return { ...r, cost: currentCost * 2 };
+        }
+      }
+      return r;
+    }));
   }, []);
 
   const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
@@ -1143,7 +1158,16 @@ const SBBCalculator: React.FC = () => {
                       <div className={`w-7 h-7 sm:w-8 sm:h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm`}>
                         {index + 1}
                       </div>
-                      <h4 className={`font-semibold ${route.colorScheme.text} text-base sm:text-lg`}>{t('route')} {index + 1}</h4>
+                      <div className={`flex items-center gap-2 flex-1 min-w-0`}>
+                        <MapPin className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} flex-shrink-0`} />
+                        <input
+                          type="text"
+                          value={route.name}
+                          onChange={(e) => updateRoute(route.id, 'name', e.target.value)}
+                          className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} hover:${route.colorScheme.border300} focus:border-solid focus:${route.colorScheme.focusRing} outline-none font-semibold ${route.colorScheme.text} text-base sm:text-lg placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
+                          placeholder={`${t('route')} ${index + 1}`}
+                        />
+                      </div>
                     </div>
                     {routes.length > 1 && (
                       <button
@@ -1154,6 +1178,36 @@ const SBBCalculator: React.FC = () => {
                         <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     )}
+                  </div>
+
+                  {/* From/To Station Inputs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                        <Train className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {t('fromStation')}
+                      </label>
+                      <input 
+                        type="text" 
+                        value={route.from || ''}
+                        onChange={(e) => updateRoute(route.id, 'from', e.target.value)}
+                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                        placeholder="e.g. Zürich HB"
+                      />
+                    </div>
+                    <div>
+                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                        <Train className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {t('toStation')}
+                      </label>
+                      <input 
+                        type="text" 
+                        value={route.to || ''}
+                        onChange={(e) => updateRoute(route.id, 'to', e.target.value)}
+                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                        placeholder="e.g. Bern"
+                      />
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
@@ -1216,15 +1270,44 @@ const SBBCalculator: React.FC = () => {
                           value={route.cost || ''}
                           onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                           onWheel={(e) => e.currentTarget.blur()}
-                          className={`w-full pl-11 sm:pl-12 pr-3 sm:pr-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                          className={`w-full pl-11 sm:pl-12 pr-20 sm:pr-24 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
                         placeholder={t('placeholderCost')}
                         step="0.10"
                         min="0"
                       />
+                        <div className="absolute right-0 top-0 w-1/4 h-full">
+                          <button
+                            type="button"
+                            onClick={() => doublePriceForRoute(route.id)}
+                            disabled={!route.cost || (typeof route.cost === 'string' && route.cost === '') || Number(route.cost) === 0}
+                            className={`w-full h-full rounded-r-xl ${route.colorScheme.buttonBg} text-white hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold text-sm sm:text-base relative transition-all duration-200`}
+                            title={t('doublePriceTooltip')}
+                          >
+                            ×2
+                          </button>
+                        </div>
                       </div>
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
                         <span className="text-xs">{t('costPerTripHelp')}</span>
+                      </div>
+                      
+                      <div className={`bg-white p-3 sm:p-4 rounded-lg border ${route.colorScheme.border200} mt-2 sm:mt-3`}>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <input
+                            type="checkbox"
+                            id={`halbtax-price-${route.id}`}
+                            checked={route.isHalbtaxPrice}
+                            onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
+                            className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                          />
+                          <label htmlFor={`halbtax-price-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
+                            <span className="flex items-center gap-2">
+                              <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
+                            </span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                     <div className="relative">
@@ -1277,24 +1360,6 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Halbtax-Checkbox */}
-                  <div className={`bg-white p-3 sm:p-4 rounded-lg border ${route.colorScheme.border200} mb-3 sm:mb-4`}>
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <input
-                        type="checkbox"
-                        id={`halbtax-${route.id}`}
-                        checked={route.isHalbtaxPrice}
-                        onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
-                        className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
-                      />
-                      <label htmlFor={`halbtax-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
-                        <span className="flex items-center gap-2">
-                          <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
-                        </span>
-                      </label>
-                    </div>
-                  </div>
 
                   {/* GA Night Checkbox - only show if eligible */}
                   {isGANightEligible(age, isFirstClass) && (
@@ -1319,8 +1384,8 @@ const SBBCalculator: React.FC = () => {
 
                   <div className={`${route.colorScheme.summaryBg} p-3 rounded-lg border ${route.colorScheme.border200}`}>
                     <div className={`text-xs sm:text-sm font-semibold ${route.colorScheme.text}`}>
-                      {t('routeCostForMonths', {
-                        index: (index + 1).toString(),
+                      {t('routeNamedCost', {
+                        name: (route.from && route.to) ? t('routeFromTo', { from: route.from, to: route.to }) : (route.name?.trim() || `${t('route')} ${index + 1}`),
                         months: route.durationMonths.toString(),
                         cost: formatCurrency(
                           route.frequencyType === 'weekly' 
@@ -1974,7 +2039,7 @@ const SBBCalculator: React.FC = () => {
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
                             <span className="flex items-center gap-1">
-                              🚂 <span className="truncate">{t('streckenabo')} - Route {routeIndex}{streckenabo.route.durationMonths !== 12 ? ` (${streckenabo.route.durationMonths} months)` : ''}</span>
+                              🚂 <span className="truncate">{t('streckenabo')} - {(streckenabo.route.from && streckenabo.route.to) ? t('routeFromTo', { from: streckenabo.route.from, to: streckenabo.route.to }) : (streckenabo.route.name?.trim() || `${t('route')} ${routeIndex}`)}{streckenabo.route.durationMonths !== 12 ? ` (${streckenabo.route.durationMonths} months)` : ''}</span>
                             </span>
                             <div className={`text-xs px-2 py-1 rounded-full ${statusInfo.badgeColor} whitespace-nowrap`}>
                               {t('estimate')}

@@ -4,6 +4,9 @@ import { RouteColorScheme } from '../utils/colorSchemes';
 
 export interface Route {
   id: number;
+  name: string;
+  from: string;
+  to: string;
   trips: number | '';
   cost: number | '';
   isHalbtaxPrice: boolean;

@@ -186,3 +186,194 @@ export const monthlyPricing = {
     behinderung: { secondClass: 240, firstClass: 365 }
   }
 };
+
+// MyRide.ch Smart-Abo progressive bonus system
+export interface MyRideCalculationResult {
+  monthlyBill: number;
+  secondClassBonus: number;
+  firstClassBonus: number;
+  smartAboFee: number;
+  halbtaxCredit: number;
+  totalTravelCosts: number;
+  secondClassCosts: number;
+  firstClassUpgradeCosts: number;
+}
+
+// MyRide.ch Smart-Abo constants
+export const MYRIDE_SMART_ABO_FEE = 15; // CHF 15 monthly fee
+export const MYRIDE_HALBTAX_CREDIT = 14; // CHF 14 monthly credit
+
+// Calculate 2nd class progressive bonus
+export function calculateMyRide2ndClassBonus(monthlyTravelCosts: number): number {
+  let totalBonus = 0;
+  let remainingCosts = monthlyTravelCosts;
+  
+  // Tier 1: First CHF 50 at 10%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 50);
+    totalBonus += tierAmount * 0.10;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 2: Next CHF 100 (50-150) at 20%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 100);
+    totalBonus += tierAmount * 0.20;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 3: Next CHF 100 (150-250) at 40%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 100);
+    totalBonus += tierAmount * 0.40;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 4: Next CHF 100 (250-350) at 60%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 100);
+    totalBonus += tierAmount * 0.60;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 5: Remaining amount (350+) at 80%
+  if (remainingCosts > 0) {
+    totalBonus += remainingCosts * 0.80;
+  }
+  
+  return totalBonus;
+}
+
+// Calculate 1st class extra progressive bonus
+export function calculateMyRide1stClassBonus(monthlyUpgradeCosts: number): number {
+  let totalBonus = 0;
+  let remainingCosts = monthlyUpgradeCosts;
+  
+  // Tier 1: First CHF 35 at 10%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 35);
+    totalBonus += tierAmount * 0.10;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 2: Next CHF 70 (35-105) at 20%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 70);
+    totalBonus += tierAmount * 0.20;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 3: Next CHF 70 (105-175) at 40%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 70);
+    totalBonus += tierAmount * 0.40;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 4: Next CHF 70 (175-245) at 60%
+  if (remainingCosts > 0) {
+    const tierAmount = Math.min(remainingCosts, 70);
+    totalBonus += tierAmount * 0.60;
+    remainingCosts -= tierAmount;
+  }
+  
+  // Tier 5: Remaining amount (245+) at 80%
+  if (remainingCosts > 0) {
+    totalBonus += remainingCosts * 0.80;
+  }
+  
+  return totalBonus;
+}
+
+// Calculate MyRide.ch monthly bill
+export function calculateMyRideMonthlyBill(
+  monthlyTravelCosts: number,
+  isFirstClass: boolean = false,
+  hasHalbtax: boolean = false
+): MyRideCalculationResult {
+  // Split costs for 1st class travel (1.5x multiplier)
+  let secondClassCosts: number;
+  let firstClassUpgradeCosts: number;
+  
+  if (isFirstClass) {
+    // 1st class total = 2nd class base × 1.5
+    // Upgrade cost = 1st class total - 2nd class base = base × 0.5
+    secondClassCosts = monthlyTravelCosts / 1.5;
+    firstClassUpgradeCosts = monthlyTravelCosts - secondClassCosts;
+  } else {
+    secondClassCosts = monthlyTravelCosts;
+    firstClassUpgradeCosts = 0;
+  }
+  
+  // Calculate progressive bonuses
+  const secondClassBonus = calculateMyRide2ndClassBonus(secondClassCosts);
+  const firstClassBonus = calculateMyRide1stClassBonus(firstClassUpgradeCosts);
+  
+  // Apply Halbtax credit if applicable
+  const halbtaxCredit = hasHalbtax ? MYRIDE_HALBTAX_CREDIT : 0;
+  
+  // Calculate final monthly bill
+  const monthlyBill = monthlyTravelCosts
+    - secondClassBonus
+    - firstClassBonus
+    + MYRIDE_SMART_ABO_FEE
+    - halbtaxCredit;
+  
+  return {
+    monthlyBill: Math.max(0, monthlyBill), // Ensure non-negative
+    secondClassBonus,
+    firstClassBonus,
+    smartAboFee: MYRIDE_SMART_ABO_FEE,
+    halbtaxCredit,
+    totalTravelCosts: monthlyTravelCosts,
+    secondClassCosts,
+    firstClassUpgradeCosts
+  };
+}
+
+// Calculate annual MyRide.ch cost
+export function calculateMyRideAnnualCost(
+  annualTravelCosts: number,
+  isFirstClass: boolean = false,
+  hasHalbtax: boolean = false
+): number {
+  const monthlyTravelCosts = annualTravelCosts / 12;
+  const result = calculateMyRideMonthlyBill(monthlyTravelCosts, isFirstClass, hasHalbtax);
+  return result.monthlyBill * 12;
+}
+
+// MyRide.ch comparison result
+export interface MyRideComparison {
+  status: 'worthwhile' | 'close' | 'expensive';
+  ratio: number; // MyRide cost / best option cost
+}
+
+// Compare MyRide.ch against the best available option
+export function compareMyRideAgainstBest(
+  myRideCost: number,
+  bestOptionCost: number
+): MyRideComparison {
+  const ratio = myRideCost / bestOptionCost;
+  
+  if (ratio <= 1.1) { // Within 10% of best option
+    return { status: 'worthwhile', ratio };
+  } else if (ratio <= 1.5) { // Within 50% of best option
+    return { status: 'close', ratio };
+  } else { // More than 50% above best option
+    return { status: 'expensive', ratio };
+  }
+}
+
+// Legacy function for backwards compatibility (deprecated)
+export function isMyRideWorthwhile(
+  annualTravelCosts: number,
+  isFirstClass: boolean = false,
+  hasHalbtax: boolean = false
+): boolean {
+  const myRideAnnualCost = calculateMyRideAnnualCost(annualTravelCosts, isFirstClass, hasHalbtax);
+  
+  // Conservative threshold: MyRide should save at least 10% compared to no subscription
+  const savingsThreshold = annualTravelCosts * 0.9;
+  
+  return myRideAnnualCost < savingsThreshold && annualTravelCosts > 500; // Minimum travel threshold
+}

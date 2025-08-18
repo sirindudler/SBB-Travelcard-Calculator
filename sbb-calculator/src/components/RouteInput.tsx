@@ -51,6 +51,37 @@ export const RouteInput: React.FC<RouteInputProps> = ({
     }
   };
 
+  const generateSBBUrl = (from: string, to: string): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    const stops = [
+      {
+        value: "",
+        type: "ID",
+        label: from
+      },
+      {
+        value: "",
+        type: "ID", 
+        label: to
+      }
+    ];
+    
+    const stopsParam = encodeURIComponent(JSON.stringify(stops));
+    const dateParam = encodeURIComponent(`"${dateStr}"`);
+    
+    return `https://www.sbb.ch/de?stops=${stopsParam}&date=${dateParam}&time=%2212:00%22&moment=%22DEPARTURE%22`;
+  };
+
+  const handleCheckSBBPrices = () => {
+    if (route.from?.trim() && route.to?.trim()) {
+      const url = generateSBBUrl(route.from.trim(), route.to.trim());
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <div className={`relative p-6 rounded-xl bg-gradient-to-br ${route.colorScheme.bg} ${route.colorScheme.border} border-2 shadow-sm`}>
       {showRemoveButton && (
@@ -104,6 +135,20 @@ export const RouteInput: React.FC<RouteInputProps> = ({
             />
           </div>
         </div>
+
+        {route.from?.trim() && route.to?.trim() && (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleCheckSBBPrices}
+              className={`px-4 py-2 ${route.colorScheme.buttonBg} text-white rounded-lg hover:brightness-110 flex items-center gap-2 text-sm font-medium transition-all`}
+              title={t('checkSBBPricesTooltip')}
+            >
+              <Train size={16} />
+              {t('checkSBBPrices')}
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

@@ -834,6 +834,37 @@ const SBBCalculator: React.FC = () => {
     }));
   }, []);
 
+  const generateSBBUrl = useCallback((from: string, to: string): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    const stops = [
+      {
+        value: "",
+        type: "ID",
+        label: from
+      },
+      {
+        value: "",
+        type: "ID", 
+        label: to
+      }
+    ];
+    
+    const stopsParam = encodeURIComponent(JSON.stringify(stops));
+    const dateParam = encodeURIComponent(`"${dateStr}"`);
+    
+    return `https://www.sbb.ch/de?stops=${stopsParam}&date=${dateParam}&time=%2212:00%22&moment=%22DEPARTURE%22`;
+  }, []);
+
+  const handleCheckSBBPrices = useCallback((from: string, to: string) => {
+    if (from?.trim() && to?.trim()) {
+      const url = generateSBBUrl(from.trim(), to.trim());
+      window.open(url, '_blank');
+    }
+  }, [generateSBBUrl]);
+
   const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
     if (option.total === bestOptionTotal) {
       return 'bg-green-50 border-green-200 text-green-800';
@@ -1209,6 +1240,21 @@ const SBBCalculator: React.FC = () => {
                       />
                     </div>
                   </div>
+
+                  {/* SBB URL Button */}
+                  {route.from?.trim() && route.to?.trim() && (
+                    <div className="flex justify-end mb-4">
+                      <button
+                        type="button"
+                        onClick={() => handleCheckSBBPrices(route.from, route.to)}
+                        className={`px-4 py-2 ${route.colorScheme.buttonBg} text-white rounded-lg hover:brightness-110 flex items-center gap-2 text-sm font-medium transition-all`}
+                        title={t('checkSBBPricesTooltip')}
+                      >
+                        <Train className="w-4 h-4" />
+                        {t('checkSBBPrices')}
+                      </button>
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
                     <div className="relative">

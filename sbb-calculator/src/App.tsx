@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible, calculateMyRideAnnualCost, compareMyRideAgainstBest, MyRideCalculationResult, MyRideComparison, calculateMyRideMonthlyBill } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
@@ -1212,7 +1212,7 @@ const SBBCalculator: React.FC = () => {
                   </div>
 
                   {/* From/To Station Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-[42.5%_42.5%_15%] gap-4 mb-4 items-end">
                     <div>
                       <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
                         <Train className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1239,63 +1239,67 @@ const SBBCalculator: React.FC = () => {
                         placeholder="e.g. Bern"
                       />
                     </div>
-                  </div>
-
-                  {/* SBB URL Button */}
-                  {route.from?.trim() && route.to?.trim() && (
-                    <div className="flex justify-end mb-4">
+                    <div className="flex justify-center lg:justify-start">
                       <button
                         type="button"
                         onClick={() => handleCheckSBBPrices(route.from, route.to)}
-                        className={`px-4 py-2 ${route.colorScheme.buttonBg} text-white rounded-lg hover:brightness-110 flex items-center gap-2 text-sm font-medium transition-all`}
-                        title={t('checkSBBPricesTooltip')}
+                        disabled={!route.from?.trim() || !route.to?.trim()}
+                        className={`px-3 py-3 rounded-xl flex items-center gap-2 text-sm font-medium transition-all h-[52px] ${
+                          route.from?.trim() && route.to?.trim()
+                            ? `${route.colorScheme.buttonBg} text-white hover:brightness-110 shadow-sm`
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                        title={route.from?.trim() && route.to?.trim() ? t('checkSBBPricesTooltip') : 'Fill in both stations to check prices'}
                       >
-                        <Train className="w-4 h-4" />
-                        {t('checkSBBPrices')}
+                        <Search className="w-4 h-4" />
+                        <span className="hidden sm:inline">{t('checkPrice')}</span>
+                        <span className="sm:hidden">{t('price')}</span>
                       </button>
                     </div>
-                  )}
+                  </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
-                    <div className="relative">
-                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
-                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {route.frequencyType === 'weekly' ? t('tripsPerWeek') : t('tripsPerMonth')}
-                      </label>
-                      <input 
-                        type="number" 
-                        value={route.trips || ''}
-                        onChange={(e) => updateRoute(route.id, 'trips', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                        onWheel={(e) => e.currentTarget.blur()}
-                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                        placeholder={t('placeholderTrips')}
-                        step="0.5"
-                        min="0"
-                      />
-                      
-                      {/* Frequency Toggle */}
-                      <div className="mt-2">
-                        <div className="flex rounded-lg border-2 ${route.colorScheme.border200} overflow-hidden bg-white h-12">
-                          <button
-                            onClick={() => updateRoute(route.id, 'frequencyType', 'weekly')}
-                            className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${
-                              route.frequencyType === 'weekly'
-                                ? `${route.colorScheme.buttonBg} text-white`
-                                : 'bg-white text-gray-600 hover:bg-gray-50'
-                            }`}
-                          >
-                            {t('weekly')}
-                          </button>
-                          <button
-                            onClick={() => updateRoute(route.id, 'frequencyType', 'monthly')}
-                            className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all border-l-2 ${route.colorScheme.border200} flex items-center justify-center ${
-                              route.frequencyType === 'monthly'
-                                ? `${route.colorScheme.buttonBg} text-white`
-                                : 'bg-white text-gray-600 hover:bg-gray-50'
-                            }`}
-                          >
-                            {t('monthly')}
-                          </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 items-stretch">
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                          {route.frequencyType === 'weekly' ? t('tripsPerWeek') : t('tripsPerMonth')}
+                        </label>
+                        <input 
+                          type="number" 
+                          value={route.trips || ''}
+                          onChange={(e) => updateRoute(route.id, 'trips', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                          placeholder={t('placeholderTrips')}
+                          step="0.5"
+                          min="0"
+                        />
+                        
+                        {/* Frequency Toggle */}
+                        <div className="mt-2">
+                          <div className="flex rounded-lg border-2 ${route.colorScheme.border200} overflow-hidden bg-white h-12">
+                            <button
+                              onClick={() => updateRoute(route.id, 'frequencyType', 'weekly')}
+                              className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${
+                                route.frequencyType === 'weekly'
+                                  ? `${route.colorScheme.buttonBg} text-white`
+                                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                              }`}
+                            >
+                              {t('weekly')}
+                            </button>
+                            <button
+                              onClick={() => updateRoute(route.id, 'frequencyType', 'monthly')}
+                              className={`flex-1 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all border-l-2 ${route.colorScheme.border200} flex items-center justify-center ${
+                                route.frequencyType === 'monthly'
+                                  ? `${route.colorScheme.buttonBg} text-white`
+                                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                              }`}
+                            >
+                              {t('monthly')}
+                            </button>
+                          </div>
                         </div>
                       </div>
                       
@@ -1304,64 +1308,67 @@ const SBBCalculator: React.FC = () => {
                         <span className="text-xs">{route.frequencyType === 'weekly' ? t('tripsPerWeekHelp') : t('tripsPerMonthHelp')}</span>
                       </div>
                     </div>
-                    <div className="relative">
-                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
-                        <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {t('costPerTrip')}
-                      </label>
-                      <div className="relative">
-                        <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium text-sm sm:text-base`}>CHF</span>
-                        <input 
-                          type="number" 
-                          value={route.cost || ''}
-                          onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                          onWheel={(e) => e.currentTarget.blur()}
-                          className={`w-full pl-11 sm:pl-12 pr-20 sm:pr-24 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                        placeholder={t('placeholderCost')}
-                        step="0.10"
-                        min="0"
-                      />
-                        <div className="absolute right-0 top-0 w-1/4 h-full">
-                          <button
-                            type="button"
-                            onClick={() => doublePriceForRoute(route.id)}
-                            disabled={!route.cost || (typeof route.cost === 'string' && route.cost === '') || Number(route.cost) === 0}
-                            className={`w-full h-full rounded-r-xl ${route.colorScheme.buttonBg} text-white hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold text-sm sm:text-base relative transition-all duration-200`}
-                            title={t('doublePriceTooltip')}
-                          >
-                            ×2
-                          </button>
+                    <div className="relative h-full flex flex-col justify-between">
+                      <div>
+                        <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
+                          <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
+                          {t('costPerTrip')}
+                        </label>
+                        <div className="relative">
+                          <span className={`absolute left-3 top-3 ${route.colorScheme.accent} font-medium text-sm sm:text-base`}>CHF</span>
+                          <input 
+                            type="number" 
+                            value={route.cost || ''}
+                            onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            className={`w-full pl-11 sm:pl-12 pr-20 sm:pr-24 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                          placeholder={t('placeholderCost')}
+                          step="0.10"
+                          min="0"
+                        />
+                          <div className="absolute right-0 top-0 w-1/4 h-full">
+                            <button
+                              type="button"
+                              onClick={() => doublePriceForRoute(route.id)}
+                              disabled={!route.cost || (typeof route.cost === 'string' && route.cost === '') || Number(route.cost) === 0}
+                              className={`w-full h-full rounded-r-xl ${route.colorScheme.buttonBg} text-white hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold text-sm sm:text-base relative transition-all duration-200`}
+                              title={t('doublePriceTooltip')}
+                            >
+                              ×2
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className={`bg-white p-2 sm:p-3 rounded-lg border ${route.colorScheme.border200} mt-1 sm:mt-2`}>
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <input
+                              type="checkbox"
+                              id={`halbtax-price-${route.id}`}
+                              checked={route.isHalbtaxPrice}
+                              onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
+                              className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                            />
+                            <label htmlFor={`halbtax-price-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
+                              <span className="flex items-center gap-2">
+                                <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
+                              </span>
+                            </label>
+                          </div>
                         </div>
                       </div>
+                      
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
                         <span>ℹ️</span>
                         <span className="text-xs">{t('costPerTripHelp')}</span>
                       </div>
-                      
-                      <div className={`bg-white p-3 sm:p-4 rounded-lg border ${route.colorScheme.border200} mt-2 sm:mt-3`}>
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <input
-                            type="checkbox"
-                            id={`halbtax-price-${route.id}`}
-                            checked={route.isHalbtaxPrice}
-                            onChange={(e) => updateRoute(route.id, 'isHalbtaxPrice', e.target.checked)}
-                            className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} border-2 ${route.colorScheme.border300} rounded-md ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
-                          />
-                          <label htmlFor={`halbtax-price-${route.id}`} className={`text-xs sm:text-sm font-medium ${route.colorScheme.text} cursor-pointer flex-1`}>
-                            <span className="flex items-center gap-2">
-                              <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
-                              <span className="text-xs sm:text-sm">{t('priceAlreadyHalbtax')}</span>
-                            </span>
-                          </label>
-                        </div>
-                      </div>
                     </div>
-                    <div className="relative">
+                    <div className="relative h-full flex flex-col justify-between">
                       <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
                         <Link className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('duration')}
                       </label>
-                      <div className="relative">
+                      <div className="relative h-full flex flex-col justify-between">
                         {/* Value Display */}
                         <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-sm text-sm sm:text-base h-12`}>
                           <span className={`font-bold ${route.colorScheme.text}`}>
@@ -1488,7 +1495,7 @@ const SBBCalculator: React.FC = () => {
                 {additionalBudgetExpanded && (
                   <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-indigo-200/50 space-y-4">
                     {/* Budget Amount Input */}
-                    <div className="relative">
+                    <div className="relative h-full flex flex-col justify-between">
                       <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-indigo-800 mb-2 sm:mb-3">
                         <Banknote className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('additionalBudgetAmount')}
@@ -1508,7 +1515,7 @@ const SBBCalculator: React.FC = () => {
                     </div>
 
                     {/* Frequency Toggle */}
-                    <div className="relative">
+                    <div className="relative h-full flex flex-col justify-between">
                       <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-indigo-800 mb-2 sm:mb-3">
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                         {t('frequencyToggle')}
@@ -2559,7 +2566,7 @@ const SBBCalculator: React.FC = () => {
                   </div>
                   <div className="space-y-3 sm:space-y-4">
                     {/* Savings Visualization */}
-                    <div className="relative">
+                    <div className="relative h-full flex flex-col justify-between">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs sm:text-sm text-gray-600">{t('withoutSubscription')}</span>
                         <span className="font-medium text-gray-800 text-xs sm:text-sm">{formatCurrency(results.noAboTotal)}</span>

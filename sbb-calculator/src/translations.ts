@@ -110,7 +110,7 @@ export const translations: Translations = {
     savingsPercent: "• That's {percent}% savings",
     halbtaxPlusInfo: "Half Fare Travelcard Plus Top up:",
     halbtaxPlusExplanation: "When consumption exceeds the credit, it automatically tops up. The last top up is calculated proportionally (e.g. 50% usage = 50% cost).",
-    disclaimer: "**Important Notice**\n\nThis is an **unofficial service** and is not operated by, affiliated with, endorsed by, or connected to Swiss Federal Railways (Schweizerische Bundesbahnen). Swiss railway trademarks and service marks are the property of Swiss Federal Railways.\n\n**Disclaimer:**\n• Prices and information as of January 2025\n• Halbtax Plus includes additional travel credit as a bonus\n• Prices, conditions, and offers may change without notice\n• This calculator provides estimates for informational purposes only\n• **Always verify current prices and conditions on the official Swiss railway website before purchasing**\n• No responsibility is taken for the accuracy, completeness, or timeliness of the information provided\n• No liability for decisions made based on this calculator\n\n**Data Privacy:** This website does not collect, store, or transmit personal data.\n\nFor official information, visit: https://www.sbb.ch\n\nCreated by Sirin Dudler",
+    disclaimer: "**Important Notice**\n\nThis is an **unofficial service** and is not operated by, affiliated with, endorsed by, or connected to Swiss Federal Railways (Schweizerische Bundesbahnen). Swiss railway trademarks and service marks are the property of Swiss Federal Railways.\n\n**Disclaimer:**\n• Prices and information as of January 2025\n• Halbtax Plus includes additional travel credit as a bonus\n• Prices, conditions, and offers may change without notice\n• This calculator provides estimates for informational purposes only\n• **Always verify current prices and conditions on the official Swiss railway website before purchasing**\n• No responsibility is taken for the accuracy, completeness, or timeliness of the information provided\n• No liability for decisions made based on this calculator\n\n**Data Privacy:** This website does not collect, store, or transmit personal data.\n\nFor official information, visit: https://www.sbb.ch",
     streckenabo: "Point-to-Point Travelcard",
     streckenabos: "Point-to-Point Travelcards",
     streckenabosInfo: "Point-to-Point Travelcard Estimates",
@@ -177,7 +177,9 @@ export const translations: Translations = {
     totalTravelCosts: "Total travel costs: {cost}",
     purchaseSubscription: "Purchase this subscription",
     purchaseRoutePass: "Purchase this route pass",
-    annualSubscription: "Annual subscription"
+    annualSubscription: "Annual subscription",
+    buyMeACoffee: "Support me with a coffee",
+    createdBy: "Created by"
   },
   de: {
     title: "Schweizer Abo-Vergleichsrechner",
@@ -282,7 +284,7 @@ export const translations: Translations = {
     savingsPercent: "• Das sind {percent}% Ersparnis",
     halbtaxPlusInfo: "ℹ️ Halbtax Plus Aufladung:",
     halbtaxPlusExplanation: "Bei Verbrauch über das Guthaben hinaus wird automatisch aufgeladen. Die letzte Aufladung wird anteilig berechnet (z.B. 50% Nutzung = 50% Kosten).",
-    disclaimer: "**Wichtiger Hinweis**\n\nDies ist ein **inoffizieller Service** und wird nicht von den Schweizerischen Bundesbahnen betrieben, unterstützt oder befürwortet.\n\nPreise Stand Januar 2025. Halbtax Plus enthält zusätzliches Reiseguthaben als Bonus.\nPreise und Konditionen können sich ohne Vorankündigung ändern.\n**Bitte überprüfen Sie aktuelle Informationen auf der offiziellen Schweizer Bahn-Website vor dem Kauf.**\n\nDieser Rechner dient nur zur Information. Alle Angaben ohne Gewähr.\nKeine Haftung für Entscheidungen basierend auf diesen Berechnungen.\n\n**Datenschutz:** Diese Website sammelt, speichert oder überträgt keine persönlichen Daten.\n\nOffizielle Informationen: https://www.sbb.ch\n\nErstellt von Sirin Dudler",
+    disclaimer: "**Wichtiger Hinweis**\n\nDies ist ein **inoffizieller Service** und wird nicht von den Schweizerischen Bundesbahnen betrieben, unterstützt oder befürwortet.\n\nPreise Stand Januar 2025. Halbtax Plus enthält zusätzliches Reiseguthaben als Bonus.\nPreise und Konditionen können sich ohne Vorankündigung ändern.\n**Bitte überprüfen Sie aktuelle Informationen auf der offiziellen Schweizer Bahn-Website vor dem Kauf.**\n\nDieser Rechner dient nur zur Information. Alle Angaben ohne Gewähr.\nKeine Haftung für Entscheidungen basierend auf diesen Berechnungen.\n\n**Datenschutz:** Diese Website sammelt, speichert oder überträgt keine persönlichen Daten.\n\nOffizielle Informationen: https://www.sbb.ch",
     streckenabo: "Streckenabo",
     streckenabos: "Streckenabos",
     streckenabosInfo: "Streckenabo-Schätzungen",
@@ -349,7 +351,9 @@ export const translations: Translations = {
     totalTravelCosts: "Gesamte Fahrtkosten: {cost}",
     purchaseSubscription: "Dieses Abo kaufen",
     purchaseRoutePass: "Dieses Streckenabo kaufen",
-    annualSubscription: "Jahresabo"
+    annualSubscription: "Jahresabo",
+    buyMeACoffee: "Unterstütze mich mit einem Kaffee",
+    createdBy: "Erstellt von"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements suisses",
@@ -454,7 +458,7 @@ export const translations: Translations = {
     savingsPercent: "• Cela représente {percent}% d'économies",
     halbtaxPlusInfo: "ℹ️ Recharger Demi-tarif Plus:",
     halbtaxPlusExplanation: "Lorsque la consommation dépasse le crédit, il recharge automatiquement. Le dernier recharger est calculé proportionnellement (ex: 50% d'utilisation = 50% du coût).",
-    disclaimer: "**Avis important**\n\nCeci est un **service non officiel** et n'est pas exploité, affilié, approuvé ou connecté aux Chemins de fer fédéraux suisses (Schweizerische Bundesbahnen). Les marques commerciales et de service des chemins de fer suisses sont la propriété des Chemins de fer fédéraux suisses.\n\n**Avertissement:**\n• Prix et informations à jour en janvier 2025\n• Demi-tarif Plus inclut un crédit de voyage supplémentaire en bonus\n• Les prix, conditions et offres peuvent changer sans préavis\n• Ce calculateur fournit des estimations à des fins d'information uniquement\n• **Vérifiez toujours les prix et conditions actuels sur le site officiel des chemins de fer suisses avant l'achat**\n• Aucune responsabilité n'est prise pour l'exactitude, l'exhaustivité ou l'actualité des informations fournies\n• Aucune responsabilité pour les décisions prises sur la base de ce calculateur\n\n**Confidentialité des données:** Ce site web ne collecte, ne stocke ou ne transmet pas de données personnelles.\n\nPour les informations officielles, visitez: https://www.cff.ch\n\nCréé par Sirin Dudler",
+    disclaimer: "**Avis important**\n\nCeci est un **service non officiel** et n'est pas exploité, affilié, approuvé ou connecté aux Chemins de fer fédéraux suisses (Schweizerische Bundesbahnen). Les marques commerciales et de service des chemins de fer suisses sont la propriété des Chemins de fer fédéraux suisses.\n\n**Avertissement:**\n• Prix et informations à jour en janvier 2025\n• Demi-tarif Plus inclut un crédit de voyage supplémentaire en bonus\n• Les prix, conditions et offres peuvent changer sans préavis\n• Ce calculateur fournit des estimations à des fins d'information uniquement\n• **Vérifiez toujours les prix et conditions actuels sur le site officiel des chemins de fer suisses avant l'achat**\n• Aucune responsabilité n'est prise pour l'exactitude, l'exhaustivité ou l'actualité des informations fournies\n• Aucune responsabilité pour les décisions prises sur la base de ce calculateur\n\n**Confidentialité des données:** Ce site web ne collecte, ne stocke ou ne transmet pas de données personnelles.\n\nPour les informations officielles, visitez: https://www.cff.ch",
     streckenabo: "Abonnement de parcours",
     streckenabos: "Abonnements de parcours",
     streckenabosInfo: "Estimations d'abonnements de parcours",
@@ -508,7 +512,9 @@ export const translations: Translations = {
     totalTravelCosts: "Coûts de voyage totaux: {cost}",
     purchaseSubscription: "Acheter cet abonnement",
     purchaseRoutePass: "Acheter cet abonnement de parcours",
-    annualSubscription: "Abonnement annuel"
+    annualSubscription: "Abonnement annuel",
+    buyMeACoffee: "Soutenez-moi avec un café",
+    createdBy: "Créé par"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti svizzeri",
@@ -613,7 +619,7 @@ export const translations: Translations = {
     savingsPercent: "• Questo è {percent}% di risparmio",
     halbtaxPlusInfo: "ℹ️ Ricaricare Metà-prezzo Plus:",
     halbtaxPlusExplanation: "Quando il consumo supera il credito, ricaricare automaticamente. L'ultimo ricaricare viene calcolato proporzionalmente (es. 50% utilizzo = 50% costo).",
-    disclaimer: "**Avviso importante**\n\nQuesto è un **servizio non ufficiale** e non è gestito, affiliato, approvato o collegato alle Ferrovie federali svizzere (Schweizerische Bundesbahnen). I marchi commerciali e di servizio delle ferrovie svizzere sono di proprietà delle Ferrovie federali svizzere.\n\n**Disclaimer:**\n• Prezzi e informazioni aggiornati a gennaio 2025\n• Metà-prezzo Plus include credito di viaggio aggiuntivo come bonus\n• Prezzi, condizioni e offerte possono cambiare senza preavviso\n• Questo calcolatore fornisce stime solo a scopo informativo\n• **Verificare sempre prezzi e condizioni attuali sul sito ufficiale delle ferrovie svizzere prima dell'acquisto**\n• Non si assume responsabilità per l'accuratezza, completezza o tempestività delle informazioni fornite\n• Nessuna responsabilità per decisioni prese sulla base di questo calcolatore\n\n**Privacy dei dati:** Questo sito web non raccoglie, memorizza o trasmette dati personali.\n\nPer informazioni ufficiali, visitare: https://www.ffs.ch\n\nCreato da Sirin Dudler",
+    disclaimer: "**Avviso importante**\n\nQuesto è un **servizio non ufficiale** e non è gestito, affiliato, approvato o collegato alle Ferrovie federali svizzere (Schweizerische Bundesbahnen). I marchi commerciali e di servizio delle ferrovie svizzere sono di proprietà delle Ferrovie federali svizzere.\n\n**Disclaimer:**\n• Prezzi e informazioni aggiornati a gennaio 2025\n• Metà-prezzo Plus include credito di viaggio aggiuntivo come bonus\n• Prezzi, condizioni e offerte possono cambiare senza preavviso\n• Questo calcolatore fornisce stime solo a scopo informativo\n• **Verificare sempre prezzi e condizioni attuali sul sito ufficiale delle ferrovie svizzere prima dell'acquisto**\n• Non si assume responsabilità per l'accuratezza, completezza o tempestività delle informazioni fornite\n• Nessuna responsabilità per decisioni prese sulla base di questo calcolatore\n\n**Privacy dei dati:** Questo sito web non raccoglie, memorizza o trasmette dati personali.\n\nPer informazioni ufficiali, visitare: https://www.ffs.ch",
     streckenabo: "Abbonamento di tratta",
     streckenabos: "Abbonamenti di tratta",
     streckenabosInfo: "Stime abbonamenti di tratta",
@@ -667,7 +673,9 @@ export const translations: Translations = {
     totalTravelCosts: "Costi di viaggio totali: {cost}",
     purchaseSubscription: "Acquista questo abbonamento",
     purchaseRoutePass: "Acquista questo abbonamento di tratta",
-    annualSubscription: "Abbonamento annuale"
+    annualSubscription: "Abbonamento annuale",
+    buyMeACoffee: "Sostienimi con un caffè",
+    createdBy: "Creato da"
   },
   rm: {
     title: "Calculatur da cumparaziun d'abonnamaints viafier",
@@ -767,7 +775,7 @@ export const translations: Translations = {
     savingsPercent: "• Quai èn {percent}% sparegn",
     halbtaxPlusInfo: "ℹ️ Recargiar mesa taxa Plus:",
     halbtaxPlusExplanation: "Cura che il consum surpassa il credit, vegn il recargià automaticamain. L'ultima recargiada vegn calculada pruporziunalmain (p.ex. 50% utilisaziun = 50% custs).",
-    disclaimer: "**Avis impurtant**\n\nQuai è in **servetsch betg uffizial** e na vegn betg manà, affilià, approvà u colligiada cun las VFF (Viaferrata federalas svizras/Schweizerische Bundesbahnen). Las marcas cummerzielas e da servetsch da las VFF èn proprietad da las VFF.\n\n**Disclaimer:**\n• Pretschs ed infurmaziuns dal schaner 2025\n• Mesa taxa Plus cuntegna credit da viadi supplementar sco bonus\n• Pretschs, cundiziuns ed offertas pon midar senza pre-avis\n• Quest calculatur furnescha valitaziuns mo per finamiras d'infurmaziun\n• **Controllai adina pretschs e cundiziuns actuals sin la website uffizala da las VFF avant l'acquistar**\n• Nagina responsabladad vegn surpiglida per l'exactadad, la cumpletezza u l'actualitad da las infurmaziuns furnidas\n• Nagina responsabladad per decisiuns prendidas sin basa da quest calculatur\n\n**Protecziun da datas:** Questa website na rimna, na memorisescha u na transmetta naginas datas persunalas.\n\nPer infurmaziuns uffizialas, visitai: https://www.ffs.ch\n\nCreà da Sirin Dudler",
+    disclaimer: "**Avis impurtant**\n\nQuai è in **servetsch betg uffizial** e na vegn betg manà, affilià, approvà u colligiada cun las VFF (Viaferrata federalas svizras/Schweizerische Bundesbahnen). Las marcas cummerzielas e da servetsch da las VFF èn proprietad da las VFF.\n\n**Disclaimer:**\n• Pretschs ed infurmaziuns dal schaner 2025\n• Mesa taxa Plus cuntegna credit da viadi supplementar sco bonus\n• Pretschs, cundiziuns ed offertas pon midar senza pre-avis\n• Quest calculatur furnescha valitaziuns mo per finamiras d'infurmaziun\n• **Controllai adina pretschs e cundiziuns actuals sin la website uffizala da las VFF avant l'acquistar**\n• Nagina responsabladad vegn surpiglida per l'exactadad, la cumpletezza u l'actualitad da las infurmaziuns furnidas\n• Nagina responsabladad per decisiuns prendidas sin basa da quest calculatur\n\n**Protecziun da datas:** Questa website na rimna, na memorisescha u na transmetta naginas datas persunalas.\n\nPer infurmaziuns uffizialas, visitai: https://www.ffs.ch",
     streckenabo: "Abonnament da percurs",
     streckenabos: "Abonnamaints da percurs",
     streckenabosInfo: "Valitaziuns d'abonnamaints da percurs",
@@ -821,7 +829,9 @@ export const translations: Translations = {
     totalTravelCosts: "Custs da viadi totals: {cost}",
     purchaseSubscription: "Cumprar quest abonnament",
     purchaseRoutePass: "Cumprar quest abonnament da percurs",
-    annualSubscription: "Abonnament annual"
+    annualSubscription: "Abonnament annual",
+    buyMeACoffee: "Sustegnair mai cun in café",
+    createdBy: "Creà da"
   }
 };
 

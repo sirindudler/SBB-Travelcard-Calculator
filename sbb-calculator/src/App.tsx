@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search } from 'lucide-react';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks } from './links';
@@ -2540,34 +2540,6 @@ const SBBCalculator: React.FC = () => {
                     </div>
                   );
                 } 
-                // Handle "Created by" line with social icons
-                else if (line.includes('Created by') || line.includes('Erstellt von') || line.includes('Créé par') || line.includes('Creato da')) {
-                  return (
-                    <div key={index} className="mt-4 pt-3 border-t border-gray-300 flex items-center justify-center gap-3">
-                      <span className="text-gray-600 text-xs sm:text-sm">{line}</span>
-                      <div className="flex items-center gap-2">
-                        <a
-                          href="https://www.linkedin.com/in/sirindudler/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 transition-colors"
-                          title="LinkedIn"
-                        >
-                          <Linkedin className="w-4 h-4" />
-                        </a>
-                        <a
-                          href="https://github.com/sirindudler"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-700 hover:text-gray-900 transition-colors"
-                          title="GitHub"
-                        >
-                          <Github className="w-4 h-4" />
-                        </a>
-                      </div>
-                    </div>
-                  );
-                }
                 // Handle URLs (simple detection for https://)
                 else if (line.startsWith('https://')) {
                   return (
@@ -2617,6 +2589,60 @@ const SBBCalculator: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Separate Creator/Support Section */}
+        <div className="mt-6 px-4 py-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 shadow-lg">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+              <div className="text-gray-700 font-medium text-sm sm:text-base">
+                {t('createdBy')} Sirin Dudler
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://www.linkedin.com/in/sirindudler/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-110 border border-blue-200 hover:border-blue-300"
+                  title="LinkedIn"
+                  data-umami-event="social-click"
+                  data-umami-event-platform="linkedin"
+                  data-umami-event-url="https://www.linkedin.com/in/sirindudler/"
+                >
+                  <Linkedin className="w-5 h-5 text-blue-600 hover:text-blue-800" />
+                </a>
+                
+                <a
+                  href="https://github.com/sirindudler"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-110 border border-gray-200 hover:border-gray-300"
+                  title="GitHub"
+                  data-umami-event="social-click"
+                  data-umami-event-platform="github"
+                  data-umami-event-url="https://github.com/sirindudler"
+                >
+                  <Github className="w-5 h-5 text-gray-700 hover:text-gray-900" />
+                </a>
+                
+                <a
+                  href="https://ko-fi.com/E1E81JHNXY"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
+                  title={t('buyMeACoffee')}
+                  data-umami-event="support-click"
+                  data-umami-event-platform="kofi"
+                  data-umami-event-url="https://ko-fi.com/E1E81JHNXY"
+                >
+                  <Coffee className="w-4 h-4" />
+                  <span>{t('buyMeACoffee')}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       </div>
     </>

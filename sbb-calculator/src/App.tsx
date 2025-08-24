@@ -2605,8 +2605,7 @@ const SBBCalculator: React.FC = () => {
                   rel="noopener noreferrer"
                   className="p-2.5 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-110 border border-blue-200 hover:border-blue-300"
                   title="LinkedIn"
-                  data-umami-event="social-click"
-                  data-umami-event-platform="linkedin"
+                  data-umami-event="linkedin-click"
                   data-umami-event-url="https://www.linkedin.com/in/sirindudler/"
                 >
                   <Linkedin className="w-5 h-5 text-blue-600 hover:text-blue-800" />
@@ -2618,8 +2617,7 @@ const SBBCalculator: React.FC = () => {
                   rel="noopener noreferrer"
                   className="p-2.5 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-110 border border-gray-200 hover:border-gray-300"
                   title="GitHub"
-                  data-umami-event="social-click"
-                  data-umami-event-platform="github"
+                  data-umami-event="github-click"
                   data-umami-event-url="https://github.com/sirindudler"
                 >
                   <Github className="w-5 h-5 text-gray-700 hover:text-gray-900" />

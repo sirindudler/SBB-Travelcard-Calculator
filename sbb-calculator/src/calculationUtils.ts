@@ -28,6 +28,8 @@ export interface HalbtaxPlusDetails {
   halbtaxTicketsAfterCredit: number;
   lastReloadUsage?: number;
   lastReloadRatio?: number;
+  effectiveCost?: number;
+  refundAmount?: number;
 }
 
 export interface SubscriptionOption {
@@ -126,15 +128,23 @@ export function calculateHalbtaxPlusOptions(
     
     if (halbtaxTicketCosts <= creditAmount) {
       // All costs covered by initial credit
+      // Account for SBB's reimbursement policy: unused customer deposit gets refunded
+      const customerDeposit = packageCost;
+      const usedFromDeposit = Math.min(halbtaxTicketCosts, customerDeposit);
+      const refundAmount = customerDeposit - usedFromDeposit;
+      const effectivePackageCost = customerDeposit - refundAmount; // This equals usedFromDeposit
+      
       return {
         credit: parseInt(credit),
         cost: packageCost,
-        total: packageCost + halbtaxPrice,
+        total: effectivePackageCost + halbtaxPrice,
         coveredByCredit: halbtaxTicketCosts,
         remainingCosts: 0,
         reloadCount: 0,
         reloadCost: 0,
-        halbtaxTicketsAfterCredit: 0
+        halbtaxTicketsAfterCredit: 0,
+        effectiveCost: effectivePackageCost,
+        refundAmount: refundAmount
       };
     } else {
       // More costs than initial credit
@@ -165,7 +175,9 @@ export function calculateHalbtaxPlusOptions(
           reloadCost: totalReloadCost,
           lastReloadUsage: lastReloadUsage,
           lastReloadRatio: lastReloadUsage / creditAmount,
-          halbtaxTicketsAfterCredit: 0
+          halbtaxTicketsAfterCredit: 0,
+          effectiveCost: packageCost,
+          refundAmount: 0
         };
       } else {
         // New logic: use initial credit + regular Halbtax tickets for remaining
@@ -177,7 +189,9 @@ export function calculateHalbtaxPlusOptions(
           remainingCosts: remainingAfterFirst,
           reloadCount: 0,
           reloadCost: 0,
-          halbtaxTicketsAfterCredit: remainingAfterFirst
+          halbtaxTicketsAfterCredit: remainingAfterFirst,
+          effectiveCost: packageCost,
+          refundAmount: 0
         };
       }
     }

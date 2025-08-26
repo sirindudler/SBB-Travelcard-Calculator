@@ -497,7 +497,12 @@ const SBBCalculator: React.FC = () => {
       
       if (halbtaxTicketCosts <= creditAmount) {
         // All costs covered by initial credit
-        const total = packageCost + halbtaxPrice + additionalPassCosts;
+        // Account for SBB's reimbursement policy: unused customer deposit gets refunded
+        const customerDeposit = packageCost;
+        const usedFromDeposit = Math.min(halbtaxTicketCosts, customerDeposit);
+        const refundAmount = customerDeposit - usedFromDeposit;
+        const effectivePackageCost = customerDeposit - refundAmount; // This equals usedFromDeposit
+        const total = effectivePackageCost + halbtaxPrice + additionalPassCosts;
         return {
           credit: parseInt(credit),
           cost: packageCost,
@@ -506,7 +511,9 @@ const SBBCalculator: React.FC = () => {
           remainingCosts: 0,
           reloadCount: 0,
           reloadCost: 0,
-          halbtaxTicketsAfterCredit: 0
+          halbtaxTicketsAfterCredit: 0,
+          effectiveCost: effectivePackageCost,
+          refundAmount: refundAmount
         };
       } else {
         // More costs than initial credit
@@ -539,7 +546,9 @@ const SBBCalculator: React.FC = () => {
             reloadCost: totalReloadCost,
             lastReloadUsage: lastReloadUsage,
             lastReloadRatio: lastReloadUsage / creditAmount,
-            halbtaxTicketsAfterCredit: 0
+            halbtaxTicketsAfterCredit: 0,
+            effectiveCost: packageCost,
+            refundAmount: 0
           };
         } else {
           // New logic: use initial credit + regular Halbtax tickets for remaining
@@ -553,7 +562,9 @@ const SBBCalculator: React.FC = () => {
             remainingCosts: remainingAfterFirst,
             reloadCount: 0,
             reloadCost: 0,
-            halbtaxTicketsAfterCredit: remainingAfterFirst
+            halbtaxTicketsAfterCredit: remainingAfterFirst,
+            effectiveCost: packageCost,
+            refundAmount: 0
           };
         }
       }
@@ -1937,13 +1948,22 @@ const SBBCalculator: React.FC = () => {
                               <div>{t('halbtaxLabel')} {formatCurrency(getFreeHalbtax ? 0 : getHalbtaxPrice(age, !hasExistingHalbtax))}</div>
                               <div>{t('creditCovered', { cost: formatCurrency(option.details.coveredByCredit) })}</div>
                               
-                              {option.details.reloadCount > 0 && allowHalbtaxPlusReload && (
+                              {option.details.refundAmount > 0 && (
+                                <>
+                                  <div className="text-green-600 font-medium">✓ {t('unusedCreditRefund', { cost: formatCurrency(option.details.refundAmount) })}</div>
+                                  <div className="text-gray-600 text-sm">{t('effectivePackageCost', { cost: formatCurrency(option.details.effectiveCost) })}</div>
+                                </>
+                              )}
+                              
+                              {option.details.reloadCount > 0 && allowHalbtaxPlusReload && option.details.reloadCost > 0 && (
                                 <>
                                   <div className="text-orange-600 font-medium">{t('reloads')}</div>
-                                  {option.details.reloadCount > 1 && (
+                                  {option.details.reloadCount > 1 && option.details.reloadCount - 1 > 0 && (
                                     <div>{t('reloadFull', { count: option.details.reloadCount - 1, cost: formatCurrency((option.details.reloadCount - 1) * option.details.cost) })}</div>
                                   )}
-                                  <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
+                                  {option.details.lastReloadRatio > 0 && (
+                                    <div>{t('reloadPartial', { percent: Math.round(option.details.lastReloadRatio * 100), cost: formatCurrency(option.details.cost * option.details.lastReloadRatio) })}</div>
+                                  )}
                                   <div className="font-medium">{t('reloadTotal', { cost: formatCurrency(option.details.reloadCost) })}</div>
                                 </>
                               )}
@@ -2271,7 +2291,12 @@ const SBBCalculator: React.FC = () => {
                         const halbtaxPlusResults = halbtaxPlusOptions.map((option: {credit: number, cost: number}) => {
                           if (halbtaxTicketCosts <= option.credit) {
                             // All costs covered by initial credit
-                            const totalCost = option.cost + halbtaxPrice;
+                            // Account for SBB's reimbursement policy: unused customer deposit gets refunded
+                            const customerDeposit = option.cost;
+                            const usedFromDeposit = Math.min(halbtaxTicketCosts, customerDeposit);
+                            const refundAmount = customerDeposit - usedFromDeposit;
+                            const effectivePackageCost = customerDeposit - refundAmount; // This equals usedFromDeposit
+                            const totalCost = effectivePackageCost + halbtaxPrice;
                             return { ...option, totalCost };
                           } else {
                             // More costs than initial credit

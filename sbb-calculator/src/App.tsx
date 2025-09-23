@@ -49,7 +49,11 @@ interface CalculationResults {
 
 // Remove duplicate interfaces - now imported from pricing.ts
 
-const SBBCalculator: React.FC = () => {
+interface SBBCalculatorProps {
+  onNavigateToInfo?: () => void;
+}
+
+const SBBCalculator: React.FC<SBBCalculatorProps> = ({ onNavigateToInfo }) => {
   // Use imported color schemes (refactored)
   const getColorSchemeForRoute = useCallback((routeIndex: number): RouteColorScheme => {
     return getColorScheme(routeIndex);
@@ -2648,6 +2652,16 @@ const SBBCalculator: React.FC = () => {
                   <Github className="w-5 h-5 text-gray-700 hover:text-gray-900" />
                 </a>
                 
+                <button
+                  onClick={onNavigateToInfo}
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
+                  title="Info about Travelcards.ch"
+                  data-umami-event="info-click"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Info</span>
+                </button>
+
                 <a
                   href="https://ko-fi.com/E1E81JHNXY"
                   target="_blank"

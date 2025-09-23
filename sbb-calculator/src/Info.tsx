@@ -1,0 +1,256 @@
+import React from 'react';
+import { Calculator, Train, CreditCard, Globe, MapPin, Clock, Star, ChevronLeft } from 'lucide-react';
+import { Language } from './translations';
+import { useInfoTranslation } from './infoTranslations';
+
+interface InfoProps {
+  language: Language;
+  onBack: () => void;
+}
+
+const Info: React.FC<InfoProps> = ({ language, onBack }) => {
+  const { t } = useInfoTranslation(language);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={onBack}
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+          >
+            <ChevronLeft size={20} className="mr-1" />
+            {t('backToCalculator')}
+          </button>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {t('aboutTitle')}
+          </h1>
+          <p className="text-xl text-gray-600">
+            {t('aboutSubtitle')}
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid gap-8">
+          {/* What is Travelcards.ch */}
+          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center mb-4">
+              <Calculator className="text-blue-600 mr-3" size={24} />
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {t('whatIsTitle')}
+              </h2>
+            </div>
+            <div className="text-gray-700 space-y-4">
+              <p>{t('whatIsPara1')}</p>
+              <p>{t('whatIsPara2')}</p>
+            </div>
+          </section>
+
+          {/* How it Works */}
+          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center mb-4">
+              <Train className="text-green-600 mr-3" size={24} />
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {t('howItWorksTitle')}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <MapPin className="text-blue-600" size={20} />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('step1Title')}</h3>
+                <p className="text-gray-600 text-sm">{t('step1Description')}</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <Calculator className="text-green-600" size={20} />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('step2Title')}</h3>
+                <p className="text-gray-600 text-sm">{t('step2Description')}</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <Star className="text-purple-600" size={20} />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('step3Title')}</h3>
+                <p className="text-gray-600 text-sm">{t('step3Description')}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Swiss Transport Options */}
+          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center mb-4">
+              <CreditCard className="text-red-600 mr-3" size={24} />
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {t('subscriptionsTitle')}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('halbtaxTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('halbtaxPoint1')}</li>
+                  <li>• {t('halbtaxPoint2')}</li>
+                  <li>• {t('halbtaxPoint3')}</li>
+                  <li>• {t('halbtaxPoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('gaTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('gaPoint1')}</li>
+                  <li>• {t('gaPoint2')}</li>
+                  <li>• {t('gaPoint3')}</li>
+                  <li>• {t('gaPoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('halbtaxPlusTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('halbtaxPlusPoint1')}</li>
+                  <li>• {t('halbtaxPlusPoint2')}</li>
+                  <li>• {t('halbtaxPlusPoint3')}</li>
+                  <li>• {t('halbtaxPlusPoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('individualTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('individualPoint1')}</li>
+                  <li>• {t('individualPoint2')}</li>
+                  <li>• {t('individualPoint3')}</li>
+                  <li>• {t('individualPoint4')}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Features */}
+          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center mb-4">
+              <Globe className="text-indigo-600 mr-3" size={24} />
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {t('featuresTitle')}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('comprehensiveTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('comprehensivePoint1')}</li>
+                  <li>• {t('comprehensivePoint2')}</li>
+                  <li>• {t('comprehensivePoint3')}</li>
+                  <li>• {t('comprehensivePoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('userFriendlyTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('userFriendlyPoint1')}</li>
+                  <li>• {t('userFriendlyPoint2')}</li>
+                  <li>• {t('userFriendlyPoint3')}</li>
+                  <li>• {t('userFriendlyPoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('accurateTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('accuratePoint1')}</li>
+                  <li>• {t('accuratePoint2')}</li>
+                  <li>• {t('accuratePoint3')}</li>
+                  <li>• {t('accuratePoint4')}</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('freeTitle')}</h3>
+                <ul className="text-gray-700 space-y-2 text-sm">
+                  <li>• {t('freePoint1')}</li>
+                  <li>• {t('freePoint2')}</li>
+                  <li>• {t('freePoint3')}</li>
+                  <li>• {t('freePoint4')}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Who Should Use */}
+          <section className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 border border-blue-200">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              {t('whoShouldUseTitle')}
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('commutersTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('commutersDescription')}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('studentsTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('studentsDescription')}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('touristsTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('touristsDescription')}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('familiesTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('familiesDescription')}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('businessTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('businessDescription')}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('seniorsTitle')}</h3>
+                <p className="text-gray-700 text-sm">{t('seniorsDescription')}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* About Switzerland Transport */}
+          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              {t('swissTransportTitle')}
+            </h2>
+            <div className="text-gray-700 space-y-4">
+              <p>{t('swissTransportPara1')}</p>
+              <p>{t('swissTransportPara2')}</p>
+              <div className="bg-blue-50 rounded-lg p-4 mt-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{t('keyFactsTitle')}</h3>
+                <ul className="text-gray-700 space-y-1 text-sm">
+                  <li>• {t('keyFact1')}</li>
+                  <li>• {t('keyFact2')}</li>
+                  <li>• {t('keyFact3')}</li>
+                  <li>• {t('keyFact4')}</li>
+                  <li>• {t('keyFact5')}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <section className="text-center py-8">
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {t('ctaTitle')}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {t('ctaDescription')}
+              </p>
+              <button
+                onClick={onBack}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                {t('ctaButton')}
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Info;

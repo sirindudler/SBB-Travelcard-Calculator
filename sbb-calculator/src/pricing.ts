@@ -49,7 +49,7 @@ export const sbbPricing: PriceStructure = {
       loyaltyPrice: 170 
     }, // 25-year-olds use adult pricing
     erwachsene: {
-      newCustomer: 1190,
+      newCustomer: 190,
       loyaltyPrice: 170
     },   // Adult (25+ years)
     senior: { 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
@@ -49,11 +50,9 @@ interface CalculationResults {
 
 // Remove duplicate interfaces - now imported from pricing.ts
 
-interface SBBCalculatorProps {
-  onNavigateToInfo?: () => void;
-}
+interface SBBCalculatorProps {}
 
-const SBBCalculator: React.FC<SBBCalculatorProps> = ({ onNavigateToInfo }) => {
+const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
   // Use imported color schemes (refactored)
   const getColorSchemeForRoute = useCallback((routeIndex: number): RouteColorScheme => {
     return getColorScheme(routeIndex);
@@ -2652,15 +2651,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = ({ onNavigateToInfo }) => {
                   <Github className="w-5 h-5 text-gray-700 hover:text-gray-900" />
                 </a>
                 
-                <button
-                  onClick={onNavigateToInfo}
+                <RouterLink
+                  to="/info"
                   className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
                   title="Info about Travelcards.ch"
                   data-umami-event="info-click"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Info</span>
-                </button>
+                </RouterLink>
 
                 <a
                   href="https://ko-fi.com/E1E81JHNXY"

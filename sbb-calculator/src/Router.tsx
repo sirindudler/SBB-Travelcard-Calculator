@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
 import Info from './Info';
 import { Language } from './translations';
 
 const AppWrapper: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   // Detect browser language with English fallback
   const detectBrowserLanguage = (): Language => {
     const browserLanguages = navigator.languages || [navigator.language];
@@ -24,28 +21,15 @@ const AppWrapper: React.FC = () => {
 
   const [language] = useState<Language>(detectBrowserLanguage());
 
-  const handleNavigateToInfo = () => {
-    navigate('/info');
-  };
-
-  const handleNavigateToHome = () => {
-    navigate('/');
-  };
-
   return (
     <Routes>
       <Route
         path="/"
-        element={<App onNavigateToInfo={handleNavigateToInfo} />}
+        element={<App />}
       />
       <Route
         path="/info"
-        element={
-          <Info
-            language={language}
-            onBack={handleNavigateToHome}
-          />
-        }
+        element={<Info language={language} />}
       />
     </Routes>
   );

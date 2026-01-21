@@ -1,0 +1,18 @@
+# Travelcards.ch
+
+## About
+Travelcards.ch is a Swiss railway subscription calculator that helps users compare different public transport subscription options in Switzerland. The calculator determines the most cost-effective subscription (GA, Halbtax, Halbtax Plus, or no subscription) based on individual travel patterns.
+
+## Pages
+- / : Main calculator for comparing Swiss railway subscriptions
+- /info : Information about the calculator and how it works
+
+## Features
+- Compare GA (General Abonnement), Halbtax, and Halbtax Plus subscriptions
+- Support for multiple travel routes with custom frequencies
+- Multi-language support: English, German, French, Italian, Romansh
+- Age group and travel class options
+- Real-time cost calculations based on official SBB pricing
+
+## Contact
+Website: https://travelcards.ch

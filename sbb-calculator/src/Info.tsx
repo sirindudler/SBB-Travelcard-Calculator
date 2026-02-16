@@ -1,14 +1,14 @@
 import React from 'react';
-import { Calculator, Train, CreditCard, Globe, MapPin, Clock, Star, ChevronLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Calculator, Train, Globe, MapPin, Star, ChevronLeft } from 'lucide-react';
 import { Language } from './translations';
 import { useInfoTranslation } from './infoTranslations';
 
 interface InfoProps {
   language: Language;
-  onBack: () => void;
 }
 
-const Info: React.FC<InfoProps> = ({ language, onBack }) => {
+const Info: React.FC<InfoProps> = ({ language }) => {
   const { t } = useInfoTranslation(language);
 
   return (
@@ -16,13 +16,13 @@ const Info: React.FC<InfoProps> = ({ language, onBack }) => {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={onBack}
+          <Link
+            to="/"
             className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
           >
             <ChevronLeft size={20} className="mr-1" />
             {t('backToCalculator')}
-          </button>
+          </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             {t('aboutTitle')}
           </h1>
@@ -33,20 +33,6 @@ const Info: React.FC<InfoProps> = ({ language, onBack }) => {
 
         {/* Main Content */}
         <div className="grid gap-8">
-          {/* What is Travelcards.ch */}
-          <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center mb-4">
-              <Calculator className="text-blue-600 mr-3" size={24} />
-              <h2 className="text-2xl font-semibold text-gray-900">
-                {t('whatIsTitle')}
-              </h2>
-            </div>
-            <div className="text-gray-700 space-y-4">
-              <p>{t('whatIsPara1')}</p>
-              <p>{t('whatIsPara2')}</p>
-            </div>
-          </section>
-
           {/* How it Works */}
           <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex items-center mb-4">
@@ -80,51 +66,17 @@ const Info: React.FC<InfoProps> = ({ language, onBack }) => {
             </div>
           </section>
 
-          {/* Swiss Transport Options */}
+          {/* What is Travelcards.ch */}
           <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex items-center mb-4">
-              <CreditCard className="text-red-600 mr-3" size={24} />
+              <Calculator className="text-blue-600 mr-3" size={24} />
               <h2 className="text-2xl font-semibold text-gray-900">
-                {t('subscriptionsTitle')}
+                {t('whatIsTitle')}
               </h2>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">{t('halbtaxTitle')}</h3>
-                <ul className="text-gray-700 space-y-2 text-sm">
-                  <li>• {t('halbtaxPoint1')}</li>
-                  <li>• {t('halbtaxPoint2')}</li>
-                  <li>• {t('halbtaxPoint3')}</li>
-                  <li>• {t('halbtaxPoint4')}</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">{t('gaTitle')}</h3>
-                <ul className="text-gray-700 space-y-2 text-sm">
-                  <li>• {t('gaPoint1')}</li>
-                  <li>• {t('gaPoint2')}</li>
-                  <li>• {t('gaPoint3')}</li>
-                  <li>• {t('gaPoint4')}</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">{t('halbtaxPlusTitle')}</h3>
-                <ul className="text-gray-700 space-y-2 text-sm">
-                  <li>• {t('halbtaxPlusPoint1')}</li>
-                  <li>• {t('halbtaxPlusPoint2')}</li>
-                  <li>• {t('halbtaxPlusPoint3')}</li>
-                  <li>• {t('halbtaxPlusPoint4')}</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">{t('individualTitle')}</h3>
-                <ul className="text-gray-700 space-y-2 text-sm">
-                  <li>• {t('individualPoint1')}</li>
-                  <li>• {t('individualPoint2')}</li>
-                  <li>• {t('individualPoint3')}</li>
-                  <li>• {t('individualPoint4')}</li>
-                </ul>
-              </div>
+            <div className="text-gray-700 space-y-4">
+              <p>{t('whatIsPara1')}</p>
+              <p>{t('whatIsPara2')}</p>
             </div>
           </section>
 
@@ -176,39 +128,6 @@ const Info: React.FC<InfoProps> = ({ language, onBack }) => {
             </div>
           </section>
 
-          {/* Who Should Use */}
-          <section className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 border border-blue-200">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              {t('whoShouldUseTitle')}
-            </h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('commutersTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('commutersDescription')}</p>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('studentsTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('studentsDescription')}</p>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('touristsTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('touristsDescription')}</p>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('familiesTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('familiesDescription')}</p>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('businessTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('businessDescription')}</p>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('seniorsTitle')}</h3>
-                <p className="text-gray-700 text-sm">{t('seniorsDescription')}</p>
-              </div>
-            </div>
-          </section>
-
           {/* About Switzerland Transport */}
           <section className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
@@ -239,12 +158,12 @@ const Info: React.FC<InfoProps> = ({ language, onBack }) => {
               <p className="text-gray-600 mb-4">
                 {t('ctaDescription')}
               </p>
-              <button
-                onClick={onBack}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              <Link
+                to="/"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
               >
                 {t('ctaButton')}
-              </button>
+              </Link>
             </div>
           </section>
         </div>

@@ -2077,11 +2077,9 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               })}
               
               {/* Streckenabo cards */}
-              {results.streckenabos.length > 0 && results.streckenabos.map((streckenabo, index) => {
+              {results.streckenabos.filter(s => s.isInValidRange).length > 0 && results.streckenabos.filter(s => s.isInValidRange).map((streckenabo, index) => {
                 const routeIndex = routes.findIndex(r => r.id === streckenabo.route.id) + 1;
-                const statusInfo = !streckenabo.isInValidRange 
-                  ? { badge: t('outsideRange'), badgeColor: 'bg-red-100 text-red-700', cardColor: 'border-red-200 bg-red-50' }
-                  : streckenabo.isWorthwhile 
+                const statusInfo = streckenabo.isWorthwhile
                   ? { badge: t('worthwhile'), badgeColor: 'bg-green-100 text-green-700', cardColor: 'border-purple-200 bg-purple-50' }
                   : { badge: t('notWorthwhile'), badgeColor: 'bg-orange-100 text-orange-700', cardColor: 'border-purple-200 bg-purple-50' };
                 

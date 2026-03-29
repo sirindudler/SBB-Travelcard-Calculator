@@ -13,7 +13,31 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// Umami heartbeat — sends periodic pings so visit duration is tracked accurately.
+// No cookies or personal data involved; fully privacy-compliant.
+(function startHeartbeat() {
+  const INTERVAL_MS = 5_000; // every 5 seconds
+  let timer: ReturnType<typeof setInterval> | null = null;
+
+  function ping() {
+    if (typeof (window as any).umami !== 'undefined') {
+      (window as any).umami.track('heartbeat');
+    }
+  }
+
+  function start() {
+    if (!timer) timer = setInterval(ping, INTERVAL_MS);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? stop() : start();
+  });
+
+  start();
+})();
+
 reportWebVitals();

@@ -12,7 +12,7 @@ import { RouteColorScheme, routeColorSchemes, getColorScheme } from './utils/col
 import { formatCurrency } from './utils/formatters';
 
 // Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ''}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.js`;
 
 // Types for better TypeScript
 type AgeGroup = PricingAgeGroup; // Use the same type from pricing

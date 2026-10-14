@@ -922,7 +922,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
       <header className="bg-sbb-red text-white">
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white text-sbb-red flex items-center justify-center shadow-sm">
+            <div className="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white text-sbb-red flex items-center justify-center shadow-sm">
               <Train className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
             <h1 className="text-base sm:text-2xl font-bold tracking-tight leading-snug">{t('title')}</h1>
@@ -935,7 +935,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               value={language}
               onChange={(e) => setLanguage(e.target.value as Language)}
               aria-label={t('selectLanguage')}
-              className="py-2 pl-3 pr-8 bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg text-sm font-medium text-white transition-colors cursor-pointer [&>option]:text-slate-800"
+              className="w-[104px] sm:w-auto py-2 pl-2.5 sm:pl-3 pr-1 sm:pr-8 bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg text-sm font-medium text-white transition-colors cursor-pointer [&>option]:text-slate-800"
               title={t('selectLanguage')}
             >
               <option value="en">English</option>
@@ -1207,7 +1207,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         type="button"
                         onClick={() => handleCheckSBBPrices(route.from, route.to)}
                         disabled={!route.from?.trim() || !route.to?.trim()}
-                        className={`px-3 py-3 rounded-xl flex items-center gap-2 text-sm font-medium transition-all h-[52px] ${
+                        className={`w-full lg:w-auto justify-center px-3 py-3 rounded-xl flex items-center gap-2 text-sm font-medium transition-all h-[52px] ${
                           route.from?.trim() && route.to?.trim()
                             ? `${route.colorScheme.buttonBg} text-white hover:brightness-110 shadow-sm`
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
@@ -1442,8 +1442,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && (
-                      <span className="text-sm font-medium text-indigo-700">
+                    {typeof additionalBudget === 'number' && additionalBudget > 0 && (
+                      <span className="text-sm font-medium text-indigo-700 tabular whitespace-nowrap">
                         {formatCurrency(additionalBudget)}
                       </span>
                     )}
@@ -2663,14 +2663,14 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         </div>
 
         {/* Separate Creator/Support Section */}
-        <div className="mt-6 px-4 py-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 shadow-lg">
+        <div className="mt-6 px-4 py-6 sm:py-8 bg-white rounded-2xl border border-slate-200 shadow-sm">
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               <div className="text-gray-700 font-medium text-sm sm:text-base">
                 {t('createdBy')} Sirin Dudler
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <a
                   href="https://www.linkedin.com/in/sirindudler/"
                   target="_blank"

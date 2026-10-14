@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks, creatorLinks } from './links';
+import { detectLanguage } from './utils/detectLanguage';
+import { Faq } from './components/Faq';
 import * as pdfjs from 'pdfjs-dist';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -60,29 +61,11 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
   const [age, setAge] = useState<AgeGroup>('erwachsene');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
-  // Detect browser language with English fallback
-  const detectBrowserLanguage = (): Language => {
-    // Get browser language preferences
-    const browserLanguages = navigator.languages || [navigator.language];
-    
-    // Supported languages in your app
-    const supportedLanguages: Language[] = ['en', 'de', 'fr', 'it', 'rm'];
-    
-    for (const browserLang of browserLanguages) {
-      // Extract language code (e.g., 'de-CH' -> 'de')
-      const langCode = browserLang.split('-')[0].toLowerCase() as Language;
-      
-      // Check if we support this language
-      if (supportedLanguages.includes(langCode)) {
-        return langCode;
-      }
-    }
-    
-    // Fallback to English if no supported language found
-    return 'en';
-  };
+  const [language, setLanguage] = useState<Language>(detectLanguage);
 
-  const [language, setLanguage] = useState<Language>(detectBrowserLanguage());
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
   const [hasExistingHalbtax, setHasExistingHalbtax] = useState<boolean>(false);
   const [getFreeHalbtax, setGetFreeHalbtax] = useState<boolean>(false);
@@ -591,13 +574,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
     if (inputMode === 'simple' && routes.length > 0) {
       // Find the longest duration route
       const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+      // Monthly GA has a 6-month minimum contract
+      const billedMonths = Math.max(longestDuration, 6);
       const monthlyGAPrice = getMonthlyGAPrice(age, isFirstClass);
-      const monthlyTotal = monthlyGAPrice * longestDuration;
-      
+      const monthlyTotal = monthlyGAPrice * billedMonths;
+
       // Use monthly pricing if it's cheaper than annual
       if (monthlyTotal < gaPrice) {
         gaTotal = monthlyTotal + additionalPassCosts;
-        gaMonthsUsed = longestDuration;
+        gaMonthsUsed = billedMonths;
         gaIsMonthlyPricing = true;
       }
     }
@@ -1908,6 +1893,25 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               </div>
             </div>
 
+            {/* Slim support strip directly under the savings hero */}
+            {results.noAboTotal - results.bestOption.total > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
+                <span className="text-xs sm:text-sm text-slate-700 text-center sm:text-left">{t('supportStrip')}</span>
+                <a
+                  href={creatorLinks.kofi}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs sm:text-sm rounded-full whitespace-nowrap transition-colors"
+                  data-umami-event="support-click"
+                  data-umami-event-platform="kofi"
+                  data-umami-event-placement="hero"
+                >
+                  <Coffee className="w-4 h-4" />
+                  <span>{t('buyMeACoffee')}</span>
+                </a>
+              </div>
+            )}
+
             {/* Alle Optionen anzeigen */}
             <div className="space-y-3 sm:space-y-4">
               {results.options.map((option, index) => {
@@ -2637,6 +2641,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
           </div>
         )}
 
+        <Faq language={language} />
+
         {/* Footer with disclaimer */}
         <div className="mt-8 mb-4 px-4 py-6 bg-gray-50 rounded-lg border border-gray-200">
           <div className="max-w-4xl mx-auto text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -2756,16 +2762,6 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   <Globe className="w-5 h-5 text-gray-700 hover:text-gray-900" />
                 </a>
                 
-                <RouterLink
-                  to="/info"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
-                  title="Info about Travelcards.ch"
-                  data-umami-event="info-click"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Info</span>
-                </RouterLink>
-
                 <a
                   href="https://ko-fi.com/E1E81JHNXY"
                   target="_blank"

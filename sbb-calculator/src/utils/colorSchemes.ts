@@ -12,10 +12,10 @@ export interface RouteColorScheme {
 
 export const routeColorSchemes: RouteColorScheme[] = [
   {
-    bg: 'from-green-50 to-emerald-50',
-    border: 'border-green-100',
-    border200: 'border-green-200',
-    border300: 'border-green-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-green-800',
     accent: 'text-green-600',
     buttonBg: 'bg-green-500',
@@ -23,10 +23,10 @@ export const routeColorSchemes: RouteColorScheme[] = [
     summaryBg: 'bg-green-100'
   },
   {
-    bg: 'from-blue-50 to-sky-50',
-    border: 'border-blue-100',
-    border200: 'border-blue-200',
-    border300: 'border-blue-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-blue-800',
     accent: 'text-blue-600',
     buttonBg: 'bg-blue-500',
@@ -34,10 +34,10 @@ export const routeColorSchemes: RouteColorScheme[] = [
     summaryBg: 'bg-blue-100'
   },
   {
-    bg: 'from-purple-50 to-violet-50',
-    border: 'border-purple-100',
-    border200: 'border-purple-200',
-    border300: 'border-purple-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-purple-800',
     accent: 'text-purple-600',
     buttonBg: 'bg-purple-500',
@@ -45,10 +45,10 @@ export const routeColorSchemes: RouteColorScheme[] = [
     summaryBg: 'bg-purple-100'
   },
   {
-    bg: 'from-orange-50 to-amber-50',
-    border: 'border-orange-100',
-    border200: 'border-orange-200',
-    border300: 'border-orange-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-orange-800',
     accent: 'text-orange-600',
     buttonBg: 'bg-orange-500',
@@ -56,10 +56,10 @@ export const routeColorSchemes: RouteColorScheme[] = [
     summaryBg: 'bg-orange-100'
   },
   {
-    bg: 'from-pink-50 to-rose-50',
-    border: 'border-pink-100',
-    border200: 'border-pink-200',
-    border300: 'border-pink-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-pink-800',
     accent: 'text-pink-600',
     buttonBg: 'bg-pink-500',
@@ -67,10 +67,10 @@ export const routeColorSchemes: RouteColorScheme[] = [
     summaryBg: 'bg-pink-100'
   },
   {
-    bg: 'from-teal-50 to-cyan-50',
-    border: 'border-teal-100',
-    border200: 'border-teal-200',
-    border300: 'border-teal-300',
+    bg: 'from-white to-slate-50',
+    border: 'border-slate-200',
+    border200: 'border-slate-200',
+    border300: 'border-slate-300',
     text: 'text-teal-800',
     accent: 'text-teal-600',
     buttonBg: 'bg-teal-500',

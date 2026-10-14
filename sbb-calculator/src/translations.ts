@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 export type Language = 'en' | 'de' | 'fr' | 'it' | 'rm';
 
 export interface Translations {
@@ -181,7 +183,11 @@ export const translations: Translations = {
     purchaseRoutePass: "Purchase this route pass",
     annualSubscription: "Annual subscription",
     buyMeACoffee: "Support me with a coffee",
-    createdBy: "Created by"
+    createdBy: "Created by",
+    supportTitle: "Saved money with this free tool?",
+    supportBody: "This calculator is a free side project I build and maintain on my own. If it saved you {amount} a year, a coffee helps keep it running and up to date.",
+    supportLinkedin: "Say hi on LinkedIn",
+    supportWebsite: "My website"
   },
   de: {
     title: "Schweizer Abo-Vergleichsrechner",
@@ -357,7 +363,11 @@ export const translations: Translations = {
     purchaseRoutePass: "Dieses Streckenabo kaufen",
     annualSubscription: "Jahresabo",
     buyMeACoffee: "Unterstütze mich mit einem Kaffee",
-    createdBy: "Erstellt von"
+    createdBy: "Erstellt von",
+    supportTitle: "Geld gespart mit diesem kostenlosen Tool?",
+    supportBody: "Dieser Rechner ist ein kostenloses Nebenprojekt, das ich allein baue und pflege. Wenn er dir {amount} pro Jahr spart, hilft ein Kaffee, ihn aktuell zu halten.",
+    supportLinkedin: "Auf LinkedIn vernetzen",
+    supportWebsite: "Meine Website"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements suisses",
@@ -520,7 +530,11 @@ export const translations: Translations = {
     purchaseRoutePass: "Acheter cet abonnement de parcours",
     annualSubscription: "Abonnement annuel",
     buyMeACoffee: "Soutenez-moi avec un café",
-    createdBy: "Créé par"
+    createdBy: "Créé par",
+    supportTitle: "Vous avez économisé avec cet outil gratuit ?",
+    supportBody: "Ce calculateur est un projet gratuit que je développe et maintiens seul. S'il vous fait économiser {amount} par an, un café aide à le garder à jour.",
+    supportLinkedin: "Se connecter sur LinkedIn",
+    supportWebsite: "Mon site web"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti svizzeri",
@@ -683,7 +697,11 @@ export const translations: Translations = {
     purchaseRoutePass: "Acquista questo abbonamento di tratta",
     annualSubscription: "Abbonamento annuale",
     buyMeACoffee: "Sostienimi con un caffè",
-    createdBy: "Creato da"
+    createdBy: "Creato da",
+    supportTitle: "Hai risparmiato con questo strumento gratuito?",
+    supportBody: "Questo calcolatore è un progetto gratuito che sviluppo e mantengo da solo. Se ti fa risparmiare {amount} all'anno, un caffè aiuta a tenerlo aggiornato.",
+    supportLinkedin: "Collegati su LinkedIn",
+    supportWebsite: "Il mio sito"
   },
   rm: {
     title: "Calculatur da cumparaziun d'abonnamaints viafier",
@@ -841,13 +859,19 @@ export const translations: Translations = {
     purchaseRoutePass: "Cumprar quest abonnament da percurs",
     annualSubscription: "Abonnament annual",
     buyMeACoffee: "Sustegnair mai cun in café",
-    createdBy: "Creà da"
+    createdBy: "Creà da",
+    supportTitle: "Has ti spargnà daners cun quest apparat gratuit?",
+    supportBody: "Quest calculatur è in project gratuit che jau sviluppesch e mantegn persul. Sch'el ta fa spargnar {amount} per onn, gida in café da al tegnair actual.",
+    supportLinkedin: "Colliar sin LinkedIn",
+    supportWebsite: "Mes site"
   }
 };
 
 // Translation helper function
 export const useTranslation = (language: Language) => {
-  return (key: string, params?: Record<string, string | number>) => {
+  // Stable identity per language: callers list `t` in hook dependency arrays,
+  // so a fresh function every render would retrigger effects endlessly.
+  return useCallback((key: string, params?: Record<string, string | number>) => {
     let text = translations[language][key] || key;
     if (params) {
       Object.entries(params).forEach(([param, value]) => {
@@ -855,5 +879,5 @@ export const useTranslation = (language: Language) => {
       });
     }
     return text;
-  };
+  }, [language]);
 };

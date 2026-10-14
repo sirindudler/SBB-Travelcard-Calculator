@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 export type Language = 'en' | 'de' | 'fr' | 'it' | 'rm';
 
 export interface Translations {
@@ -46,6 +48,8 @@ export const translations: Translations = {
     checkSBBPricesTooltip: "Open SBB website to check current prices for this route",
     checkPrice: "Check price",
     price: "Price",
+    lookupPrice: "Look up the price on SBB",
+    lookupPriceHelp: "Enter the two stations and open SBB. SBB shows one-way prices, so use ×2 for the round trip.",
     uploadPdfTitle: "Upload SBB PDF Receipt",
     clickToUploadPdf: "Click to upload PDF",
     priceAlreadyHalbtax: "Price already calculated with Half Fare Travelcard",
@@ -181,7 +185,12 @@ export const translations: Translations = {
     purchaseRoutePass: "Purchase this route pass",
     annualSubscription: "Annual subscription",
     buyMeACoffee: "Support me with a coffee",
-    createdBy: "Created by"
+    createdBy: "Created by",
+    supportStrip: "Free and ad-free. Did this comparison help you?",
+    supportTitle: "Saved money with this free tool?",
+    supportBody: "This calculator is a free side project I build and maintain on my own. If it saved you {amount} a year, a coffee helps keep it running and up to date.",
+    supportLinkedin: "Say hi on LinkedIn",
+    supportWebsite: "My website"
   },
   de: {
     title: "Schweizer Abo-Vergleichsrechner",
@@ -222,6 +231,8 @@ export const translations: Translations = {
     checkSBBPricesTooltip: "SBB-Website öffnen um aktuelle Preise für diese Strecke zu prüfen",
     checkPrice: "Preis prüfen",
     price: "Preis",
+    lookupPrice: "Preis bei der SBB nachschlagen",
+    lookupPriceHelp: "Beide Bahnhöfe eingeben und die SBB öffnen. Die SBB zeigt Preise für die einfache Fahrt – mit ×2 wird daraus Hin- und Rückfahrt.",
     uploadPdfTitle: "SBB-PDF-Beleg hochladen",
     clickToUploadPdf: "Klicken zum Hochladen der PDF",
     priceAlreadyHalbtax: "Preis bereits mit Halbtax berechnet",
@@ -357,7 +368,12 @@ export const translations: Translations = {
     purchaseRoutePass: "Dieses Streckenabo kaufen",
     annualSubscription: "Jahresabo",
     buyMeACoffee: "Unterstütze mich mit einem Kaffee",
-    createdBy: "Erstellt von"
+    createdBy: "Erstellt von",
+    supportStrip: "Kostenlos und ohne Werbung. Hat dir der Vergleich geholfen?",
+    supportTitle: "Geld gespart mit diesem kostenlosen Tool?",
+    supportBody: "Dieser Rechner ist ein kostenloses Nebenprojekt, das ich allein baue und pflege. Wenn er dir {amount} pro Jahr spart, hilft ein Kaffee, ihn aktuell zu halten.",
+    supportLinkedin: "Auf LinkedIn vernetzen",
+    supportWebsite: "Meine Website"
   },
   fr: {
     title: "Calculateur de comparaison d'abonnements suisses",
@@ -398,6 +414,8 @@ export const translations: Translations = {
     checkSBBPricesTooltip: "Ouvrir le site CFF pour vérifier les prix actuels de ce trajet",
     checkPrice: "Vérifier prix",
     price: "Prix",
+    lookupPrice: "Consulter le prix sur CFF",
+    lookupPriceHelp: "Saisir les deux gares et ouvrir les CFF. Les CFF affichent le prix d'un aller simple : utiliser ×2 pour l'aller-retour.",
     uploadPdfTitle: "Télécharger reçu PDF CFF",
     clickToUploadPdf: "Cliquer pour télécharger PDF",
     priceAlreadyHalbtax: "Prix déjà calculé avec Demi-tarif",
@@ -520,7 +538,12 @@ export const translations: Translations = {
     purchaseRoutePass: "Acheter cet abonnement de parcours",
     annualSubscription: "Abonnement annuel",
     buyMeACoffee: "Soutenez-moi avec un café",
-    createdBy: "Créé par"
+    createdBy: "Créé par",
+    supportStrip: "Gratuit et sans publicité. Cette comparaison vous a aidé ?",
+    supportTitle: "Vous avez économisé avec cet outil gratuit ?",
+    supportBody: "Ce calculateur est un projet gratuit que je développe et maintiens seul. S'il vous fait économiser {amount} par an, un café aide à le garder à jour.",
+    supportLinkedin: "Se connecter sur LinkedIn",
+    supportWebsite: "Mon site web"
   },
   it: {
     title: "Calcolatore di confronto abbonamenti svizzeri",
@@ -561,6 +584,8 @@ export const translations: Translations = {
     checkSBBPricesTooltip: "Aprire il sito FFS per verificare i prezzi attuali di questa tratta",
     checkPrice: "Verifica prezzo",
     price: "Prezzo",
+    lookupPrice: "Consultare il prezzo sulle FFS",
+    lookupPriceHelp: "Inserire le due stazioni e aprire le FFS. Le FFS mostrano il prezzo della sola andata: usare ×2 per andata e ritorno.",
     uploadPdfTitle: "Carica ricevuta PDF FFS",
     clickToUploadPdf: "Clicca per caricare PDF",
     priceAlreadyHalbtax: "Prezzo già calcolato con Metà-prezzo",
@@ -683,7 +708,12 @@ export const translations: Translations = {
     purchaseRoutePass: "Acquista questo abbonamento di tratta",
     annualSubscription: "Abbonamento annuale",
     buyMeACoffee: "Sostienimi con un caffè",
-    createdBy: "Creato da"
+    createdBy: "Creato da",
+    supportStrip: "Gratuito e senza pubblicità. Il confronto ti è stato utile?",
+    supportTitle: "Hai risparmiato con questo strumento gratuito?",
+    supportBody: "Questo calcolatore è un progetto gratuito che sviluppo e mantengo da solo. Se ti fa risparmiare {amount} all'anno, un caffè aiuta a tenerlo aggiornato.",
+    supportLinkedin: "Collegati su LinkedIn",
+    supportWebsite: "Il mio sito"
   },
   rm: {
     title: "Calculatur da cumparaziun d'abonnamaints viafier",
@@ -721,6 +751,10 @@ export const translations: Translations = {
     checkSBBPricesTooltip: "Avrir website da VFF per controllar pretschs actuals per questa rutta",
     checkPrice: "Controllar pretsch",
     price: "Pretsch",
+    lookupPrice: "Tschertgar il pretsch tar la VFF",
+    lookupPriceHelp: "Endatar las duas staziuns ed avrir la VFF. La VFF mussa pretschs d'andata simpla: duplitgar cun ×2 per andar e turnar.",
+    fromStation: "Da (andar e turnar)",
+    toStation: "A (andar e turnar)",
     uploadPdfTitle: "Chargiar quitanza PDF VFF",
     clickToUploadPdf: "Cliccar per chargiar PDF",
     priceAlreadyHalbtax: "Pretsch gia calculà cun bigliet da mesa taxa",
@@ -841,13 +875,20 @@ export const translations: Translations = {
     purchaseRoutePass: "Cumprar quest abonnament da percurs",
     annualSubscription: "Abonnament annual",
     buyMeACoffee: "Sustegnair mai cun in café",
-    createdBy: "Creà da"
+    createdBy: "Creà da",
+    supportStrip: "Gratuit e senza reclama. Ta ha la cumparegliaziun gidà?",
+    supportTitle: "Has ti spargnà daners cun quest apparat gratuit?",
+    supportBody: "Quest calculatur è in project gratuit che jau sviluppesch e mantegn persul. Sch'el ta fa spargnar {amount} per onn, gida in café da al tegnair actual.",
+    supportLinkedin: "Colliar sin LinkedIn",
+    supportWebsite: "Mes site"
   }
 };
 
 // Translation helper function
 export const useTranslation = (language: Language) => {
-  return (key: string, params?: Record<string, string | number>) => {
+  // Stable identity per language: callers list `t` in hook dependency arrays,
+  // so a fresh function every render would retrigger effects endlessly.
+  return useCallback((key: string, params?: Record<string, string | number>) => {
     let text = translations[language][key] || key;
     if (params) {
       Object.entries(params).forEach(([param, value]) => {
@@ -855,5 +896,5 @@ export const useTranslation = (language: Language) => {
       });
     }
     return text;
-  };
+  }, [language]);
 };

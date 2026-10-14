@@ -14,6 +14,12 @@ export const defaultLinks: PurchaseLinks = {
   myride: 'https://myride.ch'
 };
 
+export const creatorLinks = {
+  linkedin: 'https://www.linkedin.com/in/sirindudler/',
+  kofi: 'https://ko-fi.com/E1E81JHNXY',
+  website: 'https://sirindudler.ch'
+};
+
 export const getStoredLinks = (): PurchaseLinks => {
   const stored = localStorage.getItem('purchaseLinks');
   if (stored) {

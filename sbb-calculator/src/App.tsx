@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
-import { PurchaseLinks, getStoredLinks } from './links';
+import { PurchaseLinks, getStoredLinks, creatorLinks } from './links';
+import { detectLanguage } from './utils/detectLanguage';
+import { Faq } from './components/Faq';
 import * as pdfjs from 'pdfjs-dist';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -60,29 +61,11 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
   const [age, setAge] = useState<AgeGroup>('erwachsene');
   const [inputMode, setInputMode] = useState<InputMode>('simple');
-  // Detect browser language with English fallback
-  const detectBrowserLanguage = (): Language => {
-    // Get browser language preferences
-    const browserLanguages = navigator.languages || [navigator.language];
-    
-    // Supported languages in your app
-    const supportedLanguages: Language[] = ['en', 'de', 'fr', 'it', 'rm'];
-    
-    for (const browserLang of browserLanguages) {
-      // Extract language code (e.g., 'de-CH' -> 'de')
-      const langCode = browserLang.split('-')[0].toLowerCase() as Language;
-      
-      // Check if we support this language
-      if (supportedLanguages.includes(langCode)) {
-        return langCode;
-      }
-    }
-    
-    // Fallback to English if no supported language found
-    return 'en';
-  };
+  const [language, setLanguage] = useState<Language>(detectLanguage);
 
-  const [language, setLanguage] = useState<Language>(detectBrowserLanguage());
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
   const [isFirstClass, setIsFirstClass] = useState<boolean>(false);
   const [hasExistingHalbtax, setHasExistingHalbtax] = useState<boolean>(false);
   const [getFreeHalbtax, setGetFreeHalbtax] = useState<boolean>(false);
@@ -92,6 +75,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
   const [allowHalbtaxPlusReload, setAllowHalbtaxPlusReload] = useState<boolean>(true);
   const [purchaseLinks, setPurchaseLinks] = useState<PurchaseLinks>(() => getStoredLinks());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [resultsInView, setResultsInView] = useState<boolean>(false);
+  const [lookupOpenIds, setLookupOpenIds] = useState<Set<number>>(new Set());
+  const toggleLookup = useCallback((routeId: number) => {
+    setLookupOpenIds(prev => {
+      const next = new Set(prev);
+      next.has(routeId) ? next.delete(routeId) : next.add(routeId);
+      return next;
+    });
+  }, []);
   const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] = useState<boolean>(false);
   
   // Simple input - Strecken (Array)
@@ -582,13 +574,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
     if (inputMode === 'simple' && routes.length > 0) {
       // Find the longest duration route
       const longestDuration = Math.max(...routes.map(route => route.durationMonths));
+      // Monthly GA has a 6-month minimum contract
+      const billedMonths = Math.max(longestDuration, 6);
       const monthlyGAPrice = getMonthlyGAPrice(age, isFirstClass);
-      const monthlyTotal = monthlyGAPrice * longestDuration;
-      
+      const monthlyTotal = monthlyGAPrice * billedMonths;
+
       // Use monthly pricing if it's cheaper than annual
       if (monthlyTotal < gaPrice) {
         gaTotal = monthlyTotal + additionalPassCosts;
-        gaMonthsUsed = longestDuration;
+        gaMonthsUsed = billedMonths;
         gaIsMonthlyPricing = true;
       }
     }
@@ -797,6 +791,23 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
     calculate();
   }, [calculate]);
 
+  // Track whether the results are on screen so the mobile summary bar can hide itself
+  const hasResults = results !== null;
+  useEffect(() => {
+    const el = document.querySelector('[data-results-section]');
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setResultsInView(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasResults, inputMode]);
+
+  const scrollToResults = useCallback(() => {
+    document.querySelector('[data-results-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
   // Initialize purchase links on mount
   useEffect(() => {
     const links = getStoredLinks();
@@ -865,33 +876,13 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
     }
   }, [generateSBBUrl]);
 
-  const getOptionColor = useCallback((option: any, bestOptionTotal: number): string => {
-    if (option.total === bestOptionTotal) {
-      return 'bg-green-50 border-green-200 text-green-800';
-    }
-    
-    // Calculate percentage increase from best option
-    const percentageIncrease = ((option.total - bestOptionTotal) / bestOptionTotal) * 100;
-    
-    if (percentageIncrease <= 5) {
-      // 0-5% more expensive: Light green (very good)
-      return 'bg-green-50 border-green-200 text-green-800';
-    } else if (percentageIncrease <= 15) {
-      // 5-15% more expensive: Yellow-green (good)
-      return 'bg-lime-50 border-lime-200 text-lime-800';
-    } else if (percentageIncrease <= 30) {
-      // 15-30% more expensive: Yellow (okay)
-      return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-    } else if (percentageIncrease <= 50) {
-      // 30-50% more expensive: Orange (not great)
-      return 'bg-orange-50 border-orange-200 text-orange-800';
-    } else if (percentageIncrease <= 75) {
-      // 50-75% more expensive: Red-orange (bad)
-      return 'bg-red-50 border-red-200 text-red-800';
-    } else {
-      // 75%+ more expensive: Dark red (very bad)
-      return 'bg-red-100 border-red-300 text-red-900';
-    }
+  // Bar colour encodes how much more expensive an option is than the best one.
+  const getOptionBarColor = useCallback((total: number, bestOptionTotal: number): string => {
+    const increase = bestOptionTotal > 0 ? ((total - bestOptionTotal) / bestOptionTotal) * 100 : 0;
+    if (increase <= 5) return 'bg-emerald-500';
+    if (increase <= 30) return 'bg-amber-400';
+    if (increase <= 75) return 'bg-orange-500';
+    return 'bg-red-500';
   }, []);
 
   return (
@@ -939,52 +930,51 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
           }
         `}
       </style>
-      <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="absolute inset-0 bg-red-600 rounded-full blur-sm opacity-20"></div>
-            <div className="relative bg-gradient-to-br from-red-500 to-red-700 p-2 rounded-full shadow-lg">
-              <Train className="w-6 h-6 text-white drop-shadow-sm" />
+      <header className="bg-sbb-red text-white">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white text-sbb-red flex items-center justify-center shadow-sm">
+              <Train className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
+            <h1 className="text-base sm:text-2xl font-bold tracking-tight leading-snug">{t('title')}</h1>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">{t('title')}</h1>
-        </div>
-        
-        {/* Language Selector */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <Globe className="w-4 h-4 text-gray-600" />
-          <select 
-            value={language} 
-            onChange={(e) => setLanguage(e.target.value as Language)}
-            className="p-2 sm:p-3 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors min-w-[120px]"
-            title={t('selectLanguage')}
-          >
-            <option value="en">English</option>
-            <option value="de">Deutsch</option>
-            <option value="fr">Français</option>
-            <option value="it">Italiano</option>
-            <option value="rm">Rumantsch</option>
-          </select>
-        </div>
-      </div>
 
+          {/* Language Selector */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Globe className="w-4 h-4 text-white/80 hidden sm:block" aria-hidden="true" />
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as Language)}
+              aria-label={t('selectLanguage')}
+              className="w-[104px] sm:w-auto py-2 pl-2.5 sm:pl-3 pr-1 sm:pr-8 bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg text-sm font-medium text-white transition-colors cursor-pointer [&>option]:text-slate-800"
+              title={t('selectLanguage')}
+            >
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="fr">Français</option>
+              <option value="it">Italiano</option>
+              <option value="rm">Rumantsch</option>
+            </select>
+          </div>
+        </div>
+      </header>
 
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 sm:pb-8">
       <div className="space-y-6 sm:space-y-8 pb-8">
         {/* Passenger Category and Travel Class */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                <label className="text-base sm:text-lg font-semibold text-blue-900">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
                   {t('ageGroup')}
                 </label>
               </div>
               <select 
                 value={age} 
                 onChange={(e) => setAge(e.target.value as AgeGroup)}
-                className="w-full p-3 sm:p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300 text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sbb-red/30 focus:border-sbb-red bg-white text-slate-800 font-medium transition-all hover:border-slate-400 text-sm sm:text-base"
               >
                 <option value="kind">{t('child')}</option>
                 <option value="jugend">{t('youth')}</option>
@@ -996,15 +986,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                <label className="text-base sm:text-lg font-semibold text-blue-900">
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
+                <label className="text-sm sm:text-base font-semibold text-slate-900">
                   {t('travelClass')}
                 </label>
               </div>
               <select 
                 value={isFirstClass ? 'first' : 'second'} 
                 onChange={(e) => setIsFirstClass(e.target.value === 'first')}
-                className="w-full p-3 sm:p-4 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-gray-800 font-medium transition-all hover:border-blue-300 text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sbb-red/30 focus:border-sbb-red bg-white text-slate-800 font-medium transition-all hover:border-slate-400 text-sm sm:text-base"
               >
                 <option value="second">
                   {t('secondClass')}
@@ -1017,10 +1007,10 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
           </div>
 
           {/* Additional Halbtax Settings and Subscriptions */}
-          <div className="mt-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border-2 border-gray-200 shadow-sm">
+          <div className="mt-4 bg-slate-50 rounded-xl border border-slate-200">
             <button
               onClick={() => setIsHalbtaxSettingsExpanded(!isHalbtaxSettingsExpanded)}
-              className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100/50 rounded-xl transition-all"
+              className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-slate-100 rounded-xl transition-colors"
             >
               <div className="flex items-center gap-2 sm:gap-3">
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
@@ -1028,7 +1018,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   {t('halbtaxSettingsTitle')}
                 </span>
                 {(hasExistingHalbtax || getFreeHalbtax || hasHundePass || hasVeloPass) && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                  <span className="px-2 py-0.5 bg-sbb-red text-white rounded-full text-xs font-semibold">
                     {[hasExistingHalbtax, getFreeHalbtax, hasHundePass, hasVeloPass].filter(Boolean).length}
                   </span>
                 )}
@@ -1046,18 +1036,18 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   {/* Existing Halbtax Checkbox */}
-                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-blue-300 shadow-sm">
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
                     <div className="flex items-center gap-2 sm:gap-3 w-full">
                       <input
                         type="checkbox"
                         id="existing-halbtax"
                         checked={hasExistingHalbtax}
                         onChange={(e) => setHasExistingHalbtax(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-2 border-blue-400 rounded-md focus:ring-blue-500 transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
                         disabled={getFreeHalbtax}
                       />
                       <label htmlFor="existing-halbtax" className={`text-xs sm:text-sm font-medium cursor-pointer flex-1 ${
-                        getFreeHalbtax ? 'text-blue-400' : 'text-blue-800'
+                        getFreeHalbtax ? 'text-slate-400' : 'text-slate-800'
                       }`}>
                         <span className="flex items-center gap-2">
                           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1068,7 +1058,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   </div>
                   
                   {/* Free Halbtax Checkbox */}
-                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-green-300 shadow-sm">
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
                     <div className="flex items-center gap-2 sm:gap-3 w-full">
                       <input
                         type="checkbox"
@@ -1080,9 +1070,9 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                             setHasExistingHalbtax(false);
                           }
                         }}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 border-2 border-green-400 rounded-md focus:ring-green-500 transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
                       />
-                      <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-green-800 cursor-pointer flex-1">
+                      <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
                           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span className="text-xs sm:text-sm">{t('getFreeHalbtax')}</span>
@@ -1092,16 +1082,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   </div>
                   
                   {/* Hunde-Pass Checkbox */}
-                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-amber-300 shadow-sm">
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
                     <div className="flex items-center gap-2 sm:gap-3 w-full">
                       <input
                         type="checkbox"
                         id="hunde-pass"
                         checked={hasHundePass}
                         onChange={(e) => setHasHundePass(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 border-2 border-amber-400 rounded-md focus:ring-amber-500 transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
                       />
-                      <label htmlFor="hunde-pass" className="text-xs sm:text-sm font-medium text-amber-800 cursor-pointer flex-1">
+                      <label htmlFor="hunde-pass" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
                           <span className="text-xs sm:text-sm">{t('hundePass')} (CHF 350)</span>
                         </span>
@@ -1110,16 +1100,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   </div>
                   
                   {/* Velo-Pass Checkbox */}
-                  <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-purple-300 shadow-sm">
+                  <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
                     <div className="flex items-center gap-2 sm:gap-3 w-full">
                       <input
                         type="checkbox"
                         id="velo-pass"
                         checked={hasVeloPass}
                         onChange={(e) => setHasVeloPass(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 border-2 border-purple-400 rounded-md focus:ring-purple-500 transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
                       />
-                      <label htmlFor="velo-pass" className="text-xs sm:text-sm font-medium text-purple-800 cursor-pointer flex-1">
+                      <label htmlFor="velo-pass" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
                           <span className="text-xs sm:text-sm">{t('veloPass')} (CHF 260)</span>
                         </span>
@@ -1133,57 +1123,41 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         </div>
 
         {/* Eingabemodus Toggle */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            <label className="text-base sm:text-lg font-semibold text-blue-900">
+            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
+            <label className="text-sm sm:text-base font-semibold text-slate-900">
               {t('costEstimation')}
             </label>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2 mb-4 sm:mb-6">
-            <button
-              onClick={() => setInputMode('simple')}
-              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
-                inputMode === 'simple' 
-                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
-              }`}
-            >
-              <MapPin className="w-4 h-4 flex-shrink-0" />
-              {inputMode === 'simple' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
-              <span className="font-medium">{t('simpleInput')}</span>
-            </button>
-            <button
-              onClick={() => setInputMode('direct')}
-              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
-                inputMode === 'direct' 
-                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
-              }`}
-            >
-              <Banknote className="w-4 h-4 flex-shrink-0" />
-              {inputMode === 'direct' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
-              <span className="font-medium">{t('directInput')}</span>
-            </button>
-            <button
-              onClick={() => setInputMode('pdf')}
-              className={`flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all transform hover:scale-105 active:scale-95 min-h-[48px] text-sm sm:text-base ${
-                inputMode === 'pdf' 
-                  ? 'bg-blue-100 border-blue-300 text-blue-800 shadow-md' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-blue-200'
-              }`}
-            >
-              <FileText className="w-4 h-4 flex-shrink-0" />
-              {inputMode === 'pdf' ? <ToggleRight className="w-4 h-4 flex-shrink-0" /> : <ToggleLeft className="w-4 h-4 flex-shrink-0" />}
-              <span className="font-medium">{t('pdfInput')}</span>
-            </button>
+          <div role="tablist" className="flex flex-row p-1 gap-1 bg-slate-100 rounded-xl mb-4 sm:mb-6 sm:w-fit">
+            {([
+              ['simple', MapPin, 'simpleInput'],
+              ['direct', Banknote, 'directInput'],
+              ['pdf', FileText, 'pdfInput'],
+            ] as const).map(([mode, Icon, label]) => (
+              <button
+                key={mode}
+                role="tab"
+                aria-selected={inputMode === mode}
+                onClick={() => setInputMode(mode)}
+                className={`flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg transition-all min-h-[52px] sm:min-h-[44px] text-xs sm:text-sm font-semibold leading-tight text-center ${
+                  inputMode === mode
+                    ? 'bg-white text-sbb-red shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                <span>{t(label)}</span>
+              </button>
+            ))}
           </div>
 
           {inputMode === 'simple' ? (
             <div className="space-y-4">
               {/* Dynamische Strecken */}
               {routes.map((route, index) => (
-                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-4 sm:p-6 rounded-xl border-2 ${route.colorScheme.border} shadow-sm hover:shadow-md transition-all`}>
+                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-4 sm:p-6 rounded-xl border ${route.colorScheme.border} shadow-sm hover:shadow-md transition-shadow`}>
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className={`w-7 h-7 sm:w-8 sm:h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm`}>
@@ -1195,7 +1169,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           type="text"
                           value={route.name}
                           onChange={(e) => updateRoute(route.id, 'name', e.target.value)}
-                          className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} hover:${route.colorScheme.border300} focus:border-solid focus:${route.colorScheme.focusRing} outline-none font-semibold ${route.colorScheme.text} text-base sm:text-lg placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
+                          className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} focus:border-solid outline-none font-semibold ${route.colorScheme.text} text-base sm:text-lg placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
                           placeholder={`${t('route')} ${index + 1}`}
                         />
                       </div>
@@ -1211,53 +1185,6 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     )}
                   </div>
 
-                  {/* From/To Station Inputs */}
-                  <div className="grid grid-cols-1 lg:grid-cols-[42.5%_42.5%_15%] gap-4 mb-4 items-end">
-                    <div>
-                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
-                        <Train className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {t('fromStation')}
-                      </label>
-                      <input 
-                        type="text" 
-                        value={route.from || ''}
-                        onChange={(e) => updateRoute(route.id, 'from', e.target.value)}
-                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                        placeholder="e.g. Zürich HB"
-                      />
-                    </div>
-                    <div>
-                      <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
-                        <Train className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {t('toStation')}
-                      </label>
-                      <input 
-                        type="text" 
-                        value={route.to || ''}
-                        onChange={(e) => updateRoute(route.id, 'to', e.target.value)}
-                        className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
-                        placeholder="e.g. Bern"
-                      />
-                    </div>
-                    <div className="flex justify-center lg:justify-start">
-                      <button
-                        type="button"
-                        onClick={() => handleCheckSBBPrices(route.from, route.to)}
-                        disabled={!route.from?.trim() || !route.to?.trim()}
-                        className={`px-3 py-3 rounded-xl flex items-center gap-2 text-sm font-medium transition-all h-[52px] ${
-                          route.from?.trim() && route.to?.trim()
-                            ? `${route.colorScheme.buttonBg} text-white hover:brightness-110 shadow-sm`
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                        title={route.from?.trim() && route.to?.trim() ? t('checkSBBPricesTooltip') : 'Fill in both stations to check prices'}
-                      >
-                        <Search className="w-4 h-4" />
-                        <span className="hidden sm:inline">{t('checkPrice')}</span>
-                        <span className="sm:hidden">{t('price')}</span>
-                      </button>
-                    </div>
-                  </div>
-                  
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 items-stretch">
                     <div className="relative h-full flex flex-col justify-between">
                       <div>
@@ -1270,7 +1197,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           value={route.trips || ''}
                           onChange={(e) => updateRoute(route.id, 'trips', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                           onWheel={(e) => e.currentTarget.blur()}
-                          className={`w-full px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                          inputMode="decimal"
+                          className={`w-full px-3 sm:px-4 py-3 border ${route.colorScheme.border300} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white transition-all text-sm sm:text-base`}
                           placeholder={t('placeholderTrips')}
                           step="0.5"
                           min="0"
@@ -1321,7 +1249,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                             value={route.cost || ''}
                             onChange={(e) => updateRoute(route.id, 'cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                             onWheel={(e) => e.currentTarget.blur()}
-                            className={`w-full pl-11 sm:pl-12 pr-20 sm:pr-24 py-3 border-2 ${route.colorScheme.border200} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white shadow-sm transition-all hover:${route.colorScheme.border300} text-sm sm:text-base`}
+                            inputMode="decimal"
+                            className={`w-full pl-11 sm:pl-12 pr-20 sm:pr-24 py-3 border ${route.colorScheme.border300} rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white transition-all text-sm sm:text-base`}
                           placeholder={t('placeholderCost')}
                           step="0.10"
                           min="0"
@@ -1362,6 +1291,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         <span>ℹ️</span>
                         <span className="text-xs">{t('costPerTripHelp')}</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleLookup(route.id)}
+                        aria-expanded={lookupOpenIds.has(route.id)}
+                        className={`mt-2 inline-flex items-center gap-1.5 self-start text-xs sm:text-sm font-medium underline underline-offset-2 decoration-dotted ${route.colorScheme.accent} hover:brightness-75 min-h-[32px]`}
+                      >
+                        <Search className="w-3.5 h-3.5" aria-hidden="true" />
+                        {t('lookupPrice')}
+                        {lookupOpenIds.has(route.id) ? <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />}
+                      </button>
                     </div>
                     <div className="relative h-full flex flex-col justify-between">
                       <label className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${route.colorScheme.text} mb-2 sm:mb-3`}>
@@ -1398,12 +1337,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         />
                         
                         {/* Month Labels */}
-                        <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
-                          <span>1</span>
-                          <span>3</span>
-                          <span>6</span>
-                          <span>9</span>
-                          <span>12</span>
+                        <div className="relative h-4 mt-1 text-xs text-slate-400 tabular" aria-hidden="true">
+                          {[1, 3, 6, 9, 12].map((m) => (
+                            <span
+                              key={m}
+                              className="absolute -translate-x-1/2"
+                              style={{ left: `calc(10px + (100% - 20px) * ${(m - 1) / 11})` }}
+                            >
+                              {m}
+                            </span>
+                          ))}
                         </div>
                       </div>
                       <div className={`text-xs ${route.colorScheme.accent} mt-1 sm:mt-2 flex items-center gap-1`}>
@@ -1413,6 +1356,60 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     </div>
                   </div>
 
+
+                  {/* Optional: look up the price on sbb.ch (collapsed by default) */}
+                  {lookupOpenIds.has(route.id) && (
+                    <div className="mb-4 p-3 sm:p-4 rounded-xl bg-white/80 border border-slate-200">
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_auto] gap-3 sm:gap-4 items-end">
+                        <div>
+                          <label htmlFor={`from-${route.id}`} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 mb-2">
+                            <Train className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
+                            {t('fromStation')}
+                          </label>
+                          <input
+                            id={`from-${route.id}`}
+                            type="text"
+                            value={route.from || ''}
+                            onChange={(e) => updateRoute(route.id, 'from', e.target.value)}
+                            className={`w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white transition-all text-sm sm:text-base`}
+                            placeholder="e.g. Zürich HB"
+                            autoComplete="off"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor={`to-${route.id}`} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 mb-2">
+                            <Train className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
+                            {t('toStation')}
+                          </label>
+                          <input
+                            id={`to-${route.id}`}
+                            type="text"
+                            value={route.to || ''}
+                            onChange={(e) => updateRoute(route.id, 'to', e.target.value)}
+                            className={`w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 ${route.colorScheme.focusRing} bg-white transition-all text-sm sm:text-base`}
+                            placeholder="e.g. Bern"
+                            autoComplete="off"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCheckSBBPrices(route.from, route.to)}
+                          disabled={!route.from?.trim() || !route.to?.trim()}
+                          className={`w-full lg:w-auto justify-center px-4 py-3 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all h-[50px] ${
+                            route.from?.trim() && route.to?.trim()
+                              ? 'bg-slate-900 text-white hover:bg-slate-700 shadow-sm'
+                              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                          }`}
+                          title={t('checkSBBPricesTooltip')}
+                        >
+                          <Search className="w-4 h-4" aria-hidden="true" />
+                          <span>{t('checkPrice')}</span>
+                          <ExternalLink className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
+                        </button>
+                      </div>
+                      <p className="mt-3 text-xs text-slate-500">{t('lookupPriceHelp')}</p>
+                    </div>
+                  )}
 
                   {/* GA Night Checkbox - only show if eligible */}
                   {isGANightEligible(age, isFirstClass) && (
@@ -1455,16 +1452,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               {/* Strecke hinzufügen Button */}
               <button
                 onClick={addRoute}
-                className="w-full p-3 sm:p-4 border-2 border-dashed border-green-300 rounded-xl text-green-700 hover:border-green-500 hover:text-green-800 hover:bg-green-50 flex items-center justify-center gap-2 sm:gap-3 transition-all transform hover:scale-105 shadow-sm hover:shadow-md min-h-[48px] text-sm sm:text-base"
+                className="w-full p-3 sm:p-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-sbb-red hover:text-sbb-red hover:bg-sbb-tint flex items-center justify-center gap-2 sm:gap-3 transition-colors min-h-[48px] text-sm sm:text-base"
               >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 text-white rounded-full flex items-center justify-center">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-sbb-red text-white rounded-full flex items-center justify-center">
                   <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <span className="font-semibold">{t('addRoute')}</span>
               </button>
 
               {/* Additional Travel Budget Section */}
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border-2 border-indigo-200 shadow-sm">
+              <div className="bg-white rounded-xl border border-slate-200">
                 <button
                   onClick={() => setAdditionalBudgetExpanded(!additionalBudgetExpanded)}
                   className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-blue-50/50 transition-all rounded-xl"
@@ -1479,8 +1476,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {additionalBudget && typeof additionalBudget === 'number' && additionalBudget > 0 && (
-                      <span className="text-sm font-medium text-indigo-700">
+                    {typeof additionalBudget === 'number' && additionalBudget > 0 && (
+                      <span className="text-sm font-medium text-indigo-700 tabular whitespace-nowrap">
                         {formatCurrency(additionalBudget)}
                       </span>
                     )}
@@ -1598,12 +1595,12 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               </div>
 
               {/* Gesamtkosten Anzeige */}
-              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 sm:p-5 rounded-xl border-2 border-amber-200 shadow-sm">
+              <div className="bg-slate-900 text-white p-4 sm:p-5 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 text-white rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-sbb-red text-white rounded-full flex items-center justify-center">
                     <Calculator className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
-                  <span className="font-bold text-amber-900 text-base sm:text-lg">
+                  <span className="font-bold text-white text-base sm:text-lg tabular">
                     {t('totalTravelCosts', { cost: formatCurrency((() => {
                       const routesCost = routes.reduce((total, route) => {
                         const trips = typeof route.trips === 'number' ? route.trips : 0;
@@ -1652,7 +1649,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               </div>
             </div>
           ) : inputMode === 'direct' ? (
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 sm:p-6 rounded-xl border-2 border-orange-200 shadow-sm">
+            <div className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <Banknote className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                 <label className="text-base sm:text-lg font-semibold text-orange-900">
@@ -1691,7 +1688,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               </div>
             </div>
           ) : inputMode === 'pdf' ? (
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-6 rounded-xl border-2 border-purple-200 shadow-sm">
+            <div className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 <label className="text-base sm:text-lg font-semibold text-purple-900">
@@ -1822,16 +1819,16 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 )}
 
                 {/* Halbtax Checkbox */}
-                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-purple-300 shadow-sm">
+                <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <input
                       type="checkbox"
                       id="pdf-halbtax"
                       checked={pdfIsHalbtaxPrice}
                       onChange={(e) => setPdfIsHalbtaxPrice(e.target.checked)}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 border-2 border-purple-400 rounded-md focus:ring-purple-500 transition-all"
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
                     />
-                    <label htmlFor="pdf-halbtax" className="text-xs sm:text-sm font-medium text-purple-800 cursor-pointer flex-1">
+                    <label htmlFor="pdf-halbtax" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                       <span className="flex items-center gap-2">
                         <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">{t('pdfAlreadyHalbtax')}</span>
@@ -1846,25 +1843,25 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
         {/* Ergebnisse */}
         {results && (
-          <div data-results-section className="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div data-results-section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-2">
-                <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 leading-tight">
+                <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight">
                   {t('costComparison', { cost: formatCurrency(results.yearlySpendingFull) })}
                 </h2>
               </div>
               
               {/* Halbtax PLUS Reload Toggle */}
               {results.halbtaxPlusOptions.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-2 rounded-lg border border-gray-200 w-full lg:w-auto">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-slate-50 px-3 sm:px-4 py-2 rounded-lg border border-slate-200 w-full lg:w-auto">
                   <span className="text-xs sm:text-sm font-medium text-gray-700">{t('halbtaxPlusReload')}</span>
                   <button
                     onClick={() => setAllowHalbtaxPlusReload(!allowHalbtaxPlusReload)}
                     className={`flex items-center gap-2 px-3 py-1 rounded-md text-xs sm:text-sm font-medium transition-all min-h-[36px] ${
                       allowHalbtaxPlusReload 
-                        ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                        : 'bg-gray-100 text-gray-600 border border-gray-200'
+                        ? 'bg-sbb-red text-white border border-sbb-red' 
+                        : 'bg-white text-slate-600 border border-slate-300'
                     }`}
                   >
                     {allowHalbtaxPlusReload ? <ToggleRight className="w-3 h-3 sm:w-4 sm:h-4" /> : <ToggleLeft className="w-3 h-3 sm:w-4 sm:h-4" />}
@@ -1874,6 +1871,47 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               )}
             </div>
 
+            {/* Best option hero */}
+            <div className="relative overflow-hidden rounded-2xl bg-slate-900 text-white p-5 sm:p-7">
+              <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-sbb-red/30 blur-2xl" aria-hidden="true"></div>
+              <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-2">
+                    <Star className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
+                    {t('bestOption')}
+                  </div>
+                  <div className="text-xl sm:text-3xl font-bold leading-tight break-words">{results.bestOption.name}</div>
+                </div>
+                <div className="sm:text-right flex-shrink-0">
+                  <div className="text-3xl sm:text-5xl font-extrabold tabular tracking-tight">{formatCurrency(results.bestOption.total)}</div>
+                  {results.noAboTotal > results.bestOption.total && (
+                    <div className="mt-1 text-sm font-medium text-emerald-300 tabular">
+                      −{formatCurrency(results.noAboTotal - results.bestOption.total)} · −{Math.round(((results.noAboTotal - results.bestOption.total) / results.noAboTotal) * 100)}%
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Slim support strip directly under the savings hero */}
+            {results.noAboTotal - results.bestOption.total > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
+                <span className="text-xs sm:text-sm text-slate-700 text-center sm:text-left">{t('supportStrip')}</span>
+                <a
+                  href={creatorLinks.kofi}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs sm:text-sm rounded-full whitespace-nowrap transition-colors"
+                  data-umami-event="support-click"
+                  data-umami-event-platform="kofi"
+                  data-umami-event-placement="hero"
+                >
+                  <Coffee className="w-4 h-4" />
+                  <span>{t('buyMeACoffee')}</span>
+                </a>
+              </div>
+            )}
+
             {/* Alle Optionen anzeigen */}
             <div className="space-y-3 sm:space-y-4">
               {results.options.map((option, index) => {
@@ -1881,34 +1919,47 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 const cardId = `option-${index}`;
                 const isExpanded = expandedCards.has(cardId);
                 
+                const maxTotal = Math.max(...results.options.map((o: any) => o.total), 1);
+                const barWidth = Math.max(3, (option.total / maxTotal) * 100);
+
                 return (
                   <div 
                     key={index}
-                    className={`rounded-lg border-2 ${getOptionColor(option, results.bestOption.total)} transition-all duration-200`}
+                    className={`rounded-xl border transition-all duration-200 ${
+                      isBest ? 'border-emerald-300 bg-emerald-50/60 ring-1 ring-emerald-200' : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
                   >
-                    <div 
-                      className="p-3 sm:p-4 cursor-pointer hover:bg-black/5 transition-colors"
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      className="w-full text-left p-3 sm:p-4 hover:bg-slate-900/[0.03] rounded-xl transition-colors"
                       onClick={() => toggleCardExpansion(cardId)}
                     >
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <h3 className="font-semibold flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
-                            <span className="truncate">{option.name}</span>
-                            {isBest && <span className="text-xs bg-green-600 text-white px-2 py-1 rounded whitespace-nowrap">{t('bestOption')}</span>}
+                          <h3 className="font-semibold text-slate-900 text-sm sm:text-base flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span>{option.name}</span>
+                            {isBest && <span className="text-[11px] uppercase tracking-wide bg-emerald-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">{t('bestOption')}</span>}
                           </h3>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
-                          <div className="text-base sm:text-lg font-bold">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                          <div className="text-base sm:text-lg font-bold text-slate-900 tabular">
                             {formatCurrency(option.total)}
                           </div>
                           {isExpanded ? (
-                            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" aria-hidden="true" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" aria-hidden="true" />
                           )}
                         </div>
                       </div>
-                    </div>
+                      <div className="mt-2.5 h-1.5 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${getOptionBarColor(option.total, results.bestOption.total)}`}
+                          style={{ width: `${barWidth}%` }}
+                        ></div>
+                      </div>
+                    </button>
 
                     {isExpanded && (
                       <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-gray-200/50">
@@ -2080,8 +2131,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               {results.streckenabos.filter(s => s.isInValidRange).length > 0 && results.streckenabos.filter(s => s.isInValidRange).map((streckenabo, index) => {
                 const routeIndex = routes.findIndex(r => r.id === streckenabo.route.id) + 1;
                 const statusInfo = streckenabo.isWorthwhile
-                  ? { badge: t('worthwhile'), badgeColor: 'bg-green-100 text-green-700', cardColor: 'border-purple-200 bg-purple-50' }
-                  : { badge: t('notWorthwhile'), badgeColor: 'bg-orange-100 text-orange-700', cardColor: 'border-purple-200 bg-purple-50' };
+                  ? { badge: t('worthwhile'), badgeColor: 'bg-green-100 text-green-700', cardColor: 'border-slate-200 bg-white' }
+                  : { badge: t('notWorthwhile'), badgeColor: 'bg-orange-100 text-orange-700', cardColor: 'border-slate-200 bg-white' };
                 
                 const cardId = `streckenabo-${index}`;
                 const isExpanded = expandedCards.has(cardId);
@@ -2089,7 +2140,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 return (
                   <div 
                     key={`streckenabo-${index}`}
-                    className={`rounded-lg border-2 ${statusInfo.cardColor} transition-all duration-200`}
+                    className={`rounded-xl border ${statusInfo.cardColor} transition-all duration-200`}
                   >
                     <div 
                       className="p-3 sm:p-4 cursor-pointer hover:bg-black/5 transition-colors"
@@ -2160,7 +2211,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
             {/* Halbtax Plus Erklärung wenn relevant */}
             {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
-              <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 shadow-sm">
+              <div className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="flex items-start gap-2 sm:gap-3">
                   <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
                     🔄
@@ -2179,7 +2230,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
             )}
 
             {/* Zusätzliche Insights - Collapsible */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-200 shadow-sm">
+            <div className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200">
               <button 
                 onClick={() => setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded)}
                 className="w-full flex items-center justify-between gap-2 mb-3 sm:mb-4 hover:bg-blue-100/50 -m-2 p-2 rounded-lg transition-colors"
@@ -2538,9 +2589,59 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   <span>{t('exportPdf')}</span>
                 </button>
               </div>
+
+              {/* Support card, shown at the moment the user sees their savings */}
+              {results.noAboTotal - results.bestOption.total > 0 && (
+                <div className="mt-6 p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-orange-200 text-center">
+                  <div className="font-semibold text-gray-800 text-sm sm:text-base mb-1">{t('supportTitle')}</div>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                    {t('supportBody', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a
+                      href={creatorLinks.kofi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                      data-umami-event="support-click"
+                      data-umami-event-platform="kofi"
+                      data-umami-event-placement="results"
+                    >
+                      <Coffee className="w-4 h-4" />
+                      <span>{t('buyMeACoffee')}</span>
+                    </a>
+                    <a
+                      href={creatorLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-blue-700 hover:bg-blue-50 font-semibold text-sm rounded-full border border-blue-200 transition-all duration-200"
+                      data-umami-event="linkedin-click"
+                      data-umami-event-placement="results"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                      <span>{t('supportLinkedin')}</span>
+                    </a>
+                    {creatorLinks.website && (
+                      <a
+                        href={creatorLinks.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 hover:bg-gray-50 font-semibold text-sm rounded-full border border-gray-200 transition-all duration-200"
+                        data-umami-event="website-click"
+                        data-umami-event-placement="results"
+                      >
+                        <Globe className="w-4 h-4" />
+                        <span>{t('supportWebsite')}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
+
+        <Faq language={language} />
 
         {/* Footer with disclaimer */}
         <div className="mt-8 mb-4 px-4 py-6 bg-gray-50 rounded-lg border border-gray-200">
@@ -2617,14 +2718,14 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         </div>
 
         {/* Separate Creator/Support Section */}
-        <div className="mt-6 px-4 py-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 shadow-lg">
+        <div className="mt-6 px-4 py-6 sm:py-8 bg-white rounded-2xl border border-slate-200 shadow-sm">
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               <div className="text-gray-700 font-medium text-sm sm:text-base">
                 {t('createdBy')} Sirin Dudler
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <a
                   href="https://www.linkedin.com/in/sirindudler/"
                   target="_blank"
@@ -2648,17 +2749,19 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 >
                   <Github className="w-5 h-5 text-gray-700 hover:text-gray-900" />
                 </a>
-                
-                <RouterLink
-                  to="/info"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
-                  title="Info about Travelcards.ch"
-                  data-umami-event="info-click"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Info</span>
-                </RouterLink>
 
+                <a
+                  href={creatorLinks.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-110 border border-gray-200 hover:border-gray-300"
+                  title={t('supportWebsite')}
+                  data-umami-event="website-click"
+                  data-umami-event-placement="footer"
+                >
+                  <Globe className="w-5 h-5 text-gray-700 hover:text-gray-900" />
+                </a>
+                
                 <a
                   href="https://ko-fi.com/E1E81JHNXY"
                   target="_blank"
@@ -2679,6 +2782,32 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
       </div>
       </div>
+
+      {/* Mobile: live summary that follows the user while they edit inputs */}
+      {results && !resultsInView && (
+        <div
+          data-html2canvas-ignore="true"
+          className="sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none"
+        >
+          <button
+            type="button"
+            onClick={scrollToResults}
+            className="pointer-events-auto w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/30 active:scale-[0.99] transition-transform"
+          >
+            <span className="min-w-0 text-left">
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-300">
+                <Star className="w-3 h-3 fill-current" aria-hidden="true" />
+                {t('bestOption')}
+              </span>
+              <span className="block text-sm font-semibold truncate">{results.bestOption.name}</span>
+            </span>
+            <span className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-lg font-extrabold tabular">{formatCurrency(results.bestOption.total)}</span>
+              <ChevronDown className="w-5 h-5 text-white/70" aria-hidden="true" />
+            </span>
+          </button>
+        </div>
+      )}
     </>
   );
 };

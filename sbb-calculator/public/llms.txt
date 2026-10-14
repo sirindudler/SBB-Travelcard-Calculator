@@ -5,7 +5,10 @@ Travelcards.ch is a Swiss railway subscription calculator that helps users compa
 
 ## Pages
 - / : Main calculator for comparing Swiss railway subscriptions
-- /info : Information about the calculator and how it works
+- /de/, /fr/, /it/ : Same calculator, localized (German, French, Italian)
+
+## FAQ
+The main page ends with a FAQ (GA vs Halbtax break-even, the SBB price change on 13 December 2026, Halbtax Plus, what the calculator does not cover).
 
 ## Features
 - Compare GA (General Abonnement), Halbtax, and Halbtax Plus subscriptions

@@ -933,14 +933,14 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
       <header className="bg-sbb-red text-white">
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white text-sbb-red flex items-center justify-center shadow-sm">
+            <div className="shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white text-sbb-red flex items-center justify-center shadow-xs">
               <Train className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
             </div>
             <h1 className="text-base sm:text-2xl font-bold tracking-tight leading-snug">{t('title')}</h1>
           </div>
 
           {/* Language Selector */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Globe className="w-4 h-4 text-white/80 hidden sm:block" aria-hidden="true" />
             <select
               value={language}
@@ -962,7 +962,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
       <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 sm:pb-8">
       <div className="space-y-6 sm:space-y-8 pb-8">
         {/* Passenger Category and Travel Class */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
@@ -1043,7 +1043,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         id="existing-halbtax"
                         checked={hasExistingHalbtax}
                         onChange={(e) => setHasExistingHalbtax(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded-sm focus:ring-sbb-red transition-all"
                         disabled={getFreeHalbtax}
                       />
                       <label htmlFor="existing-halbtax" className={`text-xs sm:text-sm font-medium cursor-pointer flex-1 ${
@@ -1070,7 +1070,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                             setHasExistingHalbtax(false);
                           }
                         }}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded-sm focus:ring-sbb-red transition-all"
                       />
                       <label htmlFor="free-halbtax" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
@@ -1089,7 +1089,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         id="hunde-pass"
                         checked={hasHundePass}
                         onChange={(e) => setHasHundePass(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded-sm focus:ring-sbb-red transition-all"
                       />
                       <label htmlFor="hunde-pass" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
@@ -1107,7 +1107,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         id="velo-pass"
                         checked={hasVeloPass}
                         onChange={(e) => setHasVeloPass(e.target.checked)}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded-sm focus:ring-sbb-red transition-all"
                       />
                       <label htmlFor="velo-pass" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                         <span className="flex items-center gap-2">
@@ -1123,7 +1123,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         </div>
 
         {/* Eingabemodus Toggle */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
             <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
             <label className="text-sm sm:text-base font-semibold text-slate-900">
@@ -1143,11 +1143,11 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 onClick={() => setInputMode(mode)}
                 className={`flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg transition-all min-h-[52px] sm:min-h-[44px] text-xs sm:text-sm font-semibold leading-tight text-center ${
                   inputMode === mode
-                    ? 'bg-white text-sbb-red shadow-sm'
+                    ? 'bg-white text-sbb-red shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
-                <Icon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>{t(label)}</span>
               </button>
             ))}
@@ -1157,19 +1157,19 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
             <div className="space-y-4">
               {/* Dynamische Strecken */}
               {routes.map((route, index) => (
-                <div key={route.id} className={`bg-gradient-to-br ${route.colorScheme.bg} p-4 sm:p-6 rounded-xl border ${route.colorScheme.border} shadow-sm hover:shadow-md transition-shadow`}>
+                <div key={route.id} className={`bg-linear-to-br ${route.colorScheme.bg} p-4 sm:p-6 rounded-xl border ${route.colorScheme.border} shadow-xs hover:shadow-md transition-shadow`}>
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className={`w-7 h-7 sm:w-8 sm:h-8 ${route.colorScheme.buttonBg} text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm`}>
                         {index + 1}
                       </div>
                       <div className={`flex items-center gap-2 flex-1 min-w-0`}>
-                        <MapPin className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} flex-shrink-0`} />
+                        <MapPin className={`w-4 h-4 sm:w-5 sm:h-5 ${route.colorScheme.accent} shrink-0`} />
                         <input
                           type="text"
                           value={route.name}
                           onChange={(e) => updateRoute(route.id, 'name', e.target.value)}
-                          className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} focus:border-solid outline-none font-semibold ${route.colorScheme.text} text-base sm:text-lg placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
+                          className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} focus:border-solid outline-hidden font-semibold ${route.colorScheme.text} text-base sm:text-lg placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
                           placeholder={`${t('route')} ${index + 1}`}
                         />
                       </div>
@@ -1309,7 +1309,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       </label>
                       <div className="relative h-full flex flex-col justify-between">
                         {/* Value Display */}
-                        <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-sm text-sm sm:text-base h-12`}>
+                        <div className={`flex items-center justify-center mb-2 px-3 sm:px-4 py-3 border-2 ${route.colorScheme.border200} rounded-xl bg-white shadow-xs text-sm sm:text-base h-12`}>
                           <span className={`font-bold ${route.colorScheme.text}`}>
                             {route.durationMonths} {t('months')}
                           </span>
@@ -1322,7 +1322,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           max="12"
                           value={route.durationMonths}
                           onChange={(e) => updateRoute(route.id, 'durationMonths', parseInt(e.target.value))}
-                          className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider-${route.colorScheme.buttonBg.split('-')[1]} bg-gradient-to-r ${route.colorScheme.bg.replace('from-', 'from-').replace('to-', 'to-')} focus:outline-none focus:ring-2 ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
+                          className={`w-full h-2 rounded-lg appearance-none cursor-pointer slider-${route.colorScheme.buttonBg.split('-')[1]} bg-linear-to-r ${route.colorScheme.bg.replace('from-', 'from-').replace('to-', 'to-')} focus:outline-hidden focus:ring-2 ${route.colorScheme.focusRing.split(' ')[0]} transition-all`}
                           style={{
                             background: `linear-gradient(to right, rgb(${route.colorScheme.buttonBg.includes('green') ? '34, 197, 94' : 
                               route.colorScheme.buttonBg.includes('blue') ? '59, 130, 246' :
@@ -1397,7 +1397,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           disabled={!route.from?.trim() || !route.to?.trim()}
                           className={`w-full lg:w-auto justify-center px-4 py-3 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all h-[50px] ${
                             route.from?.trim() && route.to?.trim()
-                              ? 'bg-slate-900 text-white hover:bg-slate-700 shadow-sm'
+                              ? 'bg-slate-900 text-white hover:bg-slate-700 shadow-xs'
                               : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                           }`}
                           title={t('checkSBBPricesTooltip')}
@@ -1504,7 +1504,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           value={additionalBudget || ''}
                           onChange={(e) => setAdditionalBudget(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
                           onWheel={(e) => e.currentTarget.blur()}
-                          className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-indigo-400"
+                          className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-xs text-base sm:text-lg font-semibold transition-all hover:border-indigo-400"
                           placeholder="0"
                           min="0"
                         />
@@ -1634,7 +1634,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 <div className="text-xs sm:text-sm text-amber-700">
                   {routes.filter(r => r.isHalbtaxPrice).length > 0 && (
                     <div className="flex items-start gap-1 mt-2 p-2 sm:p-3 bg-orange-100 rounded-lg border border-orange-200">
-                      <span className="flex-shrink-0">⚠️</span>
+                      <span className="shrink-0">⚠️</span>
                       <span className="font-medium text-orange-800 text-xs sm:text-sm">
                         {t('routesWithHalbtax', { 
                           count: routes.filter(r => r.isHalbtaxPrice).length,
@@ -1664,11 +1664,11 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     value={yearlySpendingDirect || ''}
                     onChange={(e) => setYearlySpendingDirect(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
                     onWheel={(e) => e.currentTarget.blur()}
-                    className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-sm text-base sm:text-lg font-semibold transition-all hover:border-orange-400"
+                    className="w-full pl-12 sm:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white shadow-xs text-base sm:text-lg font-semibold transition-all hover:border-orange-400"
                     placeholder={t('placeholderYearly')}
                   />
                 </div>
-                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-orange-300 shadow-sm">
+                <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-orange-300 shadow-xs">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <input
                       type="checkbox"
@@ -1729,7 +1729,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     href="https://www.sbb.ch/de/kaufen/pages/bestellung/bestellungen.xhtml"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-sm font-medium"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-xs hover:shadow-md text-sm font-medium"
                   >
                     <ExternalLink className="w-4 h-4" />
                     <span>{t('pdfSbbLink')}</span>
@@ -1826,7 +1826,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       id="pdf-halbtax"
                       checked={pdfIsHalbtaxPrice}
                       onChange={(e) => setPdfIsHalbtaxPrice(e.target.checked)}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded focus:ring-sbb-red transition-all"
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red border-slate-300 rounded-sm focus:ring-sbb-red transition-all"
                     />
                     <label htmlFor="pdf-halbtax" className="text-xs sm:text-sm font-medium text-slate-800 cursor-pointer flex-1">
                       <span className="flex items-center gap-2">
@@ -1843,8 +1843,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
         {/* Ergebnisse */}
         {results && (
-          <div data-results-section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 space-y-4 sm:space-y-6">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
+          <div data-results-section className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-sbb-red" aria-hidden="true" />
                 <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight">
@@ -1880,9 +1880,9 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     <Star className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
                     {t('bestOption')}
                   </div>
-                  <div className="text-xl sm:text-3xl font-bold leading-tight break-words">{results.bestOption.name}</div>
+                  <div className="text-xl sm:text-3xl font-bold leading-tight wrap-break-word">{results.bestOption.name}</div>
                 </div>
-                <div className="sm:text-right flex-shrink-0">
+                <div className="sm:text-right shrink-0">
                   <div className="text-3xl sm:text-5xl font-extrabold tabular tracking-tight">{formatCurrency(results.bestOption.total)}</div>
                   {results.noAboTotal > results.bestOption.total && (
                     <div className="mt-1 text-sm font-medium text-emerald-300 tabular">
@@ -1932,17 +1932,17 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     <button
                       type="button"
                       aria-expanded={isExpanded}
-                      className="w-full text-left p-3 sm:p-4 hover:bg-slate-900/[0.03] rounded-xl transition-colors"
+                      className="w-full text-left p-3 sm:p-4 hover:bg-slate-900/3 rounded-xl transition-colors"
                       onClick={() => toggleCardExpansion(cardId)}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <h3 className="font-semibold text-slate-900 text-sm sm:text-base flex flex-wrap items-center gap-x-2 gap-y-1">
                             <span>{option.name}</span>
-                            {isBest && <span className="text-[11px] uppercase tracking-wide bg-emerald-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">{t('bestOption')}</span>}
+                            {isBest && <span className="text-[11px] leading-5 sm:leading-6 uppercase tracking-wide bg-emerald-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">{t('bestOption')}</span>}
                           </h3>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                           <div className="text-base sm:text-lg font-bold text-slate-900 tabular">
                             {formatCurrency(option.total)}
                           </div>
@@ -1971,7 +1971,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                                 href={getPurchaseLink(option.type)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
+                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-xs hover:shadow-md text-xs sm:text-sm font-medium"
                               >
                                 <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                 <span>{t('purchaseSubscription')}</span>
@@ -2169,7 +2169,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         </div>
                       </div>
                       
-                      <div className={`text-xs mt-2 sm:mt-3 px-2 py-1 rounded ${statusInfo.badgeColor} inline-block`}>
+                      <div className={`text-xs mt-2 sm:mt-3 px-2 py-1 rounded-sm ${statusInfo.badgeColor} inline-block`}>
                         {statusInfo.badge}
                       </div>
                     </div>
@@ -2184,7 +2184,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                                 href={purchaseLinks.streckenabo}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md text-xs sm:text-sm font-medium"
+                                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-xs hover:shadow-md text-xs sm:text-sm font-medium"
                               >
                                 <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                 <span>{t('purchaseRoutePass')}</span>
@@ -2213,7 +2213,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
             {results.halbtaxPlusOptions.some(opt => opt.reloadCount > 0) && (
               <div className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="flex items-start gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0 mt-0.5">
+                  <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg shrink-0 mt-0.5">
                     🔄
                   </div>
                   <div className="flex-1 min-w-0">
@@ -2221,7 +2221,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       <span>{t('halbtaxPlusInfo')}</span>
                       <div className="px-2 py-0.5 bg-orange-200 rounded-full text-xs text-orange-800 whitespace-nowrap">{t('autoReload')}</div>
                     </div>
-                    <div className="text-xs sm:text-sm text-orange-800 leading-relaxed">
+                    <div className="text-xs sm:text-sm text-orange-800 leading-relaxed sm:leading-5">
                       {t('halbtaxPlusExplanation')}
                     </div>
                   </div>
@@ -2250,7 +2250,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               
               {isAdditionalInfoExpanded && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                <div className="bg-white/70 backdrop-blur-xs p-3 sm:p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('breakEvenPoints')}</div>
@@ -2264,7 +2264,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
-                          className="bg-gradient-to-r from-blue-500 to-green-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+                          className="bg-linear-to-r from-blue-500 to-green-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(100, (results.noAboTotal / (getHalbtaxPrice(age, !hasExistingHalbtax) * 2)) * 100)}%`
                           }}
@@ -2283,7 +2283,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                         <div 
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+                          className="bg-linear-to-r from-purple-500 to-pink-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(100, (results.noAboTotal / results.gaTotal) * 100)}%`
                           }}
@@ -2297,7 +2297,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                 </div>
                 
                 {/* Actual Break-even Calculation */}
-                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                <div className="bg-white/70 backdrop-blur-xs p-3 sm:p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                     <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('actualBreakEvenPoints')}</div>
@@ -2430,7 +2430,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                         <div className="space-y-4">
                           {/* Actual Halbtax Break-even */}
                           {actualHalbtaxBreakeven && (
-                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 sm:p-4 rounded-xl border border-blue-200">
+                            <div className="bg-linear-to-r from-blue-50 to-cyan-50 p-3 sm:p-4 rounded-xl border border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                                 <div className="font-semibold text-blue-900 text-sm">{t('actualHalbtaxBreakEven')}</div>
@@ -2451,7 +2451,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           
                           {/* Actual GA Break-even */}
                           {actualGABreakeven && (
-                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 sm:p-4 rounded-xl border border-purple-200 relative overflow-hidden">
+                            <div className="bg-linear-to-r from-purple-50 to-pink-50 p-3 sm:p-4 rounded-xl border border-purple-200 relative overflow-hidden">
                               {/* Animated background pattern */}
                               <div className="absolute inset-0 opacity-10">
                                 <div className="absolute top-2 left-2 w-4 h-4 bg-purple-400 rounded-full animate-bounce"></div>
@@ -2461,17 +2461,17 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                               
                               <div className="relative z-10">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                  <div className="w-3 h-3 bg-linear-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
                                   <div className="font-semibold text-purple-900 text-sm">{t('actualGABreakEven')}</div>
                                   <div className="ml-auto">
-                                    <div className="px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full text-xs font-medium text-purple-700 border border-purple-200">
+                                    <div className="px-2 py-1 bg-linear-to-r from-purple-100 to-pink-100 rounded-full text-xs font-medium text-purple-700 border border-purple-200">
                                       🚄 {t('unlimitedTravelBadge')}
                                     </div>
                                   </div>
                                 </div>
                                 
                                 <div className="flex items-center justify-between mb-3">
-                                  <div className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                                  <div className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
                                     {formatCurrency(actualGABreakeven)}
                                   </div>
                                   <div className="text-xs sm:text-sm text-purple-600 font-medium">
@@ -2487,7 +2487,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                                   </div>
                                   <div className="w-full bg-purple-100 rounded-full h-2">
                                     <div 
-                                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-1000"
+                                      className="bg-linear-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-1000"
                                       style={{
                                         width: `${Math.min(100, (results.noAboTotal / actualGABreakeven) * 100)}%`
                                       }}
@@ -2506,7 +2506,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                           )}
                           
                           {!actualHalbtaxBreakeven && !actualGABreakeven && (
-                            <div className="text-center p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200">
+                            <div className="text-center p-6 bg-linear-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200">
                               <div className="text-4xl mb-2">🤔</div>
                               <div className="text-gray-500 text-xs sm:text-sm italic">
                                 No clear breakeven points found in typical range
@@ -2522,7 +2522,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   </div>
                 </div>
 
-                <div className="bg-white/70 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-blue-100">
+                <div className="bg-white/70 backdrop-blur-xs p-3 sm:p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     <div className="font-semibold text-gray-800 text-sm sm:text-base">{t('yourCosts')}</div>
@@ -2542,15 +2542,15 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       {/* Visual Savings Bar */}
                       <div className="space-y-2">
                         <div className="w-full bg-red-100 rounded-lg h-5 sm:h-6 relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-red-300 rounded-lg"></div>
+                          <div className="absolute inset-0 bg-linear-to-r from-red-200 to-red-300 rounded-lg"></div>
                           <div 
-                            className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-lg transition-all duration-700"
+                            className="absolute left-0 top-0 h-full bg-linear-to-r from-emerald-400 to-emerald-500 rounded-lg transition-all duration-700"
                             style={{
                               width: `${(results.bestOption.total / results.noAboTotal) * 100}%`
                             }}
                           ></div>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-semibold text-white drop-shadow-sm">
+                            <span className="text-xs font-semibold text-white drop-shadow-xs">
                               {t('percentageSaved', { percent: Math.round((1 - results.bestOption.total / results.noAboTotal) * 100) })}
                             </span>
                           </div>
@@ -2565,7 +2565,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                     {/* Summary Badge */}
                     <div className="text-center">
                       <div className="space-y-2">
-                        <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-sm text-xs sm:text-sm">
+                        <div className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-linear-to-r from-emerald-500 to-green-500 text-white rounded-full shadow-xs text-xs sm:text-sm">
                           <span>💰</span>
                           <span className="font-semibold truncate">{t('saveAnnually', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}</span>
                         </div>
@@ -2580,10 +2580,10 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               )}
 
               {/* PDF Export Button */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <div className="mt-6 p-4 bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                 <button
                   onClick={exportToPDF}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold"
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-linear-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold"
                 >
                   <Download className="w-5 h-5" />
                   <span>{t('exportPdf')}</span>
@@ -2592,7 +2592,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
               {/* Support card, shown at the moment the user sees their savings */}
               {results.noAboTotal - results.bestOption.total > 0 && (
-                <div className="mt-6 p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-orange-200 text-center">
+                <div className="mt-6 p-4 sm:p-5 bg-linear-to-r from-amber-50 to-orange-50 rounded-lg border border-orange-200 text-center">
                   <div className="font-semibold text-gray-800 text-sm sm:text-base mb-1">{t('supportTitle')}</div>
                   <p className="text-xs sm:text-sm text-gray-600 mb-4">
                     {t('supportBody', { amount: formatCurrency(results.noAboTotal - results.bestOption.total) })}
@@ -2602,7 +2602,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                       href={creatorLinks.kofi}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
                       data-umami-event="support-click"
                       data-umami-event-platform="kofi"
                       data-umami-event-placement="results"
@@ -2644,8 +2644,8 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         <Faq language={language} />
 
         {/* Footer with disclaimer */}
-        <div className="mt-8 mb-4 px-4 py-6 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="max-w-4xl mx-auto text-xs sm:text-sm text-gray-600 leading-relaxed">
+        <div className="px-4 py-6 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="max-w-4xl mx-auto text-xs sm:text-sm text-gray-600 leading-relaxed sm:leading-5">
             <div className="whitespace-pre-line text-left">
               {t('disclaimer').split('\n').map((line, index) => {
                 // Handle full-line bold headings (start and end with **)
@@ -2718,7 +2718,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
         </div>
 
         {/* Separate Creator/Support Section */}
-        <div className="mt-6 px-4 py-6 sm:py-8 bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div className="px-4 py-6 sm:py-8 bg-white rounded-2xl border border-slate-200 shadow-xs">
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               <div className="text-gray-700 font-medium text-sm sm:text-base">
@@ -2766,7 +2766,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   href="https://ko-fi.com/E1E81JHNXY"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
                   title={t('buyMeACoffee')}
                   data-umami-event="support-click"
                   data-umami-event-platform="kofi"
@@ -2801,7 +2801,7 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
               </span>
               <span className="block text-sm font-semibold truncate">{results.bestOption.name}</span>
             </span>
-            <span className="flex items-center gap-2 flex-shrink-0">
+            <span className="flex items-center gap-2 shrink-0">
               <span className="text-lg font-extrabold tabular">{formatCurrency(results.bestOption.total)}</span>
               <ChevronDown className="w-5 h-5 text-white/70" aria-hidden="true" />
             </span>

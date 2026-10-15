@@ -83,7 +83,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
   };
 
   return (
-    <div className={`relative p-6 rounded-xl bg-gradient-to-br ${route.colorScheme.bg} ${route.colorScheme.border} border-2 shadow-sm`}>
+    <div className={`relative p-6 rounded-xl bg-linear-to-br ${route.colorScheme.bg} ${route.colorScheme.border} border-2 shadow-xs`}>
       {showRemoveButton && (
         <button
           onClick={() => onRemoveRoute(route.id)}
@@ -101,7 +101,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
             type="text"
             value={route.name}
             onChange={(e) => handleNameChange(e.target.value)}
-            className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} hover:${route.colorScheme.border300} focus:border-solid focus:${route.colorScheme.focusRing} outline-none font-semibold text-lg ${route.colorScheme.text} placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
+            className={`bg-transparent border-b-2 border-dashed ${route.colorScheme.border200} hover:${route.colorScheme.border300} focus:border-solid focus:${route.colorScheme.focusRing} outline-hidden font-semibold text-lg ${route.colorScheme.text} placeholder-gray-400 min-w-0 flex-1 px-1 transition-all`}
             placeholder={`${t('route')} ${routeIndex + 1}`}
           />
         </div>
@@ -116,7 +116,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
               type="text"
               value={route.from}
               onChange={(e) => handleFromChange(e.target.value)}
-              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent`}
               placeholder="e.g. Zürich HB"
             />
           </div>
@@ -130,7 +130,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
               type="text"
               value={route.to}
               onChange={(e) => handleToChange(e.target.value)}
-              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent`}
               placeholder="e.g. Bern"
             />
           </div>
@@ -160,7 +160,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
               min="0"
               value={route.trips}
               onChange={(e) => handleTripsChange(e.target.value)}
-              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent`}
               placeholder="0"
             />
           </div>
@@ -176,7 +176,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
                 step="0.10"
                 value={route.cost}
                 onChange={(e) => handleCostChange(e.target.value)}
-                className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent pr-20`}
+                className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent pr-20`}
                 placeholder="0.00"
               />
               <div className="absolute right-0 top-0 w-1/4 h-full">
@@ -223,7 +223,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
             <select
               value={route.frequencyType}
               onChange={(e) => onUpdateRoute(route.id, { frequencyType: e.target.value as 'weekly' | 'monthly' })}
-              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent`}
             >
               <option value="weekly">{t('weekly')}</option>
               <option value="monthly">{t('monthly')}</option>
@@ -242,7 +242,7 @@ export const RouteInput: React.FC<RouteInputProps> = ({
                 max="12"
                 value={route.durationMonths}
                 onChange={(e) => onUpdateRoute(route.id, { durationMonths: Math.max(1, Math.min(12, parseInt(e.target.value) || 1)) })}
-                className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-none focus:ring-2 focus:border-transparent pr-20`}
+                className={`w-full px-3 py-2 border ${route.colorScheme.border200} rounded-lg ${route.colorScheme.focusRing} focus:outline-hidden focus:ring-2 focus:border-transparent pr-20`}
               />
               <span className={`absolute right-3 top-2 ${route.colorScheme.accent} text-sm`}>
                 {t('months')}

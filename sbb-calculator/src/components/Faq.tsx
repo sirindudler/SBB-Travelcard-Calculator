@@ -40,7 +40,7 @@ export const Faq: React.FC<FaqProps> = ({ language }) => {
   const fill = (text: string): string => text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? `{${key}}`);
 
   return (
-    <section aria-labelledby="faq-heading" className="mt-8 mb-4 px-4 py-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+    <section aria-labelledby="faq-heading" className="px-4 py-6 bg-white rounded-2xl border border-slate-200 shadow-xs">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="w-5 h-5 text-sbb-red" aria-hidden="true" />
@@ -55,7 +55,7 @@ export const Faq: React.FC<FaqProps> = ({ language }) => {
                 data-umami-event-question={index + 1}
               >
                 <span>{item.q}</span>
-                <ChevronDown className="w-4 h-4 flex-shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden="true" />
+                <ChevronDown className="w-4 h-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden="true" />
               </summary>
               <p className="pb-3 pr-6 text-sm text-slate-600 leading-relaxed">{fill(item.a)}</p>
             </details>

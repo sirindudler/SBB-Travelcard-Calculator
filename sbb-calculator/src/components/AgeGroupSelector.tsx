@@ -31,7 +31,7 @@ export const AgeGroupSelector: React.FC<AgeGroupSelectorProps> = ({
       <select
         value={selectedAge}
         onChange={(e) => onAgeChange(e.target.value as AgeGroup)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-hidden"
       >
         {ageGroups.map((group) => (
           <option key={group.value} value={group.value}>

@@ -6,6 +6,7 @@ Travelcards.ch is a Swiss railway subscription calculator that helps users compa
 ## Pages
 - / : Main calculator for comparing Swiss railway subscriptions
 - /de/, /fr/, /it/ : Same calculator, localized (German, French, Italian)
+- /visitors/ : Guide for tourists visiting Switzerland: Swiss Travel Pass, Swiss Half Fare Card, Saver Day Pass, Interrail/Eurail, with a pass finder and travel tips (English, German, French, Italian)
 
 ## FAQ
 The main page ends with a FAQ (GA vs Halbtax break-even, the SBB price change on 13 December 2026, Halbtax Plus, what the calculator does not cover).

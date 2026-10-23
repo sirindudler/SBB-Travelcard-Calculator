@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee } from 'lucide-react';
+import { Link as RouterLink } from 'react-router-dom';
+import { Calculator, Train, CreditCard, ToggleLeft, ToggleRight, Plus, Trash2, Globe, User, MapPin, Clock, Banknote, ExternalLink, ChevronDown, ChevronUp, Star, Linkedin, Github, Link, FileText, Upload, Download, Search, Coffee, Mountain, ArrowRight } from 'lucide-react';
 import { Language, useTranslation } from './translations';
 import { getPricing, AgeGroup as PricingAgeGroup, PriceStructure, getHalbtaxPrice, getGAPrice, getMonthlyGAPrice, getHalbtaxPlusOptions, getGANightPrice, isGANightEligible } from './pricing';
 import { PurchaseLinks, getStoredLinks, creatorLinks } from './links';
@@ -52,6 +53,12 @@ interface CalculationResults {
 // Remove duplicate interfaces - now imported from pricing.ts
 
 interface SBBCalculatorProps {}
+
+// Track router link clicks in code: Umami's data-umami-event attribute on links
+// cancels the click and reloads the page, which drops client-side state
+const trackEvent = (event: string) => {
+  (window as any).umami?.track(event);
+};
 
 const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
   // Use imported color schemes (refactored)
@@ -961,6 +968,29 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
 
       <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 sm:pb-8">
       <div className="space-y-6 sm:space-y-8 pb-8">
+        {/* Visitor guide banner */}
+        <RouterLink
+          to="/visitors"
+          state={{ language }}
+          onClick={() => trackEvent('visitor-banner-click')}
+          className="group flex items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-linear-to-r from-sky-800 to-sky-600 text-white shadow-xs hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+              <Mountain className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold">{t('visitorBannerTitle')}</div>
+              <div className="text-sm text-sky-100">{t('visitorBannerText')}</div>
+            </div>
+          </div>
+          <span className="hidden sm:inline-flex shrink-0 items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-sky-800 text-sm font-semibold">
+            {t('visitorBannerButton')}
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </span>
+          <ArrowRight className="sm:hidden shrink-0 w-5 h-5" aria-hidden="true" />
+        </RouterLink>
+
         {/* Passenger Category and Travel Class */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
@@ -2762,6 +2792,17 @@ const SBBCalculator: React.FC<SBBCalculatorProps> = () => {
                   <Globe className="w-5 h-5 text-gray-700 hover:text-gray-900" />
                 </a>
                 
+                <RouterLink
+                  to="/visitors"
+                  state={{ language }}
+                  onClick={() => trackEvent('visitor-footer-click')}
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-linear-to-r from-sky-700 to-sky-500 hover:from-sky-800 hover:to-sky-600 text-white font-semibold text-sm rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white"
+                  title={t('visitorBannerTitle')}
+                >
+                  <Mountain className="w-4 h-4" aria-hidden="true" />
+                  <span>{t('visitorBannerButton')}</span>
+                </RouterLink>
+
                 <a
                   href="https://ko-fi.com/E1E81JHNXY"
                   target="_blank"

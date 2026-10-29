@@ -10,7 +10,7 @@ export interface Translations {
 
 export const translations: Translations = {
   en: {
-    title: "Swiss Subscription Comparison Calculator",
+    title: "Find your travelcard",
     ageGroup: "Passenger Category",
     child: "Child (6-16 years)",
     youth: "Youth (16-25 years)",
@@ -196,7 +196,7 @@ export const translations: Translations = {
     supportWebsite: "My website"
   },
   de: {
-    title: "Schweizer Abo-Vergleichsrechner",
+    title: "Finde dein Abo",
     ageGroup: "Fahrgastkategorie",
     child: "Kind (6-16 Jahre)",
     youth: "Jugend (16-25 Jahre)",
@@ -382,7 +382,7 @@ export const translations: Translations = {
     supportWebsite: "Meine Website"
   },
   fr: {
-    title: "Calculateur de comparaison d'abonnements suisses",
+    title: "Trouvez votre abonnement",
     ageGroup: "Catégorie de voyageur",
     child: "Enfant (6-16 ans)",
     youth: "Jeunes (16-25 ans)",
@@ -555,7 +555,7 @@ export const translations: Translations = {
     supportWebsite: "Mon site web"
   },
   it: {
-    title: "Calcolatore di confronto abbonamenti svizzeri",
+    title: "Trova il tuo abbonamento",
     ageGroup: "Categoria passeggero",
     child: "Bambini (6-16 anni)",
     youth: "Giovani (16-25 anni)",
@@ -728,7 +728,7 @@ export const translations: Translations = {
     supportWebsite: "Il mio sito"
   },
   rm: {
-    title: "Calculatur da cumparaziun d'abonnamaints viafier",
+    title: "Chattai voss abonnament",
     ageGroup: "Categoria da viaders",
     child: "Uffants (6-16 onns)",
     youth: "Giuvens (16-25 onns)",

@@ -17,28 +17,31 @@ const pages = {
   de: {
     htmlLang: 'de',
     locale: 'de_CH',
-    title: 'GA oder Halbtax? Abo-Rechner Schweiz | Travelcards.ch',
+    title: 'Travelcards.ch',
+    socialTitle: 'GA oder Halbtax? Abo-Rechner Schweiz | Travelcards.ch',
     description:
       'Kostenloser Abo-Rechner: Vergleiche GA, Halbtax und Halbtax Plus mit deinen Strecken und sieh sofort, was sich lohnt. Ohne Anmeldung, ohne Werbung.',
-    h1: 'Schweizer Abo-Vergleichsrechner',
+    h1: 'Finde dein Abo',
     body: 'Vergleiche GA, Halbtax, Halbtax Plus und kein Abo anhand deiner eigenen Fahrten und finde heraus, welches öV-Abo in der Schweiz für dich am günstigsten ist. Kostenlos, ohne Werbung, ohne Anmeldung.',
   },
   fr: {
     htmlLang: 'fr',
     locale: 'fr_CH',
-    title: "AG ou demi-tarif ? Calculateur d'abonnements | Travelcards.ch",
+    title: 'Travelcards.ch',
+    socialTitle: "AG ou demi-tarif ? Calculateur d'abonnements | Travelcards.ch",
     description:
       'Calculateur gratuit : comparez AG, demi-tarif et demi-tarif Plus selon vos trajets et voyez ce qui vous convient. Sans inscription, sans publicité.',
-    h1: "Calculateur de comparaison d'abonnements suisses",
+    h1: 'Trouvez votre abonnement',
     body: "Comparez l'AG, le demi-tarif, le demi-tarif Plus et l'absence d'abonnement selon vos propres trajets et découvrez l'abonnement le plus avantageux pour vous. Gratuit, sans publicité, sans inscription.",
   },
   it: {
     htmlLang: 'it',
     locale: 'it_CH',
-    title: 'AG o metà-prezzo? Calcolatore abbonamenti | Travelcards.ch',
+    title: 'Travelcards.ch',
+    socialTitle: 'AG o metà-prezzo? Calcolatore abbonamenti | Travelcards.ch',
     description:
       'Calcolatore gratuito: confronta AG, metà-prezzo e metà-prezzo Plus in base ai tuoi viaggi e scopri cosa conviene. Senza registrazione, senza pubblicità.',
-    h1: 'Calcolatore di confronto abbonamenti svizzeri',
+    h1: 'Trova il tuo abbonamento',
     body: "Confronta AG, metà-prezzo, metà-prezzo Plus e nessun abbonamento in base ai tuoi viaggi e scopri quale abbonamento conviene di più. Gratuito, senza pubblicità, senza registrazione.",
   },
 };
@@ -80,11 +83,11 @@ const render = (page, path) => {
   html = replaceOnce(html, /<html lang="[^"]*">/, `<html lang="${page.htmlLang}">`);
   html = replaceOnce(html, /<title>[\s\S]*?<\/title>/, `<title>${escapeText(page.title)}</title>`);
   html = setValue(html, /(<meta\s+name="description"\s+content=")[^"]*(")/, escapeAttr(page.description));
-  html = setValue(html, /(<meta property="og:title" content=")[^"]*(")/, escapeAttr(page.title));
+  html = setValue(html, /(<meta property="og:title" content=")[^"]*(")/, escapeAttr(page.socialTitle ?? page.title));
   html = setValue(html, /(<meta property="og:description" content=")[^"]*(")/, escapeAttr(page.description));
   html = setValue(html, /(<meta property="og:url" content=")[^"]*(")/, url);
   html = setValue(html, /(<meta property="og:locale" content=")[^"]*(")/, page.locale);
-  html = setValue(html, /(<meta name="twitter:title" content=")[^"]*(")/, escapeAttr(page.title));
+  html = setValue(html, /(<meta name="twitter:title" content=")[^"]*(")/, escapeAttr(page.socialTitle ?? page.title));
   html = setValue(html, /(<meta name="twitter:description" content=")[^"]*(")/, escapeAttr(page.description));
   html = setValue(html, /(<link rel="canonical" href=")[^"]*(")/, url);
 
